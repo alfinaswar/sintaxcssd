@@ -226,17 +226,6 @@
                                                 class="fa fa-tools"></i></span><span
                                             class="kt-menu__link-text">Maintanance</span></a></li>
                             @endcan
-                            {{-- @can('maintenance')
-
-                            <li class="kt-menu__item @if (request()->is('maintanance'))
-                                {{ 'kt-menu__item--active' }}
-                            @elseif (request()->is('maintanance/*'))
-                            {{ 'kt-menu__item--active' }}
-                            @endif" aria-haspopup="true"><a href="{{ route('kso.index') }}"
-                                    class="kt-menu__link "><span class="kt-menu__link-icon"><i
-                                            class="fa fa-handshake"></i></span><span class="kt-menu__link-text">Kerja
-                                        Sama Operasional</span></a></li>
-                            @endcan --}}
 
                             @can('laporan')
                                 <li class="kt-menu__item  kt-menu__item--submenu @if (request()->segment(1) == 'laporan')
@@ -258,19 +247,6 @@
                                                     href="{{ route('pembelian.index') }}" class="kt-menu__link "><i
                                                         class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
                                                         class="kt-menu__link-text">Laporan Pembelian</span></a></li>
-
-                                            {{-- <li class="kt-menu__item  @if (request()->segment(2) == 'mutasi')
-                                                            {{ 'kt-menu__item--active' }}
-                                                        @endif" aria-haspopup="true"><a href="{{ route('mutasi.index') }}"
-                                                    class="kt-menu__link "><i
-                                                        class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
-                                                        class="kt-menu__link-text">Laporan Mutasi</span></a></li> --}}
-                                            {{-- <li class="kt-menu__item  @if (request()->segment(2) == 'pemakaian')
-                                                            {{ 'kt-menu__item--active' }}
-                                                        @endif" aria-haspopup="true"><a
-                                                    href="{{ route('pemakaian.index') }}" class="kt-menu__link "><i
-                                                        class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
-                                                        class="kt-menu__link-text">Laporan Pemakaian</span></a></li> --}}
                                             <li class="kt-menu__item  @if (request()->segment(2) == 'maintenance')
                                                 {{ 'kt-menu__item--active' }}
                                             @endif" aria-haspopup="true"><a
@@ -293,12 +269,7 @@
                                                         class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
                                                         class="kt-menu__link-text">Laporan Inventaris Ruangan</span></a>
                                             </li>
-                                            {{-- <li class="kt-menu__item  @if (request()->segment(2) == 'kso')
-                                                            {{ 'kt-menu__item--active' }}
-                                                        @endif" aria-haspopup="true"><a
-                                                    href="{{ route('laporan.kso.index') }}" class="kt-menu__link "><i
-                                                        class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
-                                                        class="kt-menu__link-text">Laporan KSO</span></a></li> --}}
+
                                         </ul>
                                     </div>
                                 </li>
@@ -341,46 +312,75 @@
                                     </div>
                                 </li>
                             @endcan
+@can('cssd-data-master')
+    <li class="kt-menu__item  kt-menu__item--submenu @if (request()->segment(1) == 'cssd-data-master')
+        {{ 'kt-menu__item--open kt-menu__item--here' }}
+    @endif  " aria-haspopup="true" data-ktmenu-submenu-toggle="hover"><a
+            href="javascript:;" class="kt-menu__link kt-menu__toggle"><span class="kt-menu__link-icon"><i
+                    class="fa fa-database"></i></span><span class="kt-menu__link-text">Data Master</span><i
+                class="kt-menu__ver-arrow la la-angle-right"></i></a>
+        <div class="kt-menu__submenu "><span class="kt-menu__arrow"></span>
+            <ul class="kt-menu__subnav">
 
+                <li class="kt-menu__item  kt-menu__item--parent" aria-haspopup="true"><span class="kt-menu__link"><span
+                            class="kt-menu__link-text">Data
+                            Master</span></span></li>
+                <li class="kt-menu__item  @if (request()->segment(2) == 'master-departemen')
+                    {{ 'kt-menu__item--active' }}
+                @endif" aria-haspopup="true"><a
+                        href="{{ route('master-departemen.index') }}" class="kt-menu__link "><i
+                            class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+                            class="kt-menu__link-text">Master Departemen</span></a></li>
+                <li class="kt-menu__item  @if (request()->segment(2) == 'master-merk')
+                    {{ 'kt-menu__item--active' }}
+                @endif" aria-haspopup="true"><a href="{{ route('master-merk.index') }}"
+                        class="kt-menu__link "><i
+                            class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+                            class="kt-menu__link-text">Master Merk</span></a></li>
+
+            </ul>
+        </div>
+    </li>
+@endcan
 
                             @can('manajemen-user')
-                            <li class="kt-menu__item  kt-menu__item--submenu @if (request()->segment(1) == 'managemenUser')
-                                {{ 'kt-menu__item--open kt-menu__item--here' }}
-                            @endif  " aria-haspopup="true" data-ktmenu-submenu-toggle="hover"><a href="javascript:;"
-                                    class="kt-menu__link kt-menu__toggle"><span class="kt-menu__link-icon"><i
-                                            class="fa fa-users"></i></span><span class="kt-menu__link-text">Managemen
-                                        User</span><i class="kt-menu__ver-arrow la la-angle-right"></i></a>
-                                <div class="kt-menu__submenu "><span class="kt-menu__arrow"></span>
-                                    <ul class="kt-menu__subnav">
-                                        <li class="kt-menu__item  kt-menu__item--parent" aria-haspopup="true"><span
-                                                class="kt-menu__link"><span class="kt-menu__link-text">Managemen
-                                                    User</span></span></li>
-                                        <li class="kt-menu__item  @if (request()->segment(2) == 'User')
-                                            {{ 'kt-menu__item--active' }}
-                                        @endif" aria-haspopup="true"><a href="{{ route('User.index') }}"
-                                                class="kt-menu__link "><i
-                                                    class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
-                                                    class="kt-menu__link-text">User Account</span></a></li>
-                                        <li class="kt-menu__item  @if (request()->segment(2) == 'Role')
-                                            {{ 'kt-menu__item--active' }}
-                                        @endif" aria-haspopup="true"><a href="{{ route('Role.index') }}"
-                                                class="kt-menu__link "><i
-                                                    class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
-                                                    class="kt-menu__link-text">Role</span></a></li>
-                                        <li class="kt-menu__item  @if (request()->segment(2) == 'Permission')
-                                        {{ 'kt-menu__item--active' }} @endif" aria-haspopup="true"><a
-                                                href="{{ route('Permission.index') }}" class="kt-menu__link "><i
-                                                    class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
-                                                    class="kt-menu__link-text">Permission</span></a></li>
-                                        <li class="kt-menu__item  @if (request()->segment(2) == 'master-rs')
-                                            {{ 'kt-menu__item--active' }}
-                                        @endif" aria-haspopup="true"><a
-                                                href="{{ route('master.master-rs.index') }}" class="kt-menu__link "><i
-                                                    class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
-                                                    class="kt-menu__link-text">Master RS</span></a></li>
-                                    </ul>
-                                </div>
-                            </li>
+                                <li class="kt-menu__item  kt-menu__item--submenu @if (request()->segment(1) == 'managemenUser')
+                                    {{ 'kt-menu__item--open kt-menu__item--here' }}
+                                @endif  " aria-haspopup="true" data-ktmenu-submenu-toggle="hover"><a href="javascript:;"
+                                        class="kt-menu__link kt-menu__toggle"><span class="kt-menu__link-icon"><i
+                                                class="fa fa-users"></i></span><span class="kt-menu__link-text">Managemen
+                                            User</span><i class="kt-menu__ver-arrow la la-angle-right"></i></a>
+                                    <div class="kt-menu__submenu "><span class="kt-menu__arrow"></span>
+                                        <ul class="kt-menu__subnav">
+                                            <li class="kt-menu__item  kt-menu__item--parent" aria-haspopup="true"><span
+                                                    class="kt-menu__link"><span class="kt-menu__link-text">Managemen
+                                                        User</span></span></li>
+                                            <li class="kt-menu__item  @if (request()->segment(2) == 'User')
+                                                {{ 'kt-menu__item--active' }}
+                                            @endif" aria-haspopup="true"><a href="{{ route('User.index') }}"
+                                                    class="kt-menu__link "><i
+                                                        class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+                                                        class="kt-menu__link-text">User Account</span></a></li>
+                                            <li class="kt-menu__item  @if (request()->segment(2) == 'Role')
+                                                {{ 'kt-menu__item--active' }}
+                                            @endif" aria-haspopup="true"><a href="{{ route('Role.index') }}"
+                                                    class="kt-menu__link "><i
+                                                        class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+                                                        class="kt-menu__link-text">Role</span></a></li>
+                                            <li class="kt-menu__item  @if (request()->segment(2) == 'Permission')
+                                            {{ 'kt-menu__item--active' }} @endif" aria-haspopup="true"><a
+                                                    href="{{ route('Permission.index') }}" class="kt-menu__link "><i
+                                                        class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+                                                        class="kt-menu__link-text">Permission</span></a></li>
+                                            <li class="kt-menu__item  @if (request()->segment(2) == 'master-rs')
+                                                {{ 'kt-menu__item--active' }}
+                                            @endif" aria-haspopup="true"><a
+                                                    href="{{ route('master.master-rs.index') }}" class="kt-menu__link "><i
+                                                        class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+                                                        class="kt-menu__link-text">Master RS</span></a></li>
+                                        </ul>
+                                    </div>
+                                </li>
                             @endcan
 
 
