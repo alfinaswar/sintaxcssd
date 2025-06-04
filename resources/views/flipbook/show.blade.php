@@ -7,9 +7,9 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
     <!-- Flipbook StyleSheet -->
-    <link href="{{ asset('assets/flipbook/assets/css/min.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('flipbook/css/min.css') }}" rel="stylesheet" type="text/css">
     <!-- Icons Stylesheet -->
-    <link href="{{ asset('assets/flipbook/assets/css/themify-icons.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('flipbook/css/themify-icons.min.css') }}" rel="stylesheet" type="text/css">
 
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -22,9 +22,9 @@
 
 
     <!-- jQuery  -->
-    <script src="{{ asset('assets/flipbook/assets/js/libs/jquery.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('flipbook/js/libs/jquery.min.js') }}" type="text/javascript"></script>
     <!-- Flipbook main Js file -->
-    <script src="{{ asset('assets/flipbook/assets/js/dflip.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('flipbook/js/dflip.min.js') }}" type="text/javascript"></script>
     <!-- Flipbook main Js file -->
     <script>
         jQuery(document).ready(function () {
