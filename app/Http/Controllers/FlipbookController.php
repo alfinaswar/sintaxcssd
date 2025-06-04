@@ -28,7 +28,7 @@ class FlipbookController extends Controller
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    $btnshow = '<a href="' . route('flipbook.show', $row->id) . '"><button type="button" class="btn btn-outline-success btn-icon" ><i class="fa fa-cogs"></i></button></a>';
+                    $btnshow = '<a href="' . route('flipbook.show', $row->id) . '" target="_blank"><button type="button" class="btn btn-outline-success btn-icon" ><i class="fa fa-cogs"></i></button></a>';
                     $btn = $btnshow;
                     return $btn;
                 })
