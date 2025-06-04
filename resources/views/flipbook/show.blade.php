@@ -28,17 +28,19 @@
     <!-- Flipbook main Js file -->
     <script>
         jQuery(document).ready(function () {
-            //uses source from online(make sure the file has CORS access enabled if used in cross-domain)
-            var pdf =
-                'https://inventarisreg.awalbros-hospital.com/asset-inventaris/storage/'.{{$nama->NamaFile}}'.pdf';
+            // Construct the full PDF URL with Blade
+            var pdf = 'https://inventarisreg.awalbros-hospital.com/asset-inventaris/storage/{{ $nama->NamaFile }}.pdf';
+
             var options = {
                 height: 2000,
                 duration: 700,
                 backgroundColor: "#2F2D2F"
             };
+
             var flipBook = $("#flipbookContainer").flipBook(pdf, options);
         });
     </script>
+
 
 </body>
 
