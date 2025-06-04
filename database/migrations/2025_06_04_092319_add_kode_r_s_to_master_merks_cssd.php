@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddColoumnDataInventarisUnitTable extends Migration
+class AddKodeRSToMasterMerksCssd extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddColoumnDataInventarisUnitTable extends Migration
      */
     public function up()
     {
-        Schema::table('data_inventaris', function (Blueprint $table) {
-            $table->string('unit', 120)->nullable()->after('departemen');
+        Schema::table('cssd_merks', function (Blueprint $table) {
+            $table->string('KodeRs', 100)->after('Merk');
         });
     }
 
@@ -25,9 +25,8 @@ class AddColoumnDataInventarisUnitTable extends Migration
      */
     public function down()
     {
-        Schema::table('data_inventaris', function (Blueprint $table) {
-            $table->dropColumn('unite');
-
+        Schema::table('cssd_merks', function (Blueprint $table) {
+            //
         });
     }
 }

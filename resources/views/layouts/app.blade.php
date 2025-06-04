@@ -193,6 +193,25 @@
                                                 class="fa fa-boxes"></i></span><span
                                             class="kt-menu__link-text">Inventaris</span></a></li>
                             @endcan
+                            @can('flipbook')
+                                <li class="kt-menu__item @if (request()->is('flipbook'))
+                                    {{ 'kt-menu__item--active' }}
+                                @elseif (request()->is('flipbook/*'))
+                                                                    {{ 'kt-menu__item--active' }}
+                                                                @endif" aria-haspopup="true"><a href="{{ route('flipbook.index') }}"
+                                        class="kt-menu__link "><span class="kt-menu__link-icon"><i class="fa fa-boxes"></i></span><span
+                                            class="kt-menu__link-text">Daftar Flipbook</span></a></li>
+                            @endcan
+                            @can('')
+                                <li class="kt-menu__item @if (request()->is('inventaris'))
+                                    {{ 'kt-menu__item--active' }}
+                                @elseif (request()->is('inventaris/*'))
+                                    {{ 'kt-menu__item--active' }}
+                                @endif" aria-haspopup="true"><a href="{{ route('inventaris.index') }}"
+                                        class="kt-menu__link "><span class="kt-menu__link-icon"><i
+                                                class="fa fa-boxes"></i></span><span
+                                            class="kt-menu__link-text">Inventaris</span></a></li>
+                            @endcan
 
                             @can('kalibrasi')
                                 <li class="kt-menu__item @if (request()->is('kalibrasi'))
@@ -317,23 +336,28 @@
         {{ 'kt-menu__item--open kt-menu__item--here' }}
     @endif  " aria-haspopup="true" data-ktmenu-submenu-toggle="hover"><a
             href="javascript:;" class="kt-menu__link kt-menu__toggle"><span class="kt-menu__link-icon"><i
-                    class="fa fa-database"></i></span><span class="kt-menu__link-text">Data Master</span><i
+                    class="fa fa-database"></i></span><span class="kt-menu__link-text">Data Master CSSD</span><i
                 class="kt-menu__ver-arrow la la-angle-right"></i></a>
         <div class="kt-menu__submenu "><span class="kt-menu__arrow"></span>
             <ul class="kt-menu__subnav">
 
                 <li class="kt-menu__item  kt-menu__item--parent" aria-haspopup="true"><span class="kt-menu__link"><span
                             class="kt-menu__link-text">Data
-                            Master</span></span></li>
+                            Master CSSD</span></span></li>
                 <li class="kt-menu__item  @if (request()->segment(2) == 'master-departemen')
                     {{ 'kt-menu__item--active' }}
                 @endif" aria-haspopup="true"><a
-                        href="{{ route('master-departemen.index') }}" class="kt-menu__link "><i
+                        href="{{ route('master.cssd-master-item.index') }}" class="kt-menu__link "><i
                             class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
-                            class="kt-menu__link-text">Master Departemen</span></a></li>
+                            class="kt-menu__link-text">Master Item</span></a></li>
+                            <li class="kt-menu__item  @if (request()->segment(2) == 'master-item')
+                                {{ 'kt-menu__item--active' }}
+                            @endif" aria-haspopup="true"><a href="{{ route('master-departemen.index') }}" class="kt-menu__link "><i
+                                        class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+                                        class="kt-menu__link-text">Master Departemen</span></a></li>
                 <li class="kt-menu__item  @if (request()->segment(2) == 'master-merk')
                     {{ 'kt-menu__item--active' }}
-                @endif" aria-haspopup="true"><a href="{{ route('master-merk.index') }}"
+                @endif" aria-haspopup="true"><a href="{{ route('cssd-master-merk.index') }}"
                         class="kt-menu__link "><i
                             class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
                             class="kt-menu__link-text">Master Merk</span></a></li>

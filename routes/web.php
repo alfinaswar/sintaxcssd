@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\AssetManagemenController;
+use App\Http\Controllers\CssdMasterItemController;
+use App\Http\Controllers\CssdMerkController;
 use App\Http\Controllers\DataInventarisController;
 use App\Http\Controllers\FileTemplateController;
+use App\Http\Controllers\FlipbookController;
 use App\Http\Controllers\FormulirPembersihanController;
 use App\Http\Controllers\GudangController;
 use App\Http\Controllers\KalibrasiController;
@@ -80,6 +83,7 @@ Route::group(['prefix' => 'master'], function () {
     Route::resource('master-departemen', MasterDepartemenController::class);
     Route::resource('master-unit', MasterUnitController::class);
     Route::resource('master-merk', MasterMerkController::class);
+    Route::resource('cssd-master-merk', CssdMerkController::class);
 
     Route::prefix('master-pengguna')->group(function () {
         Route::get('/', [MasterPenggunaController::class, 'index'])->name('master.master-pengguna.index');
@@ -91,6 +95,12 @@ Route::group(['prefix' => 'master'], function () {
         Route::get('/', [MasterRsController::class, 'index'])->name('master.master-rs.index');
         Route::get('/create', [MasterRsController::class, 'create'])->name('master.master-rs.create');
         Route::post('/store', [MasterRsController::class, 'store'])->name('master.master-rs.store');
+    });
+    Route::prefix('cssd-master-item')->group(function () {
+        Route::resource('master-rs', CssdMasterItemController::class);
+        Route::get('/', [CssdMasterItemController::class, 'index'])->name('master.cssd-master-item.index');
+        Route::get('/create', [CssdMasterItemController::class, 'create'])->name('master.cssd-master-item.create');
+        Route::post('/store', [CssdMasterItemController::class, 'store'])->name('master.cssd-master-item.store');
     });
 });
 
@@ -112,6 +122,14 @@ Route::prefix('inventaris')->group(function () {
     Route::get('getMerk', [DataInventarisController::class, 'getMerk'])->name('inventaris.get-merk');
     Route::get('tanpa-ro', [DataInventarisController::class, 'CreateBc'])->name('inventaris.tanparo');
     Route::get('/get-master-item', [DataInventarisController::class, 'getMasterItem'])->name('inventaris.get-master-item');
+});
+Route::prefix('flipbook')->group(function () {
+    Route::get('/', [FlipbookController::class, 'index'])->name('flipbook.index');
+    Route::get('/create', [FlipbookController::class, 'create'])->name('flipbook.create');
+    Route::post('/store', [FlipbookController::class, 'store'])->name('flipbook.store');
+    Route::get('/destroy', [FlipbookController::class, 'destroy'])->name('flipbook.destroy');
+    Route::get('/show/{id}', [FlipbookController::class, 'show'])->name('flipbook.show');
+
 });
 Route::prefix('maintanance')->group(function () {
     Route::get('/', [MaintananceController::class, 'index'])->name('maintanance.index');
@@ -183,6 +201,8 @@ Route::group(['prefix' => 'laporan'], function () {
         Route::get('/data-inventaris', [LaporanController::class, 'DataInventaris'])->name('laporan.data-inventaris');
     });
 });
+//CSSD
+
 Route::resource('formulir-pembersihan', FormulirPembersihanController::class);
 Route::get('/history/{kode_item}', [MasalahController::class, 'history'])->name('masalah.history');
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
