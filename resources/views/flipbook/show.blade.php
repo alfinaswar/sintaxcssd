@@ -29,7 +29,7 @@
     <script>
         jQuery(document).ready(function () {
             // Construct the full PDF URL with Blade
-            var pdf = 'https://inventarisreg.awalbros-hospital.com/asset-inventaris/storage/{{ $nama->NamaFile }}.pdf';
+            var pdf = 'https://inventarisreg.awalbros-hospital.com/asset-inventaris/storage/flipbooks/{{ $nama->NamaFile }}.pdf';
 
             var options = {
                 height: 2000,
