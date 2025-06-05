@@ -101,6 +101,7 @@ Route::group(['prefix' => 'master'], function () {
         Route::get('/', [CssdMasterItemController::class, 'index'])->name('master.cssd-master-item.index');
         Route::get('/create', [CssdMasterItemController::class, 'create'])->name('master.cssd-master-item.create');
         Route::post('/store', [CssdMasterItemController::class, 'store'])->name('master.cssd-master-item.store');
+        Route::delete('/destroy/{id}', [CssdMasterItemController::class, 'destroy'])->name('master.cssd-master-item.destroy');
     });
 });
 
