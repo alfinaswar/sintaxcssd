@@ -57,12 +57,14 @@
                             <div class="col-8">
                                 <select class="form-control select2" name="Merk" id="merk">
                                     <option value="">Pilih Merk</option>
-                                    @foreach($merks as $merkItem)
-                                        <option value="{{ $merkItem->id }}" {{ old('Merk') == $merkItem->id ? 'selected' : '' }}>
+                                    @foreach ($merks as $merkItem)
+                                        <option value="{{ $merkItem->id }}"
+                                            {{ old('Merk') == $merkItem->id ? 'selected' : '' }}>
                                             {{ $merkItem->Merk }}
                                         </option>
                                     @endforeach
-                                    <option value="lainnya" {{ old('Merk') == 'lainnya' ? 'selected' : '' }}>Lainnya</option>
+                                    <option value="lainnya" {{ old('Merk') == 'lainnya' ? 'selected' : '' }}>Lainnya
+                                    </option>
                                 </select>
                             </div>
                         </div>
@@ -74,10 +76,25 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="tipe" class="col-2 col-form-label">* Tipe</label>
+                            <label for="merk" class="col-2 col-form-label">* Tipe</label>
                             <div class="col-8">
-                                <input class="form-control" name="Tipe" value="{{ old('Tipe') }}" placeholder="Tipe"
-                                    type="text" id="tipe">
+                                <select class="form-control select2" name="Tipe" id="Tipe">
+                                    <option value="">Pilih Tipe</option>
+                                    @foreach ($tipe as $t)
+                                        <option value="{{ $merkItem->id }}" {{ old('Merk') == $t->id ? 'selected' : '' }}>
+                                            {{ $t->Tipe }}
+                                        </option>
+                                    @endforeach
+                                    <option value="lainnya" {{ old('Tipe') == 'lainnya' ? 'selected' : '' }}>Lainnya
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row" id="tipe_baru_group" style="display: none;">
+                            <label for="tipe_baru" class="col-2 col-form-label">* Tipe Baru</label>
+                            <div class="col-8">
+                                <input class="form-control" name="tipe_baru" value="{{ old('tipe_baru') }}"
+                                    placeholder="Nama Tipe Baru" type="text" id="tipe_baru">
                             </div>
                         </div>
                     </div>
@@ -92,29 +109,43 @@
                         <div class="form-group row">
                             <label for="tahun_perolehan" class="col-2 col-form-label">* Tahun Perolehan</label>
                             <div class="col-8">
-                                <input class="form-control" name="TahunPerolehan" value="{{ old('TahunPerolehan') }}"
-                                    placeholder="Tahun Perolehan" type="text" id="tahun_perolehan">
+                                <select class="form-control select2" name="TahunPerolehan" id="tahun_perolehan" required>
+                                    <option value="">Pilih Tahun</option>
+                                    @for ($year = 2010; $year <= date('Y'); $year++)
+                                        <option value="{{ $year }}"
+                                            {{ old('TahunPerolehan') == $year ? 'selected' : '' }}>{{ $year }}
+                                        </option>
+                                    @endfor
+                                </select>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="kondisi_barang" class="col-2 col-form-label">* Kondisi Barang</label>
                             <div class="col-8">
-                                <input class="form-control" name="KondisiBarang" value="{{ old('KondisiBarang') }}"
-                                    placeholder="Kondisi Barang" type="text" id="kondisi_barang">
+                                <select class="form-control" name="KondisiBarang" id="kondisi_barang" required>
+                                    <option value="">Pilih Kondisi</option>
+                                    <option value="B" {{ old('KondisiBarang') == 'B' ? 'selected' : '' }}>B (Baik)
+                                    </option>
+                                    <option value="KB" {{ old('KondisiBarang') == 'KB' ? 'selected' : '' }}>KB (Kurang
+                                        Baik)
+                                    </option>
+                                    <option value="R" {{ old('KondisiBarang') == 'R' ? 'selected' : '' }}>R (Rusak)
+                                    </option>
+                                </select>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="gambar" class="col-2 col-form-label">* Gambar</label>
                             <div class="col-8">
-                                <input class="form-control" name="Gambar" value="{{ old('Gambar') }}" placeholder="Gambar"
-                                    type="file" id="gambar">
+                                <input class="form-control" name="Gambar" value="{{ old('Gambar') }}"
+                                    placeholder="Gambar" type="file" id="gambar">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="satuan" class="col-2 col-form-label">* Satuan</label>
                             <div class="col-8">
-                                <input class="form-control" name="Satuan" value="{{ old('Satuan') }}" placeholder="Satuan"
-                                    type="text" id="satuan">
+                                <input class="form-control" name="Satuan" value="{{ old('Satuan') }}"
+                                    placeholder="Satuan" type="text" id="satuan">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -124,8 +155,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">RP</span>
                                     </div>
-                                    <input class="form-control" name="Harga" value="{{ old('Harga') }}" placeholder="Harga"
-                                        type="text" id="harga" onkeyup="formatNumber(this)">
+                                    <input class="form-control" name="Harga" value="{{ old('Harga') }}"
+                                        placeholder="Harga" type="text" id="harga" onkeyup="formatNumber(this)">
                                 </div>
                             </div>
                         </div>
@@ -171,7 +202,7 @@
             $("#simpanFrom").submit();
         }
 
-        jQuery(document).ready(function () {
+        jQuery(document).ready(function() {
             $('.progress').hide();
 
             // Initialize Select2
@@ -181,7 +212,7 @@
             });
 
             // Show/hide merk baru input based on selection
-            $('#merk').on('change', function () {
+            $('#merk').on('change', function() {
                 var selectedValue = $(this).val();
                 if (selectedValue === 'lainnya') {
                     $('#merk_baru_group').show();
@@ -192,11 +223,25 @@
                     $('#merk_baru').val('');
                 }
             });
-
+            $('#Tipe').on('change', function() {
+                var selectedValue = $(this).val();
+                if (selectedValue === 'lainnya') {
+                    $('#tipe_baru_group').show();
+                    $('#tipe_baru').attr('required', true);
+                } else {
+                    $('#tipe_baru_group').hide();
+                    $('#tipe_baru').attr('required', false);
+                    $('#tipe_baru').val('');
+                }
+            });
             // Check if 'lainnya' was selected on page load (for old input)
             if ($('#merk').val() === 'lainnya') {
                 $('#merk_baru_group').show();
                 $('#merk_baru').attr('required', true);
+            }
+            if ($('#Tipe').val() === 'lainnya') {
+                $('#tipe_baru_group').show();
+                $('#tipe_baru').attr('required', true);
             }
         });
     </script>

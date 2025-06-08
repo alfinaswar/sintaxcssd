@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @push('title')
-    Master Merk
+    Master Tipe
 @endpush
 @section('content')
     <div class="kt-portlet kt-portlet--mobile">
@@ -10,13 +10,13 @@
                     <i class="kt-font-brand flaticon2-line-chart"></i>
                 </span>
                 <h3 class="kt-portlet__head-title">
-                    Master Merk
+                    Master Tipe
                 </h3>
             </div>
             <div class="kt-portlet__head-toolbar">
                 <div class="kt-portlet__head-wrapper">
                     <div class="kt-portlet__head-actions">
-                        <a href="{{ route('cssd-master-merk.create') }}" class="btn btn-brand btn-elevate btn-icon-sm">
+                        <a href="{{ route('cssd-master-tipe.create') }}" class="btn btn-brand btn-elevate btn-icon-sm">
                             <i class="la la-plus"></i>
                             Tambah
                         </a>
@@ -69,14 +69,14 @@
                 language: {
                     processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span> '
                 },
-                ajax: "{{ route('cssd-master-merk.index') }}",
+                ajax: "{{ route('cssd-master-tipe.index') }}",
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex'
                     },
                     {
-                        data: 'Merk',
-                        name: 'Merk'
+                        data: 'Tipe',
+                        name: 'Tipe'
                     },
                     {
                         data: 'action',
@@ -89,7 +89,7 @@
         };
         var delete_data = function(e, id) {
             e.preventDefault()
-            var url = "{{ route('cssd-master-merk.destroy', 'id') }}"
+            var url = "{{ route('cssd-master-tipe.destroy', 'id') }}"
             url = url.replace('id', id)
 
             swal.fire({

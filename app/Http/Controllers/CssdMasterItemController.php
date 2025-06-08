@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\cssdMasterItem;
+use App\Models\cssdMasterType;
 use App\Models\cssdMerk;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -44,9 +45,10 @@ class CssdMasterItemController extends Controller
      */
     public function create()
     {
-        $merks = cssdMerk::get();
+        $merks = cssdMerk::where('KodeRs', auth()->user()->kodeRS)->get();
+        $tipe = cssdMasterType::where('KodeRs', auth()->user()->kodeRS)->get();
         // dd($merks);
-        return view('cssd.master-item.create', compact('merks'));
+        return view('cssd.master-item.create', compact('merks', 'tipe'));
     }
 
     /**

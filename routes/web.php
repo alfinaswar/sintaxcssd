@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AssetManagemenController;
 use App\Http\Controllers\CssdMasterItemController;
+use App\Http\Controllers\CssdMasterSatuanController;
+use App\Http\Controllers\CssdMasterTypeController;
 use App\Http\Controllers\CssdMerkController;
 use App\Http\Controllers\DataInventarisController;
 use App\Http\Controllers\FileTemplateController;
@@ -84,6 +86,8 @@ Route::group(['prefix' => 'master'], function () {
     Route::resource('master-unit', MasterUnitController::class);
     Route::resource('master-merk', MasterMerkController::class);
     Route::resource('cssd-master-merk', CssdMerkController::class);
+    Route::resource('cssd-master-tipe', CssdMasterTypeController::class);
+    Route::resource('cssd-master-satuan', CssdMasterSatuanController::class);
 
     Route::prefix('master-pengguna')->group(function () {
         Route::get('/', [MasterPenggunaController::class, 'index'])->name('master.master-pengguna.index');
