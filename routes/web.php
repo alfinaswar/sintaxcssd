@@ -85,9 +85,7 @@ Route::group(['prefix' => 'master'], function () {
     Route::resource('master-departemen', MasterDepartemenController::class);
     Route::resource('master-unit', MasterUnitController::class);
     Route::resource('master-merk', MasterMerkController::class);
-    Route::resource('cssd-master-merk', CssdMerkController::class);
-    Route::resource('cssd-master-tipe', CssdMasterTypeController::class);
-    Route::resource('cssd-master-satuan', CssdMasterSatuanController::class);
+
 
     Route::prefix('master-pengguna')->group(function () {
         Route::get('/', [MasterPenggunaController::class, 'index'])->name('master.master-pengguna.index');
@@ -100,12 +98,21 @@ Route::group(['prefix' => 'master'], function () {
         Route::get('/create', [MasterRsController::class, 'create'])->name('master.master-rs.create');
         Route::post('/store', [MasterRsController::class, 'store'])->name('master.master-rs.store');
     });
+
+});
+Route::group(['prefix' => 'master-cssd'], function () {
+    Route::resource('cssd-master-merk', CssdMerkController::class);
+    Route::resource('cssd-master-tipe', CssdMasterTypeController::class);
+    Route::resource('cssd-master-satuan', CssdMasterSatuanController::class);
+
     Route::prefix('cssd-master-item')->group(function () {
         Route::resource('master-rs', CssdMasterItemController::class);
-        Route::get('/', [CssdMasterItemController::class, 'index'])->name('master.cssd-master-item.index');
-        Route::get('/create', [CssdMasterItemController::class, 'create'])->name('master.cssd-master-item.create');
-        Route::post('/store', [CssdMasterItemController::class, 'store'])->name('master.cssd-master-item.store');
-        Route::delete('/destroy/{id}', [CssdMasterItemController::class, 'destroy'])->name('master.cssd-master-item.destroy');
+        Route::get('/', [CssdMasterItemController::class, 'index'])->name('master-cssd.cssd-master-item.index');
+        Route::get('/create', [CssdMasterItemController::class, 'create'])->name('master-cssd.cssd-master-item.create');
+        Route::get('/edit/{id}', [CssdMasterItemController::class, 'edit'])->name('master-cssd.cssd-master-item.edit');
+        Route::put('/update/{id}', [CssdMasterItemController::class, 'update'])->name('master-cssd.cssd-master-item.update');
+        Route::post('/store', [CssdMasterItemController::class, 'store'])->name('master-cssd.cssd-master-item.store');
+        Route::delete('/destroy/{id}', [CssdMasterItemController::class, 'destroy'])->name('master-cssd.cssd-master-item.destroy');
     });
 });
 

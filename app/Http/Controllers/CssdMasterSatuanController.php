@@ -43,6 +43,8 @@ class CssdMasterSatuanController extends Controller
     {
         $data = $request->all();
         $data['KodeRs'] = auth()->user()->kodeRS;
+        $data['idUser'] = auth()->user()->id;
+
         $query = cssdMasterSatuan::create($data);
         return redirect()->route('cssd-master-satuan.index')->with('success', 'Data berhasil ditambahkan');
     }

@@ -339,7 +339,7 @@
                                 </li>
                             @endcan
 @can('cssd-data-master')
-    <li class="kt-menu__item  kt-menu__item--submenu @if (request()->segment(1) == 'cssd-data-master')
+    <li class="kt-menu__item  kt-menu__item--submenu @if (request()->segment(1) == 'master-cssd')
         {{ 'kt-menu__item--open kt-menu__item--here' }}
     @endif  " aria-haspopup="true" data-ktmenu-submenu-toggle="hover"><a
             href="javascript:;" class="kt-menu__link kt-menu__toggle"><span class="kt-menu__link-icon"><i
@@ -351,29 +351,36 @@
                 <li class="kt-menu__item  kt-menu__item--parent" aria-haspopup="true"><span class="kt-menu__link"><span
                             class="kt-menu__link-text">Data
                             Master CSSD</span></span></li>
-                <li class="kt-menu__item  @if (request()->segment(2) == 'master-departemen')
+                <li class="kt-menu__item  @if (request()->segment(2) == 'cssd-master-item')
                     {{ 'kt-menu__item--active' }}
                 @endif" aria-haspopup="true"><a
-                        href="{{ route('master.cssd-master-item.index') }}" class="kt-menu__link "><i
+                        href="{{ route('master-cssd.cssd-master-item.index') }}" class="kt-menu__link "><i
                             class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
                             class="kt-menu__link-text">Master Item</span></a></li>
-                            <li class="kt-menu__item  @if (request()->segment(2) == 'master-item')
+                            {{-- <li class="kt-menu__item  @if (request()->segment(2) == 'cssd-master-departemen')
                                 {{ 'kt-menu__item--active' }}
                             @endif" aria-haspopup="true"><a href="{{ route('master-departemen.index') }}" class="kt-menu__link "><i
                                         class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
-                                        class="kt-menu__link-text">Master Departemen</span></a></li>
-                <li class="kt-menu__item  @if (request()->segment(2) == 'master-merk')
+                                        class="kt-menu__link-text">Master Departemen</span></a></li> --}}
+                <li class="kt-menu__item  @if (request()->segment(2) == 'cssd-master-merk')
                     {{ 'kt-menu__item--active' }}
                 @endif" aria-haspopup="true"><a href="{{ route('cssd-master-merk.index') }}"
                         class="kt-menu__link "><i
                             class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
                             class="kt-menu__link-text">Master Merk</span></a></li>
-                            <li class="kt-menu__item  @if (request()->segment(2) == 'master-tipe')
+                            <li class="kt-menu__item  @if (request()->segment(2) == 'cssd-master-tipe')
                                 {{ 'kt-menu__item--active' }}
                             @endif" aria-haspopup="true"><a href="{{ route('cssd-master-tipe.index') }}"
                                     class="kt-menu__link "><i
                                         class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
                                         class="kt-menu__link-text">Master Tipe</span></a></li>
+
+                                        <li class="kt-menu__item  @if (request()->segment(2) == 'cssd-master-satuan')
+                                {{ 'kt-menu__item--active' }}
+                            @endif" aria-haspopup="true"><a href="{{ route('cssd-master-satuan.index') }}"
+                                    class="kt-menu__link "><i
+                                        class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+                                        class="kt-menu__link-text">Master Satuan</span></a></li>
 
             </ul>
         </div>

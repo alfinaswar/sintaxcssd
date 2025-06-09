@@ -3,7 +3,7 @@
     Master CSSD
 @endpush
 @push('sub-title')
-    Tambah CSSD
+    Edit CSSD
 @endpush
 @section('content')
     <div class="kt-portlet">
@@ -16,9 +16,10 @@
         </div>
         <!--begin::Form-->
         <form class="kt-form kt-form--label-right" id="simpanFrom"
-            action="{{ route('master-cssd.cssd-master-item.store') }}" method="POST" accept-charset="utf-8"
+            action="{{ route('master-cssd.cssd-master-item.update', $item->id) }}" method="POST" accept-charset="utf-8"
             enctype="multipart/form-data">
             @csrf
+            @method('PUT')
             <div class="kt-portlet__body">
                 <div class="row">
                     <div class="col-md-6">
@@ -26,7 +27,7 @@
                             <label for="ROID" class="col-2 col-form-label">ROID</label>
                             <div class="col-8">
                                 <input class="form-control {{ $errors->has('ROID') ? 'is-invalid' : '' }}" name="ROID"
-                                    value="{{ old('ROID') }}" placeholder="ROID" type="text" id="ROID">
+                                    value="{{ old('ROID', $item->ROID) }}" placeholder="ROID" type="text" id="ROID">
                                 @if ($errors->has('ROID'))
                                     <div class="invalid-feedback">
                                         {{ $errors->first('ROID') }}
@@ -38,7 +39,7 @@
                             <label for="serial_number" class="col-2 col-form-label">* Serial Number</label>
                             <div class="col-8">
                                 <input class="form-control {{ $errors->has('SerialNumber') ? 'is-invalid' : '' }}"
-                                    name="SerialNumber" value="{{ old('SerialNumber') }}" placeholder="Serial Number"
+                                    name="SerialNumber" value="{{ old('SerialNumber', $item->SerialNumber) }}" placeholder="Serial Number"
                                     type="text" id="serial_number">
                                 @if ($errors->has('SerialNumber'))
                                     <div class="invalid-feedback">
@@ -51,7 +52,7 @@
                             <label for="nama" class="col-2 col-form-label">* Nama</label>
                             <div class="col-8">
                                 <input class="form-control {{ $errors->has('Nama') ? 'is-invalid' : '' }}" name="Nama"
-                                    value="{{ old('Nama') }}" placeholder="Nama" type="text" id="nama">
+                                    value="{{ old('Nama', $item->Nama) }}" placeholder="Nama" type="text" id="nama">
                                 @if ($errors->has('Nama'))
                                     <div class="invalid-feedback">
                                         {{ $errors->first('Nama') }}
@@ -66,11 +67,11 @@
                                     name="Merk" id="merk">
                                     <option value="">Pilih Merk</option>
                                     @foreach ($merks as $merkItem)
-                                        <option value="{{ $merkItem->id }}" {{ old('Merk') == $merkItem->id ? 'selected' : '' }}>
+                                        <option value="{{ $merkItem->id }}" {{ old('Merk', $item->Merk) == $merkItem->id ? 'selected' : '' }}>
                                             {{ $merkItem->Merk }}
                                         </option>
                                     @endforeach
-                                    <option value="MerkBaru" {{ old('Merk') == 'MerkBaru' ? 'selected' : '' }}>Merk Baru
+                                    <option value="MerkBaru" {{ old('Merk', $item->Merk) == 'MerkBaru' ? 'selected' : '' }}>Merk Baru
                                     </option>
                                 </select>
                                 @if ($errors->has('Merk'))
@@ -84,7 +85,7 @@
                             <label for="merk_baru" class="col-2 col-form-label">* Merk Baru</label>
                             <div class="col-8">
                                 <input class="form-control {{ $errors->has('merk_baru') ? 'is-invalid' : '' }}"
-                                    name="merk_baru" value="{{ old('merk_baru') }}" placeholder="Nama Merk Baru" type="text"
+                                    name="merk_baru" value="{{ old('merk_baru', $item->merk_baru) }}" placeholder="Nama Merk Baru" type="text"
                                     id="merk_baru">
                                 @if ($errors->has('merk_baru'))
                                     <div class="invalid-feedback">
@@ -100,11 +101,11 @@
                                     name="Tipe" id="Tipe">
                                     <option value="">Pilih Tipe</option>
                                     @foreach ($tipe as $t)
-                                        <option value="{{ $t->id }}" {{ old('Tipe') == $t->id ? 'selected' : '' }}>
+                                        <option value="{{ $t->id }}" {{ old('Tipe', $item->Tipe) == $t->id ? 'selected' : '' }}>
                                             {{ $t->Tipe }}
                                         </option>
                                     @endforeach
-                                    <option value="TipeBaru" {{ old('Tipe') == 'TipeBaru' ? 'selected' : '' }}>Tipe Baru
+                                    <option value="TipeBaru" {{ old('Tipe', $item->Tipe) == 'TipeBaru' ? 'selected' : '' }}>Tipe Baru
                                     </option>
                                 </select>
                                 @if ($errors->has('Tipe'))
@@ -118,7 +119,7 @@
                             <label for="tipe_baru" class="col-2 col-form-label">* Tipe Baru</label>
                             <div class="col-8">
                                 <input class="form-control {{ $errors->has('tipe_baru') ? 'is-invalid' : '' }}"
-                                    name="tipe_baru" value="{{ old('tipe_baru') }}" placeholder="Nama Tipe Baru" type="text"
+                                    name="tipe_baru" value="{{ old('tipe_baru', $item->tipe_baru) }}" placeholder="Nama Tipe Baru" type="text"
                                     id="tipe_baru">
                                 @if ($errors->has('tipe_baru'))
                                     <div class="invalid-feedback">
@@ -133,7 +134,7 @@
                             <label for="qty" class="col-2 col-form-label">* Qty</label>
                             <div class="col-8">
                                 <input class="form-control {{ $errors->has('Qty') ? 'is-invalid' : '' }}" name="Qty"
-                                    value="{{ old('Qty') }}" placeholder="Qty" type="number" id="qty">
+                                    value="{{ old('Qty', $item->Qty) }}" placeholder="Qty" type="number" id="qty">
                                 @if ($errors->has('Qty'))
                                     <div class="invalid-feedback">
                                         {{ $errors->first('Qty') }}
@@ -149,7 +150,7 @@
                                     name="TahunPerolehan" id="tahun_perolehan" required>
                                     <option value="">Pilih Tahun</option>
                                     @for ($year = 2025; $year >= 2010; $year--)
-                                        <option value="{{ $year }}" {{ old('TahunPerolehan') == $year ? 'selected' : '' }}>
+                                        <option value="{{ $year }}" {{ old('TahunPerolehan', $item->TahunPerolehan) == $year ? 'selected' : '' }}>
                                             {{ $year }}
                                         </option>
                                     @endfor
@@ -167,12 +168,12 @@
                                 <select class="form-control {{ $errors->has('KondisiBarang') ? 'is-invalid' : '' }}"
                                     name="KondisiBarang" id="kondisi_barang" required>
                                     <option value="">Pilih Kondisi</option>
-                                    <option value="B" {{ old('KondisiBarang') == 'B' ? 'selected' : '' }}>B (Baik)
+                                    <option value="B" {{ old('KondisiBarang', $item->KondisiBarang) == 'B' ? 'selected' : '' }}>B (Baik)
                                     </option>
-                                    <option value="KB" {{ old('KondisiBarang') == 'KB' ? 'selected' : '' }}>KB (Kurang
+                                    <option value="KB" {{ old('KondisiBarang', $item->KondisiBarang) == 'KB' ? 'selected' : '' }}>KB (Kurang
                                         Baik)
                                     </option>
-                                    <option value="R" {{ old('KondisiBarang') == 'R' ? 'selected' : '' }}>R (Rusak)
+                                    <option value="R" {{ old('KondisiBarang', $item->KondisiBarang) == 'R' ? 'selected' : '' }}>R (Rusak)
                                     </option>
                                 </select>
                                 @if ($errors->has('KondisiBarang'))
@@ -186,7 +187,7 @@
                             <label for="gambar" class="col-2 col-form-label">* Gambar</label>
                             <div class="col-8">
                                 <input class="form-upload {{ $errors->has('Gambar') ? 'is-invalid' : '' }}" name="Gambar"
-                                    value="{{ old('Gambar') }}" placeholder="Gambar" type="file" id="gambar"
+                                    value="{{ old('Gambar', $item->Gambar) }}" placeholder="Gambar" type="file" id="gambar"
                                     onchange="previewImage(this)">
                                 @if ($errors->has('Gambar'))
                                     <div class="invalid-feedback">
@@ -204,11 +205,11 @@
                                     name="Satuan" id="Satuan">
                                     <option value="">Pilih Satuan</option>
                                     @foreach ($Satuan as $t)
-                                        <option value="{{ $t->id }}" {{ old('Satuan') == $t->id ? 'selected' : '' }}>
+                                        <option value="{{ $t->id }}" {{ old('Satuan', $item->Satuan) == $t->id ? 'selected' : '' }}>
                                             {{ $t->Satuan }}
                                         </option>
                                     @endforeach
-                                    <option value="SatuanBaru" {{ old('Satuan') == 'SatuanBaru' ? 'selected' : '' }}>Satuan
+                                    <option value="SatuanBaru" {{ old('Satuan', $item->Satuan) == 'SatuanBaru' ? 'selected' : '' }}>Satuan
                                         Baru
                                     </option>
                                 </select>
@@ -223,7 +224,7 @@
                             <label for="satuan_baru" class="col-2 col-form-label">* Satuan Baru</label>
                             <div class="col-8">
                                 <input class="form-control {{ $errors->has('satuan_baru') ? 'is-invalid' : '' }}"
-                                    name="satuan_baru" value="{{ old('satuan_baru') }}" placeholder="Nama Satuan Baru"
+                                    name="satuan_baru" value="{{ old('satuan_baru', $item->satuan_baru) }}" placeholder="Nama Satuan Baru"
                                     type="text" id="satuan_baru">
                                 @if ($errors->has('satuan_baru'))
                                     <div class="invalid-feedback">
@@ -240,7 +241,7 @@
                                         <span class="input-group-text">RP</span>
                                     </div>
                                     <input class="form-control {{ $errors->has('Harga') ? 'is-invalid' : '' }}" name="Harga"
-                                        value="{{ old('Harga') }}" placeholder="Harga" type="text" id="harga"
+                                        value="{{ old('Harga', $item->Harga) }}" placeholder="Harga" type="text" id="harga"
                                         onkeyup="formatNumber(this)">
                                     @if ($errors->has('Harga'))
                                         <div class="invalid-feedback">
