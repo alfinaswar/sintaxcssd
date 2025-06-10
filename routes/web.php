@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AssetManagemenController;
+use App\Http\Controllers\CssdItemsetController;
 use App\Http\Controllers\CssdMasterItemController;
 use App\Http\Controllers\CssdMasterSatuanController;
 use App\Http\Controllers\CssdMasterTypeController;
@@ -115,7 +116,17 @@ Route::group(['prefix' => 'master-cssd'], function () {
         Route::delete('/destroy/{id}', [CssdMasterItemController::class, 'destroy'])->name('master-cssd.cssd-master-item.destroy');
     });
 });
+Route::prefix('cssd-master-item')->group(function () {
+    Route::resource('master-rs', CssdItemsetController::class);
+    Route::get('/', [CssdItemsetController::class, 'index'])->name('cssd-item-set.index');
+    Route::get('/create', [CssdItemsetController::class, 'create'])->name('cssd-item-set.create');
+    Route::get('/get-item-details', [CssdItemsetController::class, 'getItemDetail'])->name('cssd-item-set.getItem');
+    Route::get('/edit/{id}', [CssdItemsetController::class, 'edit'])->name('cssd-item-set.edit');
+    Route::put('/update/{id}', [CssdItemsetController::class, 'update'])->name('cssd-item-set.update');
+    Route::post('/store', [CssdItemsetController::class, 'store'])->name('cssd-item-set.store');
+    Route::delete('/destroy/{id}', [CssdItemsetController::class, 'destroy'])->name('cssd-item-set.destroy');
 
+});
 Route::prefix('inventaris')->group(function () {
     Route::get('/', [DataInventarisController::class, 'index'])->name('inventaris.index');
     Route::get('/create', [DataInventarisController::class, 'create'])->name('inventaris.create');

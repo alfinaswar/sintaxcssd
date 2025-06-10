@@ -200,6 +200,15 @@
                                                 class="fa fa-boxes"></i></span><span
                                             class="kt-menu__link-text">Inventaris</span></a></li>
                             @endcan
+                            @can('cssd-item-set')
+                                <li class="kt-menu__item @if (request()->is('cssd-item-set'))
+                                    {{ 'kt-menu__item--active' }}
+                                @elseif (request()->is('cssd-item-set/*'))
+                                                                    {{ 'kt-menu__item--active' }}
+                                                                @endif" aria-haspopup="true"><a href="{{ route('cssd-item-set.index') }}"
+                                        class="kt-menu__link "><span class="kt-menu__link-icon"><i class="fa fa-boxes"></i></span><span
+                                            class="kt-menu__link-text">Item Set</span></a></li>
+                            @endcan
                             @can('flipbook')
                                 <li class="kt-menu__item @if (request()->is('flipbook'))
                                     {{ 'kt-menu__item--active' }}
