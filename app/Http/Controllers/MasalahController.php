@@ -291,6 +291,11 @@ class MasalahController extends Controller
             ->where('kode_item', $kode_item)
             ->select('data_inventaris.*', 'master_rs.nama as rumahsakit')
             ->first();
+
+        if (empty($data_alat)) {
+            return view('data-inventaris.error-page');
+        }
+
         $detail_masalah = MasalahModel::where('kode_item', $kode_item)->orderby('created_at', 'desc')->get();
         $kalibrasi = KalibrasiModel::where('assetID', $kode_item)->orderby('created_at', 'desc')->get();
         $data_kalibrasi = KalibrasiModel::where('assetID', $kode_item)->orderby('created_at', 'desc')->first();
