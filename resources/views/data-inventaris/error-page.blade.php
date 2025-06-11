@@ -3,7 +3,7 @@
 @section('content')
     <div class="kt-grid kt-grid--ver kt-grid--root">
         <div class="kt-grid__item kt-grid__item--fluid kt-grid  kt-error-v3"
-            style="background-image: url({{assets('assets/media/error/bg3.jpg')}});">
+            style="background-image: url({{asset('assets/media/error/bg3.jpg')}});">
             <div class="kt-error_container">
                 <span class="kt-error_number">
                     <h1>410</h1>
