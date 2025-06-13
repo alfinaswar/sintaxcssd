@@ -153,7 +153,7 @@ class DataInventarisController extends Controller
     {
         $query = DataInventaris::find($id);
         // $routes = route('masalah.history', $query->kode_item);
-        $routes = "inventarisreg.awalbros-hospital.com/asset-inventaris/history/$query->kode_item";
+        $routes = "http://inventarisreg.awalbros-hospital.com/asset-inventaris/history/$query->kode_item";
         $qrcode = base64_encode(QrCode::format('svg')->size(200)->errorCorrection('L')->generate($routes));
         $pdf = Pdf::loadView('data-inventaris.label', compact('qrcode', 'query'))->setPaper([0, 0, 161.57, 80.37], 'portrait');
         $pdfmya = $pdf->stream('Label.pdf');
