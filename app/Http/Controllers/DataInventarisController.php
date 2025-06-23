@@ -529,6 +529,8 @@ class DataInventarisController extends Controller
             'isKalibrasi' => $request->isKalibrasi,
         ]);
 
+        $username = auth()->user()->name;
+
         return redirect()->route('inventaris.index')->with('success', 'Data berhasil ditambahkan');
     }
 

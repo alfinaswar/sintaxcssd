@@ -324,16 +324,17 @@
                 <div class="modal-body">
                     <div class="row col-12">
 
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <label for="NomorRo" class="col-form-label">Nomor ROID</label>
                                 <input type="text" class="form-control" id="NomorRo" name="NomorRo"
                                     placeholder="Nomor ROID">
+                                <small class="form-text text-danger fw-bold">
+                                    Jika item ROID tidak muncul, harap tunggu beberapa saat dan coba kembali. Terimakasih
+                                </small>
                             </div>
                             <button type="button" class="btn btn-md btn-primary"
                                 onclick="cariData(event,this)">Cari</button>
-
-
                         </div>
 
                     </div>
