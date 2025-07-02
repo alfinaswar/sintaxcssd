@@ -41,9 +41,8 @@ class PmExport implements FromView, WithEvents, WithStyles
         ])
             ->where('pengguna', $this->jenis)
             ->where('nama_rs', Auth::user()->kodeRS)
-            ->where('id', 58)
-            ->get()->take(5);
-        dd($data);
+            ->get();
+        // dd($data);
         return view('excel.excel_pm', compact('data'));
     }
     public function registerEvents(): array
