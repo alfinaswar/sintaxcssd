@@ -33,7 +33,7 @@ class PmExport implements FromView, WithEvents, WithStyles
                 if (!is_null($bulan1)) {
                     $query->where('bulan', $bulan1);
                 }
-                    ->whereYear('created_at', $tahun1);
+                $query->whereYear('created_at', $tahun1);
             }
         ])
             ->where('pengguna', $this->jenis)
