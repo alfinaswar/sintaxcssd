@@ -1,55 +1,47 @@
-<table width="100%">
-    <tr>
-        <th colspan="6"
-            style="font-family:'Times New Roman', Times, serif; font-size:20px; text-align:center; font-style:underline; ">
-            LAPORAN PREVENTIF ALAT
-        </th>
-    </tr>
-    <tr>
-        <td colspan="6"
-            style="font-family:'Times New Roman', Times, serif; font-size:20px; text-align:center; font-style:underline; ">
-            Rumah Sakit Awal Bros</td>
-    </tr>
+<table border="1">
+    <thead>
+        <tr>
+            <th rowspan="2" style="width: 30px;">No</th>
+            <th rowspan="2" style="width: 120px;">Serial Number</th>
+            <th rowspan="2" style="width: 200px;">Nama</th>
+            <th colspan="12" style="width: 720px;">Bulan</th>
+        </tr>
+        <tr>
+            <th style="width: 60px;">Januari</th>
+            <th style="width: 60px;">Februari</th>
+            <th style="width: 60px;">Maret</th>
+            <th style="width: 60px;">April</th>
+            <th style="width: 60px;">Mei</th>
+            <th style="width: 60px;">Juni</th>
+            <th style="width: 60px;">Juli</th>
+            <th style="width: 60px;">Agustus</th>
+            <th style="width: 60px;">September</th>
+            <th style="width: 60px;">Oktober</th>
+            <th style="width: 60px;">November</th>
+            <th style="width: 60px;">Desember</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach ($data as $index => $item)
+            <tr>
+                <td style="width: 30px;">{{ $index + 1 }}</td>
+                <td style="width: 120px;">{{ $item->no_inventaris }}</td>
+                <td style="width: 200px;">{{ $item->nama }}</td>
+
+                @for ($i = 1; $i <= 12; $i++)
+                    @php
+                        $bulanIni = str_pad($i, 2, '0', STR_PAD_LEFT);
+                        $adaPM = $item->DataMaintenance->first(function ($pm) use ($bulanIni) {
+                            return \Carbon\Carbon::parse($pm->tanggal)->format('m') == $bulanIni;
+                        });
+                    @endphp
+                    <td style="width: 60px;">
+                        @if ($adaPM)
+                            {{ \Carbon\Carbon::parse($adaPM->tanggal)->format('d M') }}
+                        @endif
+                    </td>
+                @endfor
+            </tr>
+        @endforeach
+    </tbody>
 </table>
-<table width="100%">
-<thead>
-  <tr class="text-center>">
-    <td rowspan="2">No</td>
-    <td rowspan="2" width="20">Serial Number</td>
-    <td width="30">Nama</td>
-    <td colspan="12">Bulan</td>
-  </tr>
-  <tr>
-    <td></td>
-    <td>Januari</td>
-    <td>Februari</td>
-    <td>Maret</td>
-    <td>April</td>
-    <td>Mei</td>
-    <td>Juni</td>
-    <td>Juli</td>
-    <td>Agustus</td>
-    <td>September</td>
-    <td>Oktober</td>
-    <td>November</td>
-    <td>Desember</td>
-  </tr>
-</thead>
-<tbody>
-    @foreach ($data as $key => $item )
-    <tr>
-      <td>{{$key + 1}}</td>
-<td>{{$item->assetID}}</td>
-<td>{{$item->nama}}</td>
-@foreach ($item->DataMaintenance as $month )
-
-<td>{{DateTime::createFromFormat('!m', $month->bulan)->format('F');}}</td>
-@endforeach
-    </tr>
-    @endforeach
-
-</tbody>
-</table>
-<style>
-
-</style>

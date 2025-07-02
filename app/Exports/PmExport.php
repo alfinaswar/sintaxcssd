@@ -17,24 +17,28 @@ use DB;
 class PmExport implements FromView, WithEvents, WithStyles
 {
     use Exportable;
-    public function __construct(string $tgl_mulai, string $tgl_akhir)
+    public function __construct(string $bulan, string $tahun, string $jenis)
     {
-        $this->tgl_mulai = $tgl_mulai;
-        $this->tgl_akhir = $tgl_akhir;
+        $this->bulan = $bulan ?? '';
+        $this->tahun = $tahun ?? '';
+        $this->jenis = $jenis ?? '';
         // dd($tgl_akhir);
     }
     public function view(): View
     {
+        $bulan1 = $this->bulan;
+        $tahun1 = $this->tahun;
         $data = DataInventaris::with([
-            'DataMaintenance' => function ($query) {
-                $query->select('kode_item', 'bulan','status');
+            'DataMaintenance' => function ($query) use ($bulan1, $tahun1) {
+                $query->where('bulan', $bulan1)
+                    ->whereYear('created_at', $tahun1);
             }
         ])
-            ->select('kode_item', 'nama', 'no_inventaris','assetID')
+            ->where('pengguna', $this->jenis)
             ->where('nama_rs', Auth::user()->kodeRS)
             ->get();
-        // dd($data);
-        return view('excel.excel_pm',compact('data'));
+        dd($data);
+        return view('excel.excel_pm', compact('data'));
     }
     public function registerEvents(): array
     {
@@ -44,7 +48,7 @@ class PmExport implements FromView, WithEvents, WithStyles
             AfterSheet::class => function (AfterSheet $event) {
                 $lastRow = $event->sheet->getDelegate()->getHighestRow();
 
-                $cellRange = 'A4:O' . $lastRow;
+                $cellRange = 'A1:O' . $lastRow;
                 $event->sheet->getDelegate()->getStyle('A4:E4')->getFont()->setName('Times New Roman')->setBold(true)->setSize(12);
                 $event->sheet->getDelegate()->getStyle($cellRange)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
             },
@@ -52,6 +56,6 @@ class PmExport implements FromView, WithEvents, WithStyles
     }
     public function styles(Worksheet $sheet)
     {
-        $sheet->getStyle('B2')->getFont()->setBold(true);
+        $sheet->getStyle('A1:O2')->getFont()->setBold(true);
     }
 }

@@ -49,10 +49,11 @@ class ReportMaintenanceController extends Controller
     public function excel_pm(Request $request)
     {
         $rs = $request->filter_rs;
-        $tgl_mulai = $request->input('tgl_mulai') . ' 00:00:00';
-        $tgl_akhir = $request->input('tgl_akhir') . ' 23:59:59';
+        $bulan = $request->input('bulan') ?? '';
+        $tahun = $request->input('tahun') ?? '';
+        $jenis = $request->input('jenis_alat') ?? '';
 
-        $nama_file = 'laporan Preventif Maintenance ' . $request->input('tgl_mulai') . ' - Hingga - ' . $request->input('tgl_akhir') . '.xlsx';
-        return Excel::download(new PmExport($tgl_mulai, $tgl_akhir), $nama_file);
+        $nama_file = 'laporan Preventif Maintenance ' . $request->input('bulan') . ' - ' . $request->input('tahun') . '.xlsx';
+        return Excel::download(new PmExport($bulan, $tahun, $jenis), $nama_file);
     }
 }
