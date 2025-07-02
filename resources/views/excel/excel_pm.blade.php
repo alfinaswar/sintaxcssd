@@ -31,8 +31,8 @@
                 @for ($i = 1; $i <= 12; $i++)
                     @php
                         $bulanIni = str_pad($i, 2, '0', STR_PAD_LEFT);
-                        $adaPM = $item->DataMaintenance->first(function ($pm) use ($bulanIni) {
-                            return \Carbon\Carbon::parse($pm->bulan)->format('m') == $bulanIni;
+                        $adaPM = $item->DataMaintenance->first(function ($pm) use ($i) {
+                            return \Carbon\Carbon::parse($pm->bulan)->format('m') == $i;
                         });
                     @endphp
                     <td style="width: 60px;">
