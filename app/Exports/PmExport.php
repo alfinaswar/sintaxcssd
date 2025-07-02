@@ -30,14 +30,16 @@ class PmExport implements FromView, WithEvents, WithStyles
         $tahun1 = $this->tahun;
         $data = DataInventaris::with([
             'DataMaintenance' => function ($query) use ($bulan1, $tahun1) {
-                $query->where('bulan', $bulan1)
+                if (!is_null($bulan1)) {
+                    $query->where('bulan', $bulan1);
+                }
                     ->whereYear('created_at', $tahun1);
             }
         ])
             ->where('pengguna', $this->jenis)
             ->where('nama_rs', Auth::user()->kodeRS)
             ->get();
-        dd($data);
+        // dd($data);
         return view('excel.excel_pm', compact('data'));
     }
     public function registerEvents(): array
