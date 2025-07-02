@@ -32,7 +32,7 @@
                     @php
                         $bulanIni = str_pad($i, 2, '0', STR_PAD_LEFT);
                         $adaPM = $item->DataMaintenance->first(function ($pm) use ($i) {
-                            return \Carbon\Carbon::parse($pm->bulan)->format('m') == $i;
+                            return $pm->bulan == $i;
                         });
                     @endphp
                     <td style="width: 60px;">
