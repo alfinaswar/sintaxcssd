@@ -414,7 +414,7 @@ class DataInventarisController extends Controller
             ->join('masteritem', 'ro2.ItemID', '=', 'masteritem.ItemID')
             ->select('ro2.*', 'masteritem.Nama as NamaItem', 'masteritem.GroupItemID', 'masteritem.ItemID')
             ->orderBy('TanggalBuat', 'desc')
-            ->take(50)
+            ->take(100)
             ->get();
         $view = view('data-inventaris.data-item', compact('query'))->render();
         return response()->json(['data' => $query, 'view' => $view], 200);

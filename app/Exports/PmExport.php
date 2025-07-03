@@ -27,7 +27,7 @@ class PmExport implements FromView, WithEvents, WithStyles
     public function view(): View
     {
         $bulan1 = $this->bulan;
-        // dd(Auth::user()->kodeRS);
+        // dd(Auth::user()->kodeRS);  
         $tahun1 = $this->tahun;
         $data = DataInventaris::with([
             'DataMaintenance' => function ($query) use ($bulan1, $tahun1) {
