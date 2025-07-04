@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateMasterPenggunasTable extends Migration
+class AddCatatanToPenghapusanAlat extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,8 @@ class CreateMasterPenggunasTable extends Migration
      */
     public function up()
     {
-        Schema::create('master_penggunas', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama', 100);
-            $table->softDeletes();
-            $table->timestamps();
+        Schema::table('penghapusan_asets', function (Blueprint $table) {
+            $table->text('Catatan')->nullable()->after('Status');
         });
     }
 
@@ -28,6 +25,8 @@ class CreateMasterPenggunasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('master_penggunas');
+        Schema::table('penghapusan_asets', function (Blueprint $table) {
+            //
+        });
     }
 }

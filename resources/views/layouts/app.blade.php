@@ -262,6 +262,18 @@
                                             class="kt-menu__link-text">Maintanance</span></a></li>
                             @endcan
 
+<li class="kt-menu__item @if (request()->is('penghapusan-aset'))
+    {{ 'kt-menu__item--active' }}
+@elseif (request()->is('penghapusan-aset/*'))
+    {{ 'kt-menu__item--active' }}
+@endif" aria-haspopup="true">
+    <a href="{{ route('pa.index') }}" class="kt-menu__link ">
+        <span class="kt-menu__link-icon">
+            <i class="fa fa-trash"></i>
+        </span>
+        <span class="kt-menu__link-text">Penghapusan Aset</span>
+    </a>
+</li>
                             @can('laporan')
                                 <li class="kt-menu__item  kt-menu__item--submenu @if (request()->segment(1) == 'laporan')
                                     {{ 'kt-menu__item--open kt-menu__item--here' }}

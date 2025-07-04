@@ -25,6 +25,7 @@ use App\Http\Controllers\MasterUnitController;
 use App\Http\Controllers\MutasiController;
 use App\Http\Controllers\PemakaianController;
 use App\Http\Controllers\PembelianController;
+use App\Http\Controllers\PenghapusanAsetController;
 use App\Http\Controllers\PerbaikanController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ReportMaintenanceController;
@@ -152,6 +153,16 @@ Route::prefix('flipbook')->group(function () {
     Route::post('/store', [FlipbookController::class, 'store'])->name('flipbook.store');
     Route::get('/destroy', [FlipbookController::class, 'destroy'])->name('flipbook.destroy');
     Route::get('/show/{id}', [FlipbookController::class, 'show'])->name('flipbook.show');
+
+});
+Route::prefix('penghapusan-aset')->group(function () {
+    Route::get('/', [PenghapusanAsetController::class, 'index'])->name('pa.index');
+    Route::get('/create', [PenghapusanAsetController::class, 'create'])->name('pa.create');
+    Route::post('/store', [PenghapusanAsetController::class, 'store'])->name('pa.store');
+    Route::get('/destroy', [PenghapusanAsetController::class, 'destroy'])->name('pa.destroy');
+    Route::get('/show/{id}', [PenghapusanAsetController::class, 'show'])->name('pa.show');
+    Route::get('/edit/{id}', [PenghapusanAsetController::class, 'edit'])->name('pa.edit');
+    Route::put('/update/{id}', [PenghapusanAsetController::class, 'update'])->name('pa.update');
 
 });
 Route::prefix('maintanance')->group(function () {
