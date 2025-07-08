@@ -62,6 +62,16 @@
             <!--end: Datatable -->
         </div>
     </div>
+    @if (session()->has('success'))
+        <script>
+            swal.fire({
+                title: "{{ __('Success!') }}",
+                text: "{!! session('success') !!}",
+                type: "success",
+                icon: "success"
+            });
+        </script>
+    @endif
 @endsection
 
 @push('css')
@@ -104,7 +114,6 @@
         var delete_data = function (e, id) {
             e.preventDefault();
             var url = "{{ route('pa.destroy', ':id') }}".replace(':id', id);
-
             Swal.fire({
                 title: 'Apakah Anda yakin?',
                 text: "Data akan dihapus!",

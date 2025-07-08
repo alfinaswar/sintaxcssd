@@ -159,10 +159,16 @@ Route::prefix('penghapusan-aset')->group(function () {
     Route::get('/', [PenghapusanAsetController::class, 'index'])->name('pa.index');
     Route::get('/create', [PenghapusanAsetController::class, 'create'])->name('pa.create');
     Route::post('/store', [PenghapusanAsetController::class, 'store'])->name('pa.store');
+    Route::post('/setujui/{id}', [PenghapusanAsetController::class, 'AccPengajuan'])->name('pa.setujui');
+    Route::post('/tolak/{id}', [PenghapusanAsetController::class, 'TolakPengajuan'])->name('pa.tolak');
+    Route::post('/setujui-smi/{id}', [PenghapusanAsetController::class, 'AccPengajuanSmi'])->name('pa.setujuiSmi');
+    Route::post('/tolak-smi/{id}', [PenghapusanAsetController::class, 'TolakPengajuanSmi'])->name('pa.tolakSmi');
     Route::get('/destroy', [PenghapusanAsetController::class, 'destroy'])->name('pa.destroy');
     Route::get('/show/{id}', [PenghapusanAsetController::class, 'show'])->name('pa.show');
+    Route::get('/cetak-pengajuan/{id}', [PenghapusanAsetController::class, 'Print'])->name('pa.cetak');
     Route::get('/edit/{id}', [PenghapusanAsetController::class, 'edit'])->name('pa.edit');
     Route::put('/update/{id}', [PenghapusanAsetController::class, 'update'])->name('pa.update');
+
 
 });
 Route::prefix('maintanance')->group(function () {

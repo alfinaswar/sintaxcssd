@@ -169,28 +169,35 @@ class UserController extends Controller
     public function changePasswordSave(Request $request)
     {
 
-        $this->validate($request, [
-            'current_password' => 'required|string',
-            'new_password' => 'required|confirmed|min:6|string'
-        ]);
-        $auth = Auth::user();
-        // dd(!Hash::check($request->get('current_password'), $auth->password));
-        // dd(!Hash::check('123456', '$2y$10$gKtFDQMdXogn0ojd0iQq0uBmRdn3m9FTn2cG6UNrlHdkBRx/CsNb6'));
-        // The passwords matches
-        if (!Hash::check($request->get('current_password'), $auth->password)) {
-            return back()->with('error', "Current Password is Invalid");
-        }
+        $user = User::find(auth()->user()->id);
+        if ($request->filled('current_password')) {
+            $this->validate($request, [
+                'current_password' => 'required|string',
+                'new_password' => 'required|confirmed|min:6|string'
+            ]);
+            $auth = Auth::user();
 
-        // Current password and new password same
-        if (strcmp($request->get('current_password'), $request->new_password) == 0) {
-            return redirect()->back()->with("error", "New Password cannot be same as your current password.");
-        }
+            if (!Hash::check($request->get('current_password'), $auth->password)) {
+                return back()->with('error', "Password saat ini tidak valid");
+            }
 
-        $user = User::find($auth->id);
-        $user->password = Hash::make($request->new_password);
-        $user->save();
-        Auth::logout();
-        return redirect()->route('login')->with("success", "Password berhasil di ubah.");
-        ;
+            // Password lama dan baru sama
+            if (strcmp($request->get('current_password'), $request->new_password) == 0) {
+                return redirect()->back()->with("error", "Password baru tidak boleh sama dengan password saat ini.");
+            }
+            $user->password = Hash::make($request->new_password);
+            $user->save();
+            Auth::logout();
+            return redirect()->route('login')->with("success", "Password berhasil di ubah.");
+        }
+        // dd($request->hasFile('ttd'));
+        if ($request->hasFile('ttd')) {
+            $ttd = $request->file('ttd');
+            $ttd->storeAs('public/tandatangan', $ttd->hashName());
+            $user->ttd = $ttd->hashName();
+            $user->save();
+        }
+        return redirect()->back()->with("success", "Tanda Tangan Digital Berhasil Diupload");
+
     }
 }

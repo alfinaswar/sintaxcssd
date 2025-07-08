@@ -2,6 +2,9 @@
 @push('title')
     Edit Pengajuan Penghapusan Aset
 @endpush
+{{-- @php
+   dd($data)
+@endphp --}}
 @section('content')
     <div class="kt-portlet kt-portlet--mobile">
         <div class="kt-portlet__head kt-portlet__head--lg">
@@ -89,8 +92,8 @@
                                         </tr>
                                     </thead>
                                     <tbody id="tbody-aset">
-                                        @if(isset($data->detail) && count($data->detail))
-                                            @foreach($data->detail as $key => $detail)
+
+                                            @forelse($data->getDetail as $key => $detail)
                                                 <tr>
                                                     <td>
                                                         <select class="form-control kt-select2" name="AssetId[]" required>
@@ -106,13 +109,12 @@
                                                         <textarea class="form-control" name="Keterangan[]" placeholder="Masukkan keterangan alasan penghapusan" rows="2" required>{{ $detail->Keterangan }}</textarea>
                                                     </td>
                                                     <td>
-                                                        <button type="button" class="btn btn-danger btn-sm remove-row" {{ $loop->first && count($data->detail) == 1 ? 'disabled' : '' }}>
+                                                        <button type="button" class="btn btn-danger btn-sm remove-row" {{ $loop->first && count($data->getDetail) == 1 ? 'disabled' : '' }}>
                                                             <i class="fa fa-trash"></i>
                                                         </button>
                                                     </td>
                                                 </tr>
-                                            @endforeach
-                                        @else
+                                            @empty
                                             <tr>
                                                 <td>
                                                     <select class="form-control kt-select2" name="AssetId[]" id="kt_select2_1"
@@ -136,7 +138,7 @@
                                                     </button>
                                                 </td>
                                             </tr>
-                                        @endif
+                                        @endforelse
                                     </tbody>
                                 </table>
                             </div>

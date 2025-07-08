@@ -11,4 +11,10 @@ class PenghapusanAsetDetail extends Model
     use HasFactory, SoftDeletes;
     protected $table = 'penghapusan_aset_details';
     protected $guarded = ['id'];
+
+
+    public function getItem()
+    {
+        return $this->belongsTo(DataInventaris::class, 'AssetId', 'id');
+    }
 }

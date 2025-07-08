@@ -7,6 +7,7 @@ use App\Models\Flipbook;
 use App\Models\MasterDepartemenModel;
 use App\Models\PenghapusanAset;
 use App\Models\PenghapusanAsetDetail;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -26,9 +27,10 @@ class PenghapusanAsetController extends Controller
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
+                    $btnShow = '<a href="' . route('pa.show', $row->id) . '" class="btn btn-outline-info btn-icon" title="Show"><i class="fa fa-eye"></i></a>';
                     $btnEdit = '<a href="' . route('pa.edit', $row->id) . '" class="btn btn-outline-primary btn-icon" title="Edit"><i class="fa fa-edit"></i></a>';
-                    $btnDelete = '<button type="button" class="btn btn-outline-danger btn-icon btn-delete" data-id="' . $row->id . '" title="Hapus"><i class="fa fa-trash"></i></button>';
-                    $btn = $btnEdit . ' ' . $btnDelete;
+                    $btnDelete = '<button type="button" class="btn btn-outline-danger btn-icon" onclick="delete_data(event,' . $row->id . ')" ><i class="fa fa-times"></i></button>';
+                    $btn = $btnShow . ' ' . $btnEdit . ' ' . $btnDelete;
                     return $btn;
                 })
                 ->editColumn('Status', function ($row) {
@@ -86,9 +88,8 @@ class PenghapusanAsetController extends Controller
             'Sign3' => $data['Sign3'] ?? null,
             'Sign4' => $data['Sign4'] ?? null,
             'KodeRS' => Auth()->user()->kodeRS,
+            'Catatan' => $data['Catatan'] ?? null,
         ]);
-        // Simpan detail penghapusan aset
-        // Ambil id penghapusan aset yang baru saja dibuat
         $idPenghapusan = PenghapusanAset::where('DiajukanOleh', auth()->user()->id)->orderBy('id', 'desc')->first();
 
         foreach ($data['AssetId'] as $key => $detail) {
@@ -106,9 +107,9 @@ class PenghapusanAsetController extends Controller
     }
     private function GenerateNumber()
     {
-        // Format: DEL25MMNNNN, contoh: DEL25060123
-        $tahun = date('y'); // hanya 2 digit tahun, misal 2025 -> 25
-        $bulan = date('m'); // 2 digit bulan
+
+        $tahun = date('y');
+        $bulan = date('m');
         $prefix = 'DEL' . $tahun . $bulan;
 
         // Ambil nomor terakhir di bulan dan tahun ini
@@ -127,15 +128,26 @@ class PenghapusanAsetController extends Controller
         return $nomorBaru;
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\PenghapusanAset  $penghapusanAset
-     * @return \Illuminate\Http\Response
-     */
-    public function show(PenghapusanAset $penghapusanAset)
+
+    public function show($id)
     {
-        //
+        $data = PenghapusanAset::with('getDepartemen', 'getDiajukan', 'getManager', 'getSmi', 'getRs', 'getDetail', 'getDetail.getItem')->where('id', $id)->first();
+        return view('penghapusan-aset.show', compact('data'));
+    }
+    public function Print($id)
+    {
+        $data = PenghapusanAset::with(
+            'getDepartemen',
+            'getDiajukan',
+            'getManager',
+            'getSmi',
+            'getRs',
+            'getDetail',
+            'getDetail.getItem'
+        )->where('id', $id)->first();
+
+        $pdf = Pdf::loadView('penghapusan-aset.print-pengajuan', compact('data'));
+        return $pdf->stream('pengajuan_penghapusan_aset_' . $data->NomorPengajuan . '.pdf');
     }
 
     /**
@@ -146,7 +158,7 @@ class PenghapusanAsetController extends Controller
      */
     public function edit($id)
     {
-        $data = PenghapusanAset::with('getDepartemen', 'getDiajukan', 'getRs')->where('id', $id)->first();
+        $data = PenghapusanAset::with('getDepartemen', 'getDiajukan', 'getRs', 'getDetail', 'getDetail.getItem')->where('id', $id)->first();
         $departemen = MasterDepartemenModel::where('KodeRS', auth()->user()->kodeRS)->get();
         $item = DataInventaris::orderBy('nama', 'ASC')->get();
         return view('penghapusan-aset.edit', compact('data', 'departemen', 'item'));
@@ -159,19 +171,113 @@ class PenghapusanAsetController extends Controller
      * @param  \App\Models\PenghapusanAset  $penghapusanAset
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, PenghapusanAset $penghapusanAset)
+    public function update(Request $request, $id)
     {
-        //
-    }
+        $data = $request->all();
+        $penghapusanAset = PenghapusanAset::findOrFail($id);
+        $penghapusanAset->update([
+            'Departemen' => $data['Departemen'] ?? null,
+            'Unit' => $data['Unit'] ?? null,
+            'Tanggal' => $data['Tanggal'] ?? null,
+            'Sign1' => $data['Sign1'] ?? null,
+            'Sign2' => $data['Sign2'] ?? null,
+            'Sign3' => $data['Sign3'] ?? null,
+            'Sign4' => $data['Sign4'] ?? null,
+            'Catatan' => $data['Catatan'] ?? null,
 
+        ]);
+
+        PenghapusanAsetDetail::where('idPenghapusan', $id)->delete();
+
+        foreach ($data['AssetId'] as $key => $detail) {
+            PenghapusanAsetDetail::create([
+                'idPenghapusan' => $id,
+                'AssetId' => $detail,
+                'Qty' => $detail['Qty'] ?? 1,
+                'Keterangan' => $request->Keterangan[$key] ?? null,
+            ]);
+        }
+
+        return redirect()->route('pa.index')->with('success', 'Data penghapusan aset berhasil diperbarui.');
+    }
+    public function AccPengajuan(Request $request, $id)
+    {
+        $penghapusanAset = PenghapusanAset::find($id);
+        $penghapusanAset->update([
+            'Sign1' => auth()->user()->id,
+            'AccManager' => 'Y',
+            'AccManagerPada' => now(),
+            'Status' => 'proses',
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Pengajuan telah disetujui oleh Manager.'
+        ], 200);
+    }
+    public function AccPengajuanSmi(Request $request, $id)
+    {
+        $penghapusanAset = PenghapusanAset::with('getDetail')->find($id);
+        $penghapusanAset->update([
+            'Sign2' => auth()->user()->id,
+            'AccSmi' => 'Y',
+            'AccSmiPada' => now(),
+            'Status' => 'disetujui',
+        ]);
+
+        foreach ($penghapusanAset->getDetail as $key => $value) {
+            $cek = DataInventaris::with('DataMaintenance', 'getFormPembersihan')->find($value->AssetId);
+            $cek->DataMaintenance->delete();
+            $cek->getFormPembersihan->delete();
+            $cek->delete();
+        }
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Pengajuan telah disetujui oleh SMI.'
+        ], 200);
+    }
+    public function TolakPengajuan(Request $request, $id)
+    {
+        $penghapusanAset = PenghapusanAset::find($id);
+        $penghapusanAset->update([
+            'Sign1' => auth()->user()->id,
+            'AccManager' => 'N',
+            'AccManagerPada' => now(),
+            'Status' => 'ditolak',
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Pengajuan telah ditolak oleh Manager.'
+        ], 200);
+    }
+    public function TolakPengajuanSmi(Request $request, $id)
+    {
+        $penghapusanAset = PenghapusanAset::find($id);
+        $penghapusanAset->update([
+            'Sign2' => auth()->user()->id,
+            'AccSmi' => 'N',
+            'AccSmiPada' => now(),
+        ]);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Pengajuan telah ditolak oleh SMI.'
+        ], 200);
+    }
     /**
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\PenghapusanAset  $penghapusanAset
      * @return \Illuminate\Http\Response
      */
-    public function destroy(PenghapusanAset $penghapusanAset)
+    public function destroy($id)
     {
-        //
+        $data = PenghapusanAset::with('getDetail')->find($id);
+        if ($data->Status == "disetujui") {
+            return response()->json(['msg' => 'Data tidak dapat dihapus karena sudah disetujui'], 422);
+        }
+        $data->getDetail()->delete();
+        $data->delete();
+        return response()->json(['msg' => 'Data berhasil di hapus'], 200);
     }
 }
