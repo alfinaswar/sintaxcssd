@@ -527,6 +527,10 @@ class DataInventarisController extends Controller
             'klasifikasi' => $request->klasifikasi,
             'nama_rs' => auth()->user()->kodeRS,
             'isKalibrasi' => $request->isKalibrasi,
+            'UserCreate' => auth()->user()->name ?? null,
+            'UserId' => auth()->user()->id ?? null,
+            'UpdateName' => null,
+            'UpdateById' => null,
         ]);
 
         $username = auth()->user()->name;
@@ -615,6 +619,11 @@ class DataInventarisController extends Controller
                 'klasifikasi' => $request->klasifikasi,
                 'nama_rs' => auth()->user()->kodeRS,
                 'isKalibrasi' => $request->isKalibrasi,
+                'UserCreate' => auth()->user()->name ?? null,
+                'UserId' => auth()->user()->id ?? null,
+                'UpdateName' => null,
+                'UpdateById' => null,
+
             ]);
         } elseif ($request->hasFile('gambar')) {
             $this->validate($request, [
@@ -649,6 +658,10 @@ class DataInventarisController extends Controller
                 'nama_rs' => auth()->user()->kodeRS,
                 'isKalibrasi' => $request->isKalibrasi,
                 'klasifikasi' => $request->klasifikasi,
+                'UserCreate' => auth()->user()->name ?? null,
+                'UserId' => auth()->user()->id ?? null,
+                'UpdateName' => null,
+                'UpdateById' => null,
             ]);
             // }elseif ($request->hasFile('dokumen')) {
             //     $this->validate($request, [
@@ -711,6 +724,10 @@ class DataInventarisController extends Controller
                 'manualbook' => $manualbook->hashName(),
                 'nama_rs' => auth()->user()->kodeRS,
                 'isKalibrasi' => $request->isKalibrasi,
+                'UserCreate' => auth()->user()->name ?? null,
+                'UserId' => auth()->user()->id ?? null,
+                'UpdateName' => null,
+                'UpdateById' => null,
             ]);
         } else {
             DataInventaris::create([
@@ -734,6 +751,10 @@ class DataInventarisController extends Controller
                 'tgl_expire' => $request->tgl_expire,
                 'nama_rs' => auth()->user()->kodeRS,
                 'isKalibrasi' => $request->isKalibrasi,
+                'UserCreate' => auth()->user()->name ?? null,
+                'UserId' => auth()->user()->id ?? null,
+                'UpdateName' => null,
+                'UpdateById' => null,
             ]);
         }
 
@@ -788,6 +809,8 @@ class DataInventarisController extends Controller
         $data['pengguna'] = $request->userPengguna;
         $data['keterangan'] = $request->keterangan;
         $data['klasifikasi'] = $request->klasifikasi;
+        $data['UpdateName'] = auth()->user()->name ?? null;
+        $data['UpdateById'] = auth()->user()->id ?? null;
         $query = DataInventaris::find($id);
         $query->update($data);
 
