@@ -20,4 +20,5 @@ class cssdItemsetDetail extends Model
     {
         return $this->belongsTo(cssdMasterItem::class, 'ItemId'); // relasi ke item master
     }
+
 }

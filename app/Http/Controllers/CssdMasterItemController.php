@@ -6,6 +6,7 @@ use App\Models\cssdMasterItem;
 use App\Models\cssdMasterSatuan;
 use App\Models\cssdMasterType;
 use App\Models\cssdMerk;
+use App\Models\MasterItemGroup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
@@ -19,13 +20,11 @@ class CssdMasterItemController extends Controller
      */
     public function index(Request $request)
     {
-        // $data = cssdMasterItem::with('getMerk', 'getTipe', 'getNamaRS', 'getSatuan')->where('KodeRs', auth()->user()->kodeRS)->orderBy('id', 'desc')->get();
-        // dd($data);
         if ($request->ajax()) {
             if (auth()->user()->hasRole('superadmin_cssd')) {
-                $data = cssdMasterItem::with('getMerk', 'getTipe', 'getNamaRS', 'getSatuan')->orderBy('id', 'desc')->get();
+                $data = cssdMasterItem::with('getNama', 'getMerk', 'getTipe', 'getNamaRS', 'getSatuan')->orderBy('id', 'desc')->get();
             } else {
-                $data = cssdMasterItem::with('getMerk', 'getTipe', 'getNamaRS', 'getSatuan')->where('KodeRs', auth()->user()->kodeRS)->orderBy('id', 'desc')->get();
+                $data = cssdMasterItem::with('getNama', 'getMerk', 'getTipe', 'getNamaRS', 'getSatuan')->where('KodeRs', auth()->user()->kodeRS)->orderBy('id', 'desc')->get();
             }
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -56,11 +55,12 @@ class CssdMasterItemController extends Controller
      */
     public function create()
     {
-        $merks = cssdMerk::where('KodeRs', auth()->user()->kodeRS)->get();
+        $masteritem = MasterItemGroup::with('getMerk')->latest()->get();
+        $merks = cssdMerk::get();
         $tipe = cssdMasterType::where('KodeRs', auth()->user()->kodeRS)->get();
         $Satuan = cssdMasterSatuan::where('KodeRs', auth()->user()->kodeRS)->get();
         // dd($merks);
-        return view('cssd.master-item.create', compact('merks', 'tipe', 'Satuan'));
+        return view('cssd.master-item.create', compact('merks', 'tipe', 'Satuan', 'masteritem'));
     }
 
     /**
@@ -72,20 +72,16 @@ class CssdMasterItemController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'ROID' => 'nullable|string|max:255',
             'SerialNumber' => 'required|string|max:255',
             'Nama' => 'required|string|max:255',
             'Merk' => 'required|string',
-            'merk_baru' => 'required_if:Merk,MerkBaru|string|max:255',
             'Tipe' => 'required|string',
-            'tipe_baru' => 'required_if:Tipe,TipeBaru|string|max:255',
             'Qty' => 'required|integer|min:1',
             'TahunPerolehan' => 'required|integer|between:2010,' . date('Y'),
             'KondisiBarang' => 'required|in:B,KB,R',
             'Gambar' => 'required|file|mimes:jpeg,png,jpg,gif|max:5000',
             'Satuan' => 'required|string',
-            'satuan_baru' => 'required_if:Satuan,SatuanBaru|string|max:255',
-            'Harga' => 'required',
+
         ]);
 
         if ($validator->fails()) {
@@ -96,7 +92,6 @@ class CssdMasterItemController extends Controller
         }
 
         $data = $request->all();
-        // dd($data);
         if ($request->Tipe == 'TipeBaru') {
             $tipe = $request->tipe_baru;
             cssdMasterType::create([
@@ -108,17 +103,7 @@ class CssdMasterItemController extends Controller
         } else {
             $data['Tipe'] = $request->Tipe;
         }
-        if ($request->Merk == 'MerkBaru') {
-            $Merk = $request->merk_baru;
-            cssdMerk::create([
-                'KodeRs' => auth()->user()->kodeRS,
-                'Merk' => $request->merk_baru,
-                'idUser' => auth()->user()->id
-            ]);
-            $data['Merk'] = cssdMerk::where('idUser', auth()->user()->id)->latest()->first()->id;
-        } else {
-            $data['Merk'] = $request->Merk;
-        }
+
         if ($request->Satuan == 'SatuanBaru') {
             $Merk = $request->satuan_baru;
             cssdMerk::create([
@@ -167,12 +152,13 @@ class CssdMasterItemController extends Controller
 
     public function edit($id)
     {
+        $masteritem = MasterItemGroup::with('getMerk')->latest()->get();
         $data = cssdMasterItem::find($id);
         $merks = cssdMerk::where('KodeRs', auth()->user()->kodeRS)->get();
         $tipe = cssdMasterType::where('KodeRs', auth()->user()->kodeRS)->get();
         $Satuan = cssdMasterSatuan::where('KodeRs', auth()->user()->kodeRS)->get();
         // dd($merks);
-        return view('cssd.master-item.edit', compact('merks', 'tipe', 'Satuan', 'data'));
+        return view('cssd.master-item.edit', compact('merks', 'tipe', 'Satuan', 'data', 'masteritem'));
 
     }
 
@@ -186,20 +172,16 @@ class CssdMasterItemController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'ROID' => 'nullable|string|max:255',
+
             'SerialNumber' => 'required|string|max:255',
             'Nama' => 'required|string|max:255',
             'Merk' => 'required|string',
-            'merk_baru' => 'required_if:Merk,MerkBaru|string|max:255',
             'Tipe' => 'required|string',
-            'tipe_baru' => 'required_if:Tipe,TipeBaru|string|max:255',
             'Qty' => 'required|integer|min:1',
             'TahunPerolehan' => 'required|integer|between:2010,' . date('Y'),
             'KondisiBarang' => 'required|in:B,KB,R',
-            'Gambar' => 'required|file|mimes:jpeg,png,jpg,gif|max:5000',
+            'Gambar' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:5000',
             'Satuan' => 'required|string',
-            'satuan_baru' => 'required_if:Satuan,SatuanBaru|string|max:255',
-            'Harga' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -221,17 +203,6 @@ class CssdMasterItemController extends Controller
         } else {
             $data['Tipe'] = $request->Tipe;
         }
-        if ($request->Merk == 'MerkBaru') {
-            $Merk = $request->merk_baru;
-            cssdMerk::create([
-                'KodeRs' => auth()->user()->kodeRS,
-                'Merk' => $request->merk_baru,
-                'idUser' => auth()->user()->id
-            ]);
-            $data['Merk'] = cssdMerk::where('idUser', auth()->user()->id)->latest()->first()->id;
-        } else {
-            $data['Merk'] = $request->Merk;
-        }
         if ($request->Satuan == 'SatuanBaru') {
             cssdMasterSatuan::create([
                 'KodeRs' => auth()->user()->kodeRS,
@@ -249,9 +220,8 @@ class CssdMasterItemController extends Controller
             $data['Gambar'] = $namaFile;
         }
         $data['Kode'] = $this->generateKode();
-        $data['idUser'] = auth()->user()->id;
+        $data['UserUpdate'] = auth()->user()->name;
         $data['KodeRs'] = auth()->user()->kodeRS;
-        $data['Harga'] = str_replace('.', '', $request->Harga);
 
         cssdMasterItem::find($id)->update($data);
         return redirect()->route('master-cssd.cssd-master-item.index')->with('success', 'Item Berhasil Diubah');

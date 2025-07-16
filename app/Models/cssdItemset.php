@@ -17,4 +17,13 @@ class cssdItemset extends Model
         return $this->hasOne(cssdItemsetDetail::class, 'IdItemset', 'id');
     }
 
+    public function getNamaset()
+    {
+        return $this->belongsTo(MasterNamaSet::class, 'Nama', 'id');
+    }
+    public function getrs()
+    {
+        return $this->belongsTo(MasterRs::class, 'KodeRs', 'kodeRS');
+    }
+
 }

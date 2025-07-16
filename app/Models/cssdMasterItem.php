@@ -11,6 +11,10 @@ class cssdMasterItem extends Model
     protected $table = 'cssd_master_items';
     protected $guarded = ['id'];
 
+    public function getNama()
+    {
+        return $this->belongsTo(MasterItemGroup::class, 'Nama', 'id');
+    }
     public function getMerk()
     {
         return $this->belongsTo(cssdMerk::class, 'Merk', 'id');

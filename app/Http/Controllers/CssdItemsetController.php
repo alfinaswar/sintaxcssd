@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\cssdItemset;
 use App\Models\cssdItemsetDetail;
 use App\Models\cssdMasterItem;
+use App\Models\MasterNamaSet;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -21,9 +22,9 @@ class CssdItemsetController extends Controller
         // dd($data);
         if ($request->ajax()) {
             if (auth()->user()->hasRole('superadmin_cssd')) {
-                $data = cssdItemset::orderBy('id', 'desc')->get();
+                $data = cssdItemset::with('getNamaset', 'getrs', 'DetailItem')->orderBy('id', 'desc')->get();
             } else {
-                $data = cssdItemset::where('KodeRs', auth()->user()->kodeRS)->orderBy('id', 'desc')->get();
+                $data = cssdItemset::with('getNamaset', 'getrs', 'DetailItem')->where('KodeRs', auth()->user()->kodeRS)->orderBy('id', 'desc')->get();
             }
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -33,7 +34,25 @@ class CssdItemsetController extends Controller
                     $btn = $btnEdite . '&nbsp;' . $btnlihat;
                     return $btn;
                 })
-                ->rawColumns(['action'])
+                ->addColumn('Item', function ($row) {
+                    $details = $row->DetailItem;
+                    $labels = [];
+
+                    if ($details && is_array($details->ItemId)) {
+                        $itemIds = array_slice($details->ItemId, 0, 5);
+                        foreach ($itemIds as $index => $itemId) {
+                            $item = cssdMasterItem::with('getNama')->find($itemId);
+                            $qty = is_array($details->Qty) && isset($details->Qty[$index]) ? $details->Qty[$index] : 0;
+                            if ($item) {
+                                $namaItem = $item->getNama->Nama ?? '-';
+                                $labels[] = '<span class="badge badge-primary m-1">' . $namaItem . ' (Qty: ' . $qty . ')</span>';
+                            }
+                        }
+                    }
+
+                    return implode(' ', $labels) ?: '-';
+                })
+                ->rawColumns(['action', 'Item'])
                 ->make(true);
         }
 
@@ -47,8 +66,11 @@ class CssdItemsetController extends Controller
      */
     public function create()
     {
-        $items = cssdMasterItem::where('KodeRs', auth()->user()->kodeRs)->get();
-        return view('cssd.master-item-set.create', compact('items'));
+        // dd(auth()->user()->kodeRS);
+        $NamaSet = MasterNamaSet::get();
+        $items = cssdMasterItem::with('getNama')->where('KodeRs', auth()->user()->kodeRS)->get();
+        // dd($items);
+        return view('cssd.master-item-set.create', compact('items', 'NamaSet'));
     }
     public function getItemDetail(Request $request)
     {
@@ -103,13 +125,17 @@ class CssdItemsetController extends Controller
      */
     public function edit($id)
     {
-        $data = cssdItemset::with('DetailItem')->where('KodeRs', auth()->user()->kodeRS)->where('id', $id)->first();
+        $data = cssdItemset::with('Detailitem')->where('KodeRs', auth()->user()->kodeRS)->where('id', $id)->first();
         // dd($data);
+        $idinstrumen = $data->Detailitem->ItemId;
+        $NamaInstrumen = cssdMasterItem::whereIn('id', (array) $idinstrumen)->get();
+
         $itemIds = $data->DetailItem->ItemId;
         $getItems = cssdMasterItem::with('getMerk', 'getTipe')->whereIn('id', $itemIds)->get();
         $items = cssdMasterItem::where('KodeRs', auth()->user()->kodeRS)->get();
-        // dd($items);
-        return view('cssd.master-item-set.edit', compact('data', 'items', 'getItems'));
+        $NamaSet = MasterNamaSet::get();
+        // dd($NamaInstrumen);
+        return view('cssd.master-item-set.edit', compact('data', 'items', 'getItems', 'NamaInstrumen', 'NamaSet'));
     }
 
     /**

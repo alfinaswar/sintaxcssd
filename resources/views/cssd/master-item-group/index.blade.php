@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @push('title')
-    CSSD Item Set
+    Master Item Group CSSD
 @endpush
 @section('content')
     <div class="kt-portlet kt-portlet--mobile">
@@ -10,13 +10,14 @@
                     <i class="kt-font-brand flaticon2-line-chart"></i>
                 </span>
                 <h3 class="kt-portlet__head-title">
-                    CSSD Item Set
+                    Master Item Group CSSD
                 </h3>
             </div>
             <div class="kt-portlet__head-toolbar">
                 <div class="kt-portlet__head-wrapper">
                     <div class="kt-portlet__head-actions">
-                        <a href="{{ route('cssd-item-set.create') }}" class="btn btn-brand btn-elevate btn-icon-sm">
+                        <a href="{{ route('master-cssd.item-group.create') }}"
+                            class="btn btn-brand btn-elevate btn-icon-sm">
                             <i class="la la-plus"></i>
                             Tambah
                         </a>
@@ -32,8 +33,8 @@
                     <tr>
                         <th width="5%">No</th>
                         <th>Nama</th>
-                        <th>Detail Instrumen</th>
-                        <th>Kode RS</th>
+                        <th>Merk</th>
+                        <th>Foto</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -60,7 +61,7 @@
         @endif
     </script>
     <script>
-                                                                                                                                    var dataTable = function () {
+                        var dataTable = function () {
             var table = $('#kt_table_1');
             table.DataTable({
                 responsive: true,
@@ -70,39 +71,40 @@
                 language: {
                     processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span> '
                 },
-                ajax: "{{ route('cssd-item-set.index') }}",
-                columns: [{
-                    data: 'DT_RowIndex',
-                    name: 'DT_RowIndex'
-                },
-                {
-                    data: 'get_namaset.Nama',
-                    name: 'get_namaset.Nama'
-                },
-                {
-                    data: 'Item',
-                    name: 'Item'
-                },
-                {
-                    data: 'getrs.nama',
-                    name: 'getrs.nama'
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false
-                },
+                ajax: "{{ route('master-cssd.item-group.index') }}",
+                columns: [
+                    {
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex'
+                    },
+                    {
+                        data: 'Nama',
+                        name: 'Nama'
+                    },
+                    {
+                        data: 'get_merk.Merk',
+                        name: 'get_merk.Merk'
+                    },
+                    {
+                        data: 'gambar',
+                        name: 'gambar'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    },
                 ]
             })
         };
         var delete_data = function (e, id) {
             e.preventDefault()
-            var url = "{{ route('cssd-item-set.destroy', 'id') }}"
+            var url = "{{ route('master-cssd.item-group.destroy', 'id') }}"
             url = url.replace('id', id)
 
             swal.fire({
-                title: 'kamu yakin?',
+                title: 'Kamu yakin?',
                 text: "Kamu akan menghapus data ini!",
                 type: 'warning',
                 showCancelButton: true,
@@ -135,7 +137,7 @@
                             if (res.msg) {
                                 swal.fire(
                                     'Deleted!',
-                                    'Data berhasil di hapus.',
+                                    'Data berhasil dihapus.',
                                     'success'
                                 )
                             }
@@ -151,7 +153,6 @@
         jQuery(document).ready(function () {
             dataTable()
             $('.progress').hide();
-
         });
     </script>
 @endpush
