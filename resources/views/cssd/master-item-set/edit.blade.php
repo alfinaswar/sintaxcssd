@@ -59,16 +59,15 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-
-                                        @foreach ($data->DetailItem->ItemId as $i => $detail)
+                                        @foreach ($data->DetailItem->NamaInstrumen as $i => $detail)
                                             <tr>
                                                 <td class="text-center row-number">{{$i + 1}}</td>
                                                 <td>
                                                     <select class="form-control select2 Itemset" name="Item[]" required>
                                                         <option value="">Pilih Item</option>
                                                         @foreach ($items as $item)
-                                                            <option value="{{ $item->id }}" {{ $detail == $item->id ? 'selected' : '' }}>
-                                                                {{ $item->Nama }} - {{ $item->SerialNumber }} - {{ $item->Kode }}
+                                                            <option value="{{ $item->id }}" {{ $detail->id == $item->id ? 'selected' : '' }}>
+                                                                {{ $item->getNama->Nama }} - {{ $item->SerialNumber }} - {{ $item->Kode }}
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -128,7 +127,7 @@
 
             let itemOptions = '<option value="">Pilih Item</option>';
             itemsData.forEach(item => {
-                itemOptions += `<option value="${item.id}">${item.Nama} - ${item.SerialNumber} - ${item.Kode}</option>`;
+                itemOptions += `<option value="${item.id}">${item.get_nama.Nama} - ${item.SerialNumber} - ${item.Kode}</option>`;
             });
 
             newRow.innerHTML = `

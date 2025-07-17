@@ -125,16 +125,26 @@ class CssdItemsetController extends Controller
      */
     public function edit($id)
     {
-        $data = cssdItemset::with('Detailitem')->where('KodeRs', auth()->user()->kodeRS)->where('id', $id)->first();
-        // dd($data);
-        $idinstrumen = $data->Detailitem->ItemId;
-        $NamaInstrumen = cssdMasterItem::whereIn('id', (array) $idinstrumen)->get();
-
+        $data = cssdItemset::with('DetailItem')->where('KodeRs', auth()->user()->kodeRS)->where('id', $id)->first();
         $itemIds = $data->DetailItem->ItemId;
-        $getItems = cssdMasterItem::with('getMerk', 'getTipe')->whereIn('id', $itemIds)->get();
+        $detailItems = [];
+        foreach ($itemIds as $key => $value) {
+            $detailItems[] = cssdMasterItem::where('id', $value)->first();
+        }
+        $idinstrumen = $data->DetailItem->ItemId;
+        $NamaInstrumen = cssdMasterItem::whereIn('id', (array) $idinstrumen)->get();
+        $data->DetailItem->NamaInstrumen = $detailItems;
+        // dd($data);
+
+
+        $getItems = cssdMasterItem::with(['getMerk', 'getTipe', 'getNama'])
+            ->whereIn('id', $itemIds)
+            ->get();
+
         $items = cssdMasterItem::where('KodeRs', auth()->user()->kodeRS)->get();
+
         $NamaSet = MasterNamaSet::get();
-        // dd($NamaInstrumen);
+        // dd($data);
         return view('cssd.master-item-set.edit', compact('data', 'items', 'getItems', 'NamaInstrumen', 'NamaSet'));
     }
 
@@ -145,9 +155,25 @@ class CssdItemsetController extends Controller
      * @param  \App\Models\cssdItemset  $cssdItemset
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, cssdItemset $cssdItemset)
+    public function update(Request $request, $id)
     {
-        //
+
+        $data = $request->all();
+        // dd($data);
+        $itemsetHeader = cssdItemset::find($id);
+        $itemsetHeader->update([
+            'KodeRs' => auth()->user()->kodeRS,
+            'Nama' => $request->NamaSet,
+            'idUser' => auth()->user()->id,
+        ]);
+
+        $cssddetail = cssdItemsetDetail::where('IdItemset', $id);
+        $cssddetail->update([
+            'ItemId' => $request->Item,
+            'Qty' => $request->Qty,
+            'KodeRs' => auth()->user()->kodeRS
+        ]);
+        return redirect()->route('cssd-item-set.index')->with('success', 'Set Item Berhasil Ditambahkan');
     }
 
     /**
@@ -156,8 +182,11 @@ class CssdItemsetController extends Controller
      * @param  \App\Models\cssdItemset  $cssdItemset
      * @return \Illuminate\Http\Response
      */
-    public function destroy(cssdItemset $cssdItemset)
+    public function destroy($id)
     {
-        //
+        $data = cssdItemset::with('DetailItem')->find($id);
+        $data->DetailItem->delete();
+        $data->delete();
+        return response()->json(['msg' => 'Data berhasil di hapus'], 200);
     }
 }
