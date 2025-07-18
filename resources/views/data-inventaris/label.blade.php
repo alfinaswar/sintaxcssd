@@ -36,8 +36,8 @@
             <table border="0" style="width: 100%; height:100%; border-spacing: 0px; align:center;">
                 <tbody>
                     <tr>
-                        <td rowspan="5" style="text-align: left; margin-left: 0px;" width="25%"><img
-                                src="data:image/png;base64, {!! $qrcode !!}" width="60" height="60"></td>
+                        <td rowspan="5" style="text-align: left; margin-left: 0px;" width="20%"><img
+                                src="data:image/png;base64, {!! $qrcode !!}" width="60" height="50"></td>
                     </tr>
                     <tr>
 
