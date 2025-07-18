@@ -22,9 +22,9 @@
 
     .container {
         margin-left: 10;
-        font-family :Verdana, Geneva, Tahoma, sans-serif;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
         font-style: :bold;
-        scale : 100%;
+        scale: 100%;
 
     }
 </style>
@@ -33,26 +33,25 @@
 <body>
     <div class="container">
         <center>
-        <table border="0" style="width: 100%; height:100%; border-spacing: 0px; align:center;">
-            <tbody>
-                <tr>
-                    <td rowspan="5" style="text-align: left; margin-left: 0px;" width="20%"><img src="data:image/png;base64, {!! $qrcode !!}" width="50" height="50"></td>
+            <table border="0" style="width: 100%; height:100%; border-spacing: 0px; align:center;">
+                <tbody>
+                    <tr>
+                        <td rowspan="5" style="text-align: left; margin-left: 0px;" width="25%"><img
+                                src="data:image/png;base64, {!! $qrcode !!}" width="60" height="60"></td>
+                    </tr>
+                    <tr>
 
-                </tr>
+                        <td colspan="2" style="font-size: 13px;" height="15px" width="10px"></td>&nbsp;&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="font-size: 9px;">{{$query->real_name}}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="font-size: 9px">SN {{ $query->no_sn }}</td>
+                    </tr>
 
-                <tr>
-
-                    <td colspan="2" style="font-size: 13px;" height="15px" width="10px"></td>&nbsp;&nbsp;&nbsp;</td>
-                </tr>
-                <tr>
-                    <td colspan="2" style="font-size: 9px;">&nbsp;&nbsp;&nbsp;&nbsp;{{$query->real_name}}</td>
-                </tr>
-                <tr>
-                    <td colspan="2" style="font-size: 9px">&nbsp;&nbsp;&nbsp; SN {{ $query->no_sn }}</td>
-                </tr>
-
-            </tbody>
-        </table>
+                </tbody>
+            </table>
         </center>
         <div class="row mt-5 text-center">
 
