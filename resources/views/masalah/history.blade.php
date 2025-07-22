@@ -3,7 +3,26 @@
 <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.min.css'>
 @if(!request()->secure())
     <script>
-        window.location.href = window.location.href.replace('http://', 'https://');
+        // Handle berbagai kemungkinan URL format
+        if (location.protocol !== 'https:') {
+            var currentUrl = window.location.href;
+            var httpsUrl;
+
+            if (currentUrl.startsWith('http://')) {
+                // Jika ada http://, ganti ke https://
+                httpsUrl = currentUrl.replace('http://', 'https://');
+            } else if (currentUrl.startsWith('//')) {
+                // Jika format //domain.com, tambah https:
+                httpsUrl = 'https:' + currentUrl;
+            } else if (!currentUrl.startsWith('http')) {
+                // Jika cuma domain tanpa protocol, tambah https://
+                httpsUrl = 'https://' + currentUrl;
+            }
+
+            if (httpsUrl) {
+                window.location.href = httpsUrl;
+            }
+        }
     </script>
 @endif
 
