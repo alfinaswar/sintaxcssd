@@ -286,9 +286,7 @@ class MasalahController extends Controller
 
     public function history($kode_item)
     {
-        if (!request()->secure()) {
-            return redirect()->secure(request()->getRequestUri());
-        }
+
         $data_alat = DataInventaris::join('master_rs', 'data_inventaris.nama_rs', '=', 'master_rs.kodeRS')
             ->where('kode_item', $kode_item)
             ->select('data_inventaris.*', 'master_rs.nama as rumahsakit')
