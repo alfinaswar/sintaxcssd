@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DataInventaris;
 use App\Models\FormulirPembersihan;
+use App\Models\MasterMerk;
+use App\Models\MasterRs;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class FormulirPembersihanController extends Controller
 {
@@ -14,7 +19,14 @@ class FormulirPembersihanController extends Controller
      */
     public function index()
     {
-        //
+        if (auth()->check() && auth()->user()->role == 'admin') {
+            $data = MasterRs::get();
+        } else {
+            $data = MasterRs::where('kodeRS', auth()->user()->kodeRS)->get();
+        }
+        $merk = MasterMerk::where('nama_rs', auth()->user()->kodeRS)->get();
+        $alat = DataInventaris::select('nama')->distinct()->get();
+        return view('laporan.monitoring.index', compact('data', 'merk', 'alat'));
     }
 
     /**
@@ -22,9 +34,43 @@ class FormulirPembersihanController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function Print(Request $request)
     {
-        //
+        // dd($request->all());
+        $unit = $request->unit;
+        $namaunit = str_replace('/', ' atau ', $request->unit);
+        $jenis = $request->jenis;
+        $alat = $request->nama;
+        $rs = $request->rs;
+        if ($jenis == 'Medis') {
+            $header = 'Medis';
+        } else {
+            $header = 'Umum';
+        }
+        if ($request->format == 'excel') {
+            $nama_file = 'laporan Monitoring Alat ' . $namaunit . '.xlsx';
+            return Excel::download(new ItemRuanganExport($unit, $jenis, $alat, $merk, $rs), $nama_file);
+        } else if ($request->format == 'pdf') {
+            $query = DataInventaris::with('getLaporanMonitoring')->
+                when($unit, function ($query) use ($unit) {
+                    return $query->where('unit', $unit);
+                })
+                ->when($alat, function ($query) use ($alat) {
+                    return $query->where('kode_item', $alat);
+                })
+                ->when($jenis, function ($query) use ($jenis) {
+                    return $query->where('pengguna', $jenis);
+                })
+                ->when($rs, function ($query) use ($rs) {
+                    return $query->where('nama_rs', $rs);
+                })
+                ->orderBy('unit', 'asc')
+                ->get();
+
+            dd($query);
+            $pdf = Pdf::loadView('laporan.monitoring.cetak_pdf', compact('query', 'unit', 'header'));
+            return $pdf->stream('Laporan Monitoring Alat ' . $unit . '.pdf');
+        }
     }
 
     /**

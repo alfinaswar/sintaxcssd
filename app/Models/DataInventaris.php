@@ -39,4 +39,8 @@ class DataInventaris extends Model
     {
         return $this->belongsTo(FormulirPembersihan::class, 'idAlat', 'id');
     }
+    public function getLaporanMonitoring()
+    {
+        return $this->hasMany(FormulirPembersihan::class, 'kode_item', 'kode_item');
+    }
 }

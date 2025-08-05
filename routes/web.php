@@ -257,6 +257,10 @@ Route::group(['prefix' => 'laporan'], function () {
         Route::get('/excel_item/', [LaporanController::class, 'excel_item'])->name('laporan.item-ruangan.excel_item');
         Route::get('/data-inventaris', [LaporanController::class, 'DataInventaris'])->name('laporan.data-inventaris');
     });
+    Route::prefix('monitoring-alat')->group(function () {
+        Route::get('/cetak-laporan', [FormulirPembersihanController::class, 'index'])->name('laporan.monitoring.index');
+        Route::get('/file-import', [FormulirPembersihanController::class, 'Print'])->name('laporan.monitoring.import');
+    });
 });
 //CSSD
 
