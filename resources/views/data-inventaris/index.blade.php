@@ -203,7 +203,7 @@
         @endif
     </script>
     <script>
-                        var dataTable = function () {
+                            var dataTable = function () {
             var table = $('#kt_table_1');
             table.DataTable({
                 responsive: true,
@@ -280,7 +280,7 @@
         };
         var delete_data = function (e, id) {
             e.preventDefault()
-            var url = "{{ route('asset-managemen.destroy', 'id') }}"
+            var url = "{{ route('inventaris.destroy', 'id') }}"
             url = url.replace('id', id)
 
             swal.fire({

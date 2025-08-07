@@ -11,6 +11,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Contracts\Support\ValidatedData;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -46,7 +47,12 @@ class DataInventarisController extends Controller
                         $print = '<center><a href="' . route('inventaris.label', $row->id) . '" target="_blank"><button type="button" data-skin="brand" data-toggle="kt-tooltip" data-placement="top" title="Print Barcode" class="btn btn-outline-primary btn-icon btn-md" ><i class="fas fa-qrcode"></i></button></a></center>';
                         $history = '<center><a href="' . route('masalah.history', $row->kode_item) . '" target="_blank"><button type="button" data-skin="brand" data-toggle="kt-tooltip" data-placement="top" title="Lihat Riwayat" class="btn btn-outline-warning btn-icon btn-md" ><i class="fas fa-bookmark"></i></button></a></center>';
                         $edit = '<center><a href="' . route('inventaris.edit', $row->id) . '" target="_blank"><button type="button" class="btn btn-outline-success btn-icon" ><i class="fa fa-user-cog"></i></button></a></center>';
-                        $btn = $print . ' ' . $edit . '' . $history;
+                        $delete = '';
+                        if (Auth::check() && Auth::user()->role === 'admin') {
+                            $delete = '<center><button onclick="delete_data(event, ' . $row->id . ')" class="btn btn-outline-danger btn-icon" title="Hapus"><i class="fa fa-trash"></i></button></center>';
+                        }
+
+                        $btn = $print . ' ' . $edit . ' ' . $history . ' ' . $delete;
                     }
 
                     return $btn;
@@ -827,5 +833,11 @@ class DataInventarisController extends Controller
             $dataItem = $dataItem->limit(10)->get();
         }
         return response()->json($dataItem);
+    }
+    public function destroy($id)
+    {
+        $data = DataInventaris::find($id);
+        $data->delete();
+        return response()->json(['msg' => 'Deleted successfully']);
     }
 }
