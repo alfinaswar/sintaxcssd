@@ -20,7 +20,6 @@
         <th style="text-align: center; font-style:bold;">No Inventaris</th>
         <th style="text-align: center; font-style:bold;">Departemen</th>
         <th style="text-align: center; font-style:bold;">Unit</th>
-        <th style="text-align: center; font-style:bold;">Gambar</th>
         <th style="text-align: center; font-style:bold;">Keterangan</th>
     </tr>
     @foreach ($query as $key => $item)
@@ -36,9 +35,6 @@
             <td width="180px" style="font-family: 'Times New Roman', Times, serif;">{{ $item->departemen }}</td>
             <td width="125px" style="font-family: 'Times New Roman', Times, serif; text-align:left;">
                 {{ $item->unit }}
-            </td>
-            <td>
-                <img src="{{asset('storage/gambar/' . $item->gambar)}}" width="100px">
             </td>
             <td width="325px">
                 {{ $item->keterangan }}

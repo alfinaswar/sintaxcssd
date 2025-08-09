@@ -20,14 +20,6 @@ use DB;
 class ItemRuanganExport implements FromView, WithEvents, WithStyles
 {
     use Exportable;
-
-    // Definisikan properti agar tidak error undefined property
-    protected $unit;
-    protected $jenis;
-    protected $nama;
-    protected $merk;
-    protected $rs;
-
     public function __construct(string $unit = null, string $jenis = null, string $nama = null, string $merk = null, string $rs = null)
     {
         $this->unit = $unit;
@@ -59,22 +51,15 @@ class ItemRuanganExport implements FromView, WithEvents, WithStyles
             ->orderBy('unit', 'asc')
             ->get();
 
-        // Cek gambar, jika file tidak ada, set gambar ke null/empty string
-        foreach ($query as $item) {
-            if (!empty($item->gambar)) {
-                $gambarPath = storage_path('app/public/gambar/' . $item->gambar);
-                if (!file_exists($gambarPath)) {
-                    $item->gambar = null;
-                }
-            }
-        }
+
+        // dd($query);
 
         return view('excel.excel_item-ruangan', compact('query', 'rs'));
     }
-
     public function registerEvents(): array
     {
         return [
+
             AfterSheet::class => function (AfterSheet $event) {
                 $lastRow = $event->sheet->getDelegate()->getHighestRow();
                 $cellRange = 'A4:G' . $lastRow;
@@ -83,9 +68,9 @@ class ItemRuanganExport implements FromView, WithEvents, WithStyles
             },
         ];
     }
-
     public function styles(Worksheet $sheet)
     {
         $sheet->getStyle('B2')->getFont()->setBold(true);
     }
+
 }
