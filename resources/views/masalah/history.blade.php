@@ -463,10 +463,10 @@
                                 @if (isset($pembersihan) && count($pembersihan) > 0)
                                     @foreach ($pembersihan as $p)
                                         <div class="card shadow-sm mb-4"
-                                            data-month="{{ \Carbon\Carbon::parse($p->created_at)->format('m') }}">
+                                            data-month="{{ \Carbon\Carbon::parse($p->Tanggal)->format('m') }}">
                                             <div class="card-header d-flex justify-content-between align-items-center">
                                                 <span class="badge badge-primary" style="font-size: 12px;">
-                                                    {{ \Carbon\Carbon::parse($p->created_at)->format('d-m-Y H:i:s') }}
+                                                    {{ \Carbon\Carbon::parse($p->Tanggal)->format('d-m-Y H:i:s') }}
                                                 </span>
                                                 <span
                                                     class="badge {{ $p->Status == 'Bersih' ? 'badge-success' : ($p->Status == 'Lainnya' ? 'badge-info' : 'badge-danger') }}">
