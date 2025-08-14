@@ -301,7 +301,7 @@ class MasalahController extends Controller
         $data_kalibrasi = KalibrasiModel::where('assetID', $kode_item)->orderby('created_at', 'desc')->first();
         $data_mtnc = Maintanance::with('getUser')->where('assetID', $kode_item)->orderby('created_at', 'desc')->get();
         $bulanakhir = Maintanance::where('assetID', $kode_item)->orderby('created_at', 'desc')->latest();
-        $pembersihan = FormulirPembersihan::where('kode_item', $kode_item)->whereMonth('created_at', now()->month)->orderBy('created_at', 'desc')->get();
+        $pembersihan = FormulirPembersihan::where('kode_item', $kode_item)->orderBy('created_at', 'desc')->get();
         // dd($pembersihan);
         return view('masalah.history', compact('data_alat', 'detail_masalah', 'data_kalibrasi', 'data_mtnc', 'bulanakhir', 'kalibrasi', 'pembersihan'));
     }
