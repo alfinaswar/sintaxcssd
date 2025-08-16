@@ -19,9 +19,10 @@ class MasterItemGroupController extends Controller
     public function index(Request $request)
     {
 
+        // Untuk menangani data besar (sekitar 5000 record), gunakan query builder DataTables agar proses filter, sort, dan pagination dilakukan di database, bukan di memory PHP.
         if ($request->ajax()) {
-            $data = MasterItemGroup::with('getMerk')->orderBy('id', 'desc')->get();
-            return DataTables::of($data)
+            $query = MasterItemGroup::with('getMerk')->orderBy('id', 'desc');
+            return DataTables::eloquent($query)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     $btnEdite = '<a href="' . route('master-cssd.item-group.edit', $row->id) . '"><button type="button" class="btn btn-outline-success btn-icon" ><i class="fa fa-cogs"></i></button></a>';
@@ -38,7 +39,7 @@ class MasterItemGroupController extends Controller
                     }
                 })
                 ->rawColumns(['action', 'gambar'])
-                ->make(true);
+                ->toJson();
         }
 
         return view('cssd.master-item-group.index');
