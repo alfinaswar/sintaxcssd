@@ -34,7 +34,6 @@
                         <th width="5%">No</th>
                         <th>Nama</th>
                         <th>Merk</th>
-                        <th>Foto</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -61,7 +60,7 @@
         @endif
     </script>
     <script>
-                        var dataTable = function () {
+                                var dataTable = function () {
             var table = $('#kt_table_1');
             table.DataTable({
                 responsive: true,
@@ -85,10 +84,7 @@
                         data: 'get_merk.Merk',
                         name: 'get_merk.Merk'
                     },
-                    {
-                        data: 'gambar',
-                        name: 'gambar'
-                    },
+
                     {
                         data: 'action',
                         name: 'action',

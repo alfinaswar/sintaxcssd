@@ -29,14 +29,6 @@ class MasterItemGroupController extends Controller
                     $btn = $btnEdite . '&nbsp;' . $btnlihat;
                     return $btn;
                 })
-                ->addColumn('gambar', function ($row) {
-                    if ($row->Foto == null) {
-                        return '<span class="badge bg-warning fw-bold text-dark">Tidak ada gambar</span>';
-                    } else {
-                        $url = asset('storage/cssd_item_group/' . $row->Foto);
-                        return '<a href="' . $url . '" target="_blank" class="btn btn-sm btn-primary">Preview Gambar</a>';
-                    }
-                })
                 ->rawColumns(['action', 'gambar'])
                 ->make(true);
         }
