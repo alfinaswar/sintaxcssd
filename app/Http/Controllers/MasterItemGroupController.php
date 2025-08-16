@@ -33,7 +33,8 @@ class MasterItemGroupController extends Controller
                     if ($row->Foto == null) {
                         return '<span class="badge bg-warning fw-bold text-dark">Tidak ada gambar</span>';
                     } else {
-                        return '<img src="' . asset('storage/cssd_item_group/' . $row->Foto) . '" alt="Gambar" class="img-fluid" style="max-width: 100px;">';
+                        $url = asset('storage/cssd_item_group/' . $row->Foto);
+                        return '<a href="' . $url . '" target="_blank" class="btn btn-sm btn-primary">Preview Gambar</a>';
                     }
                 })
                 ->rawColumns(['action', 'gambar'])
