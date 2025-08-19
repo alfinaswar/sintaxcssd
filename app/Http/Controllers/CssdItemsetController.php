@@ -89,9 +89,20 @@ class CssdItemsetController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->NamaSet == 'setbaru') {
+            $namaset = $request->setBaru;
+            MasterNamaSet::create([
+                'Nama' => $request->setBaru,
+                'UserCreate' => auth()->user()->name,
+            ]);
+            $namaset = MasterNamaSet::where('UserCreate', auth()->user()->name)->latest()->first()->id;
+        } else {
+            $namaset = $request->NamaSet;
+        }
+
         cssdItemset::create([
             'KodeRs' => auth()->user()->kodeRS,
-            'Nama' => $request->NamaSet,
+            'Nama' => $namaset,
             'idUser' => auth()->user()->id,
         ]);
         $getlatestid = cssdItemset::where('idUser', auth()->user()->id)->latest()->first()->id;

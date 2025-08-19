@@ -24,7 +24,7 @@
                     <div class="col-md-12">
                         <div class="form-group row">
                             <label for="nama_set" class="col-2 col-form-label">* Nama Set</label>
-                            <div class="col-8">
+                            <div class="col-6">
                                 <select class="form-control select2  {{ $errors->has('NamaSet') ? 'is-invalid' : '' }}"
                                     name="NamaSet">
                                     @foreach ($NamaSet as $ns)
@@ -37,6 +37,20 @@
                                         {{ $errors->first('NamaSet') }}
                                     </div>
                                 @endif
+                            </div>
+                            {{-- <div class="col-2">
+                                <button type="button" class="btn btn-primary" id="btnSetBaru">
+                                    + Set Baru
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="btnCancelSetBaru">
+                                    Cancel
+                                </button>
+                            </div> --}}
+                        </div>
+                        <div class="form-group row" id="namaSetBaruGroup" style="display: none;">
+                            <label for="nama_set" class="col-2 col-form-label">* Nama Set Baru</label>
+                            <div class="col-8">
+                                <input type="text" name="setBaru" class="form-control" placeholder="Masukan Nama Set Baru">
                             </div>
                         </div>
                     </div>
@@ -117,6 +131,25 @@
 @endsection
 
 @push('js')
+    <script>
+        $(document).ready(function () {
+            $('#btnSetBaru').on('click', function () {
+                // select2 otomatis pilih "setbaru"
+                $('#NamaSetSelect').val('setbaru').trigger('change');
+                // tampilkan input
+                $('#namaSetBaruGroup').show();
+            });
+
+            $('#btnCancelSetBaru').on('click', function () {
+                // sembunyikan input
+                $('#namaSetBaruGroup').hide();
+                // kosongkan input
+                $('input[name="setBaru"]').val('');
+                // reset select2 ke default (kosong)
+                $('#NamaSetSelect').val('').trigger('change');
+            });
+        });
+    </script>
     <script>
         let itemsData = @json($items);
         let rowCount = $('#itemTable tbody tr').length || 1;
