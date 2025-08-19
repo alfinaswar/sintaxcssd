@@ -24,7 +24,7 @@ class UserController extends Controller
             if (auth()->user()->role == 'admin') {
                 $data = User::orderBy('id', 'desc')->get();
             } else {
-                $data = User::where('role', auth()->user()->kodeRS)->orderBy('id', 'desc')->get();
+                $data = User::where('kodeRS', auth()->user()->kodeRS)->orderBy('id', 'desc')->get();
             }
             return DataTables::of($data)
                 ->addIndexColumn()

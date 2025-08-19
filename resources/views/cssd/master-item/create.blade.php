@@ -218,17 +218,6 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="form-group row">
-                            <label for="merk" class="col-2 col-form-label">Keterangan</label>
-                            <div class="col-8">
-                                <textarea name="Keterangan" class="form-control"></textarea>
-                                @if ($errors->has('Keterangan'))
-                                    <div class="invalid-feedback">
-                                        {{ $errors->first('Keterangan') }}
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
                         <div class="form-group row" id="satuan_baru_group" style="display: none;">
                             <label for="satuan_baru" class="col-2 col-form-label">* Satuan Baru</label>
                             <div class="col-8">
@@ -242,6 +231,18 @@
                                 @endif
                             </div>
                         </div>
+                        <div class="form-group row">
+                            <label for="merk" class="col-2 col-form-label">Keterangan</label>
+                            <div class="col-8">
+                                <textarea name="Keterangan" class="form-control"></textarea>
+                                @if ($errors->has('Keterangan'))
+                                    <div class="invalid-feedback">
+                                        {{ $errors->first('Keterangan') }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+
                         {{-- <div class="form-group row">
                             <label for="harga" class="col-2 col-form-label">* Harga</label>
                             <div class="col-8">
@@ -390,7 +391,7 @@
 
             // Initialize Select2
             $('.select2').select2({
-                placeholder: "Pilih Merk",
+                placeholder: "Pilih Data",
                 allowClear: true
             });
 
