@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCssdPengajuanItemDetailsTable extends Migration
+class CreateCssdMasterSuppliersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,12 @@ class CreateCssdPengajuanItemDetailsTable extends Migration
      */
     public function up()
     {
-        Schema::create('cssd_pengajuan_item_details', function (Blueprint $table) {
+        Schema::create('cssd_master_suppliers', function (Blueprint $table) {
             $table->id();
-            $table->string('IdPengajuan')->nullable();
-            $table->string('NamaItem')->nullable();
-            $table->string('Merk')->nullable();
-            $table->string('KodeRs')->nullable();
-            $table->string('Keterangan')->nullable();
-            $table->string('idUser')->nullable();
+            $table->string('Nama')->nullable();
             $table->string('UserCreate')->nullable();
             $table->string('UserUpdate')->nullable();
+            $table->string('KodeRS')->nullable();
             $table->timestamps();
         });
     }
@@ -34,6 +30,6 @@ class CreateCssdPengajuanItemDetailsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cssd_pengajuan_item_details');
+        Schema::dropIfExists('cssd_master_suppliers');
     }
 }

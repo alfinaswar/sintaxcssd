@@ -200,36 +200,45 @@
                                                 class="fa fa-boxes"></i></span><span
                                             class="kt-menu__link-text">Inventaris</span></a></li>
                             @endcan
-                            @can('cssd-master-item')
-                                <li class="kt-menu__item @if (request()->is('master-cssd'))
-                                    {{ 'kt-menu__item--active' }}
-                                @elseif (request()->is('master-cssd/*'))
-                                    {{ 'kt-menu__item--active' }}
-                                @endif" aria-haspopup="true">
-                                    <a href="{{ route('master-cssd.cssd-master-item.index') }}" class="kt-menu__link ">
+                            @if(auth()->user()->can('cssd-master-item') || auth()->user()->can('cssd-item-set'))
+                                <li class="kt-menu__item kt-menu__item--submenu
+                                    @if (request()->is('master-cssd') || request()->is('master-cssd/*') || request()->is('cssd-master-item') || request()->is('cssd-master-item/*') || request()->is('cssd-item-set') || request()->is('cssd-item-set/*'))
+                                        kt-menu__item--open kt-menu__item--here
+                                    @endif" aria-haspopup="true" data-ktmenu-submenu-toggle="hover">
+                                    <a href="javascript:;" class="kt-menu__link kt-menu__toggle">
                                         <span class="kt-menu__link-icon">
-                                            {{-- Icon alat kesehatan, gunakan icon medical kit --}}
                                             <i class="fa fa-medkit"></i>
                                         </span>
-                                        <span class="kt-menu__link-text">Master Item CSSD</span>
+                                        <span class="kt-menu__link-text">CSSD</span>
+                                        <i class="kt-menu__ver-arrow la la-angle-right"></i>
                                     </a>
+                                    <div class="kt-menu__submenu">
+                                        <span class="kt-menu__arrow"></span>
+                                        <ul class="kt-menu__subnav">
+                                            @can('cssd-master-item')
+                                                <li class="kt-menu__item @if (request()->is('master-cssd') || request()->is('master-cssd/*')) kt-menu__item--active @endif" aria-haspopup="true">
+                                                    <a href="{{ route('master-cssd.cssd-master-item.index') }}" class="kt-menu__link ">
+                                                        <span class="kt-menu__link-icon">
+                                                            <i class="fa fa-medkit"></i>
+                                                        </span>
+                                                        <span class="kt-menu__link-text">Master Item CSSD</span>
+                                                    </a>
+                                                </li>
+                                            @endcan
+                                            @can('cssd-item-set')
+                                                <li class="kt-menu__item @if (request()->is('cssd-item-set') || request()->is('cssd-item-set/*')) kt-menu__item--active @endif" aria-haspopup="true">
+                                                    <a href="{{ route('cssd-item-set.index') }}" class="kt-menu__link ">
+                                                        <span class="kt-menu__link-icon">
+                                                            <i class="fa fa-puzzle-piece"></i>
+                                                        </span>
+                                                        <span class="kt-menu__link-text">Item Set</span>
+                                                    </a>
+                                                </li>
+                                            @endcan
+                                        </ul>
+                                    </div>
                                 </li>
-                            @endcan
-                            @can('cssd-item-set')
-                                <li class="kt-menu__item @if (request()->is('cssd-master-item'))
-                                    {{ 'kt-menu__item--active' }}
-                                @elseif (request()->is('cssd-item-set/*'))
-                                    {{ 'kt-menu__item--active' }}
-                                @endif" aria-haspopup="true">
-                                    <a href="{{ route('cssd-item-set.index') }}" class="kt-menu__link ">
-                                        <span class="kt-menu__link-icon">
-                                            {{-- Icon set alat kesehatan, misal icon puzzle untuk "set" --}}
-                                            <i class="fa fa-puzzle-piece"></i>
-                                        </span>
-                                        <span class="kt-menu__link-text">Item Set</span>
-                                    </a>
-                                </li>
-                            @endcan
+                            @endif
                             @can('flipbook')
                                 <li class="kt-menu__item @if (request()->is('flipbook'))
                                     {{ 'kt-menu__item--active' }}
@@ -241,6 +250,20 @@
                                             <i class="fa fa-book-open"></i>
                                         </span>
                                         <span class="kt-menu__link-text">Daftar Flipbook</span>
+                                    </a>
+                                </li>
+                            @endcan
+                            @can('flipbook')
+                                <li class="kt-menu__item @if (request()->is('pengajuan-nama-item-cssd'))
+                                    {{ 'kt-menu__item--active' }}
+                                @elseif (request()->is('pengajuan-nama-item-cssd/*'))
+                                    {{ 'kt-menu__item--active' }}
+                                @endif" aria-haspopup="true">
+                                    <a href="{{ route('pengajuan-nama-item-cssd.index') }}" class="kt-menu__link ">
+                                        <span class="kt-menu__link-icon">
+                                            <i class="fa fa-paper-plane"></i>
+                                        </span>
+                                        <span class="kt-menu__link-text">Pengajuan Nama Item Cssd</span>
                                     </a>
                                 </li>
                             @endcan
@@ -438,6 +461,11 @@
                                     class="kt-menu__link "><i
                                         class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
                                         class="kt-menu__link-text">Master Satuan</span></a></li>
+                                        <li class="kt-menu__item  @if (request()->segment(2) == 'cssd-master-supplier')
+                                            {{ 'kt-menu__item--active' }}
+                                        @endif" aria-haspopup="true"><a href="{{ route('cssd-master-supplier.index') }}"
+                                                class="kt-menu__link "><i class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+                                                    class="kt-menu__link-text">Master Supplier</span></a></li>
 
             </ul>
         </div>

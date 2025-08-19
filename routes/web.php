@@ -4,8 +4,10 @@ use App\Http\Controllers\AssetManagemenController;
 use App\Http\Controllers\CssdItemsetController;
 use App\Http\Controllers\CssdMasterItemController;
 use App\Http\Controllers\CssdMasterSatuanController;
+use App\Http\Controllers\CssdMasterSupplierController;
 use App\Http\Controllers\CssdMasterTypeController;
 use App\Http\Controllers\CssdMerkController;
+use App\Http\Controllers\CssdPengajuanItemController;
 use App\Http\Controllers\DataInventarisController;
 use App\Http\Controllers\FileTemplateController;
 use App\Http\Controllers\FlipbookController;
@@ -104,7 +106,7 @@ Route::group(['prefix' => 'master'], function () {
     });
 
 });
-Route::group(['prefix' => 'master-cssd'], function () {
+Route::group(['prefix' => 'cssd'], function () {
     Route::resource('cssd-master-merk', CssdMerkController::class);
     Route::resource('cssd-master-tipe', CssdMasterTypeController::class);
     Route::resource('cssd-master-satuan', CssdMasterSatuanController::class);
@@ -133,6 +135,22 @@ Route::group(['prefix' => 'master-cssd'], function () {
         Route::put('/update/{id}', [MasterNamaSetController::class, 'update'])->name('master-cssd.master-set-item.update');
         Route::post('/store', [MasterNamaSetController::class, 'store'])->name('master-cssd.master-set-item.store');
         Route::delete('/destroy/{id}', [MasterNamaSetController::class, 'destroy'])->name('master-cssd.master-set-item.destroy');
+    });
+    Route::prefix('pengajuan-nama-item-cssd')->group(function () {
+        Route::get('/', [CssdPengajuanItemController::class, 'index'])->name('pengajuan-nama-item-cssd.index');
+        Route::get('/create', [CssdPengajuanItemController::class, 'create'])->name('pengajuan-nama-item-cssd.create');
+        Route::get('/edit/{id}', [CssdPengajuanItemController::class, 'edit'])->name('pengajuan-nama-item-cssd.edit');
+        Route::put('/update/{id}', [CssdPengajuanItemController::class, 'update'])->name('pengajuan-nama-item-cssd.update');
+        Route::post('/store', [CssdPengajuanItemController::class, 'store'])->name('pengajuan-nama-item-cssd.store');
+        Route::delete('/destroy/{id}', [CssdPengajuanItemController::class, 'destroy'])->name('pengajuan-nama-item-cssd.destroy');
+    });
+    Route::prefix('master-supplier')->group(function () {
+        Route::get('/', [CssdMasterSupplierController::class, 'index'])->name('cssd-master-supplier.index');
+        Route::get('/create', [CssdMasterSupplierController::class, 'create'])->name('cssd-master-supplier.create');
+        Route::get('/edit/{id}', [CssdMasterSupplierController::class, 'edit'])->name('cssd-master-supplier.edit');
+        Route::put('/update/{id}', [CssdMasterSupplierController::class, 'update'])->name('cssd-master-supplier.update');
+        Route::post('/store', [CssdMasterSupplierController::class, 'store'])->name('cssd-master-supplier.store');
+        Route::delete('/destroy/{id}', [CssdMasterSupplierController::class, 'destroy'])->name('cssd-master-supplier.destroy');
     });
 });
 Route::prefix('cssd-item-set')->group(function () {

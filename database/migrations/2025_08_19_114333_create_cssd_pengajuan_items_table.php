@@ -17,7 +17,8 @@ class CreateCssdPengajuanItemsTable extends Migration
             $table->id();
             $table->string('Kode')->nullable();
             $table->date('Tanggal')->nullable();
-            $table->enum('Status', ['', 'bar'])->nullable()->default(['foo', 'bar']);
+            $table->enum('Status', ['Y', 'N'])->nullable();
+            $table->text('Keterangan')->nullable();
             $table->string('KodeRs')->nullable();
             $table->string('idUser')->nullable();
             $table->string('UserCreate')->nullable();
