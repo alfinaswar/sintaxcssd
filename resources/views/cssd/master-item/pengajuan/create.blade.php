@@ -57,8 +57,15 @@
                                                     placeholder="Nama Item" required>
                                             </td>
                                             <td>
-                                                <input type="text" class="form-control" name="Merek[]" placeholder="Merek"
-                                                    required>
+                                                <div class="form-group mb-0">
+                                                    <select class="form-control kt-select2" name="Merk[]" required
+                                                        style="width: 100%;">
+                                                        <option value="">-- Pilih Merek --</option>
+                                                        @foreach($masterMerek as $merek)
+                                                            <option value="{{ $merek->id }}">{{ $merek->Merk }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
                                             </td>
                                             <td>
                                                 <textarea class="form-control" name="Keterangan[]" placeholder="Keterangan"
@@ -132,8 +139,11 @@
         @endif
     </script>
     <script>
-                                    // Fungsi untuk menambah baris baru
-                                    var addRow = function () {
+                                // Penjelasan:
+                                // Select2 tidak bekerja pada baris yang baru ditambahkan karena select2 hanya diinisialisasi pada elemen yang sudah ada saat halaman pertama kali dimuat.
+                                // Solusi: Setelah menambah baris baru, panggil kembali $('.kt-select2').select2() pada elemen select yang baru.
+
+                                var addRow = function () {
             $('#add-row').on('click', function () {
                 var newRow =
                     `
@@ -142,7 +152,12 @@
                                                         <input type="text" class="form-control" name="Nama[]" placeholder="Nama Item" required>
                                                     </td>
                                                     <td>
-                                                        <input type="text" class="form-control" name="Merek[]" placeholder="Merek" required>
+                                                        <select class="form-control kt-select2" name="Merk[]" required style="width: 100%;">
+                                                            <option value="">-- Pilih Merek --</option>
+                                                            @foreach($masterMerek as $merek)
+                                                                <option value="{{ $merek->id }}">{{ $merek->Merk }}</option>
+                                                            @endforeach
+                                                        </select>
                                                     </td>
                                                     <td>
                                                         <textarea class="form-control" name="Keterangan[]" placeholder="Keterangan" rows="2"></textarea>
@@ -153,9 +168,15 @@
                                                         </button>
                                                     </td>
                                                 </tr>
-                                                `;
+                                            `;
 
                 $('#tbody-item-baru').append(newRow);
+
+                // Inisialisasi select2 pada select yang baru ditambahkan
+                $('#tbody-item-baru tr:last .kt-select2').select2({
+                    width: '100%'
+                });
+
                 updateRemoveButtons();
             });
         }
@@ -179,6 +200,10 @@
         }
 
         $(document).ready(function () {
+            // Inisialisasi select2 pada select yang sudah ada
+            $('.kt-select2').select2({
+                width: '100%'
+            });
             addRow();
             removeRow();
             updateRemoveButtons();

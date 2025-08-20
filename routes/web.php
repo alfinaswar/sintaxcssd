@@ -140,9 +140,13 @@ Route::group(['prefix' => 'cssd'], function () {
         Route::get('/', [CssdPengajuanItemController::class, 'index'])->name('pengajuan-nama-item-cssd.index');
         Route::get('/create', [CssdPengajuanItemController::class, 'create'])->name('pengajuan-nama-item-cssd.create');
         Route::get('/edit/{id}', [CssdPengajuanItemController::class, 'edit'])->name('pengajuan-nama-item-cssd.edit');
+        Route::get('/detail/{id}', [CssdPengajuanItemController::class, 'show'])->name('pengajuan-nama-item-cssd.show');
         Route::put('/update/{id}', [CssdPengajuanItemController::class, 'update'])->name('pengajuan-nama-item-cssd.update');
         Route::post('/store', [CssdPengajuanItemController::class, 'store'])->name('pengajuan-nama-item-cssd.store');
         Route::delete('/destroy/{id}', [CssdPengajuanItemController::class, 'destroy'])->name('pengajuan-nama-item-cssd.destroy');
+        Route::post('/setujui/{id}', [CssdPengajuanItemController::class, 'AccPengajuan'])->name('pengajuan-nama-item-cssd.setujui');
+        Route::post('/tolak/{id}', [CssdPengajuanItemController::class, 'TolakPengajuan'])->name('pengajuan-nama-item-cssd.tolak');
+        Route::get('/cetak-pengajuan-item/{id}', [CssdPengajuanItemController::class, 'Print'])->name('pengajuan-nama-item-cssd.cetak');
     });
     Route::prefix('master-supplier')->group(function () {
         Route::get('/', [CssdMasterSupplierController::class, 'index'])->name('cssd-master-supplier.index');
@@ -152,17 +156,18 @@ Route::group(['prefix' => 'cssd'], function () {
         Route::post('/store', [CssdMasterSupplierController::class, 'store'])->name('cssd-master-supplier.store');
         Route::delete('/destroy/{id}', [CssdMasterSupplierController::class, 'destroy'])->name('cssd-master-supplier.destroy');
     });
-});
-Route::prefix('cssd-item-set')->group(function () {
-    Route::get('/', [CssdItemsetController::class, 'index'])->name('cssd-item-set.index');
-    Route::get('/create', [CssdItemsetController::class, 'create'])->name('cssd-item-set.create');
-    Route::get('/get-item-details', [CssdItemsetController::class, 'getItemDetail'])->name('cssd-item-set.getItem');
-    Route::get('/edit/{id}', [CssdItemsetController::class, 'edit'])->name('cssd-item-set.edit');
-    Route::put('/update/{id}', [CssdItemsetController::class, 'update'])->name('cssd-item-set.update');
-    Route::post('/store', [CssdItemsetController::class, 'store'])->name('cssd-item-set.store');
-    Route::delete('/destroy/{id}', [CssdItemsetController::class, 'destroy'])->name('cssd-item-set.destroy');
+    Route::prefix('cssd-item-set')->group(function () {
+        Route::get('/', [CssdItemsetController::class, 'index'])->name('cssd-item-set.index');
+        Route::get('/create', [CssdItemsetController::class, 'create'])->name('cssd-item-set.create');
+        Route::get('/get-item-details', [CssdItemsetController::class, 'getItemDetail'])->name('cssd-item-set.getItem');
+        Route::get('/edit/{id}', [CssdItemsetController::class, 'edit'])->name('cssd-item-set.edit');
+        Route::put('/update/{id}', [CssdItemsetController::class, 'update'])->name('cssd-item-set.update');
+        Route::post('/store', [CssdItemsetController::class, 'store'])->name('cssd-item-set.store');
+        Route::delete('/destroy/{id}', [CssdItemsetController::class, 'destroy'])->name('cssd-item-set.destroy');
 
+    });
 });
+
 Route::prefix('inventaris')->group(function () {
     Route::get('/', [DataInventarisController::class, 'index'])->name('inventaris.index');
     Route::get('/create', [DataInventarisController::class, 'create'])->name('inventaris.create');

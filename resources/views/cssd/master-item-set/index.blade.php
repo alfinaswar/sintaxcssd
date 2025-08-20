@@ -31,10 +31,11 @@
                 <thead class="table-primary">
                     <tr>
                         <th width="5%">No</th>
-                        <th>Nama</th>
+                        <th>Kode</th>
+                        <th width="12%">Nama</th>
                         <th>Detail Instrumen</th>
                         <th>Kode RS</th>
-                        <th>Actions</th>
+                        <th width="8%">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -60,7 +61,7 @@
         @endif
     </script>
     <script>
-                                                                                                                                    var dataTable = function () {
+                                                                                                                                                                var dataTable = function () {
             var table = $('#kt_table_1');
             table.DataTable({
                 responsive: true,
@@ -74,6 +75,10 @@
                 columns: [{
                     data: 'DT_RowIndex',
                     name: 'DT_RowIndex'
+                },
+                {
+                    data: 'Kode',
+                    name: 'Kode'
                 },
                 {
                     data: 'get_namaset.Nama',

@@ -45,7 +45,8 @@ class CssdItemsetController extends Controller
                             $qty = is_array($details->Qty) && isset($details->Qty[$index]) ? $details->Qty[$index] : 0;
                             if ($item) {
                                 $namaItem = $item->getNama->Nama ?? '-';
-                                $labels[] = '<span class="badge badge-primary m-1">' . $namaItem . ' (Qty: ' . $qty . ')</span>';
+                                $sn = $item->SerialNumber ?? '-';
+                                $labels[] = '<span class="badge badge-primary m-1">' . $namaItem . ' (SN: ' . $sn . ', Qty: ' . $qty . ')</span>';
                             }
                         }
                     }
@@ -102,6 +103,7 @@ class CssdItemsetController extends Controller
 
         cssdItemset::create([
             'KodeRs' => auth()->user()->kodeRS,
+            'Kode' => $this->GenerateKode(),
             'Nama' => $namaset,
             'idUser' => auth()->user()->id,
         ]);
@@ -115,6 +117,25 @@ class CssdItemsetController extends Controller
         ]);
 
         return redirect()->route('cssd-item-set.index')->with('success', 'Set Item Berhasil Ditambahkan');
+    }
+    private function GenerateKode()
+    {
+        $prefix = 'SET';
+        $tanggal = date('dmy');
+        $lastItemset = cssdItemset::whereDate('created_at', now()->toDateString())
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if ($lastItemset && isset($lastItemset->Kode)) {
+            $lastKode = $lastItemset->Kode;
+            $lastNumber = (int) substr($lastKode, -5);
+            $nextNumber = $lastNumber + 1;
+        } else {
+            $nextNumber = 1;
+        }
+
+        $kodeBaru = $prefix . $tanggal . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+        return $kodeBaru;
     }
 
     /**

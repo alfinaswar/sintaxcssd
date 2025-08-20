@@ -63,7 +63,7 @@
         @endif
     </script>
     <script>
-                var dataTable = function () {
+                            var dataTable = function () {
             var table = $('#kt_table_1');
             table.DataTable({
                 responsive: true,
@@ -80,7 +80,7 @@
                     { data: 'Tanggal', name: 'Tanggal' },
                     { data: 'Status', name: 'Status', orderable: false, searchable: false },
                     { data: 'Keterangan', name: 'Keterangan' },
-                    { data: 'KodeRs', name: 'KodeRs' },
+                    { data: 'get_rs.nama', name: 'get_rs.nama' },
                     { data: 'action', name: 'action', orderable: false, searchable: false },
                 ]
             })

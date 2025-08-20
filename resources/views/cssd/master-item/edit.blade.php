@@ -46,6 +46,19 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group row">
+                            <label for="KodeGrafir" class="col-2 col-form-label">Kode Grafir</label>
+                            <div class="col-8">
+                                <input class="form-control {{ $errors->has('KodeGrafir') ? 'is-invalid' : '' }}" name="KodeGrafir"
+                                    value="{{ old('KodeGrafir', $data->KodeGrafir) }}" placeholder="Kode Grafir" type="text" id="serial_number">
+                                <small class="form-text text-danger">Hanya diisi jika sudah terlanjur tergrafir.</small>
+                                @if ($errors->has('KodeGrafir'))
+                                    <div class="invalid-feedback">
+                                        {{ $errors->first('KodeGrafir') }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group row">
                             <label for="nama" class="col-2 col-form-label">* Nama</label>
                             <div class="col-8">
                                 <select class="form-control select2 {{ $errors->has('Nama') ? 'is-invalid' : '' }}"
@@ -232,6 +245,41 @@
                                 @endif
                             </div>
                         </div>
+                        <div class="form-group row">
+                            <label for="Supplier" class="col-2 col-form-label">* Supplier</label>
+                            <div class="col-8">
+                                <select class="form-control select2 {{ $errors->has('Supplier') ? 'is-invalid' : '' }}" name="Supplier" id="Supplier">
+                                    <option value="">Pilih Supplier</option>
+                                    @foreach ($Supplier as $t)
+                                        <option value="{{ $t->id }}" {{ old('Supplier', $data->Supplier ?? '') == $t->id ? 'selected' : '' }}>
+                                            {{ $t->Nama }}
+                                        </option>
+                                    @endforeach
+                                    <option value="SupplierBaru" {{ old('Supplier', $data->Supplier ?? '') == 'SupplierBaru' ? 'selected' : '' }}>
+                                        + Tambah Supplier
+                                    </option>
+                                </select>
+                                @if ($errors->has('Supplier'))
+                                    <div class="invalid-feedback">
+                                        {{ $errors->first('Supplier') }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group row" id="supplier_baru_group" style="display: none;">
+                            <label for="supplier_baru" class="col-2 col-form-label">* Supplier Baru</label>
+                            <div class="col-8">
+                                <input class="form-control {{ $errors->has('supplier_baru') ? 'is-invalid' : '' }}"
+                                    name="supplier_baru" value="{{ old('supplier_baru', $data->supplier_baru ?? '') }}" placeholder="Nama Supplier Baru"
+                                    type="text" id="supplier_baru">
+                                @if ($errors->has('supplier_baru'))
+                                    <div class="invalid-feedback">
+                                        {{ $errors->first('supplier_baru') }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+
                         <div class="form-group row">
                             <label for="merk" class="col-2 col-form-label">Keterangan</label>
                             <div class="col-8">
@@ -446,5 +494,9 @@
                 }
             });
         });
+
+
+
     </script>
+
 @endpush

@@ -48,6 +48,20 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group row">
+                            <label for="nama" class="col-2 col-form-label">Kode Grafir</label>
+                            <div class="col-8">
+                                <input class="form-control {{ $errors->has('KodeGrafir') ? 'is-invalid' : '' }}"
+                                    name="KodeGrafir" value="{{ old('KodeGrafir') }}" placeholder="Kode Grafir" type="text"
+                                    id="serial_number">
+                                <small class="form-text text-danger">Hanya diisi jika sudah terlanjur tergrafir.</small>
+                                @if ($errors->has('Nama'))
+                                    <div class="invalid-feedback">
+                                        {{ $errors->first('Nama') }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group row">
                             <label for="nama" class="col-2 col-form-label">* Nama</label>
                             <div class="col-8">
                                 <select class="form-control select2 {{ $errors->has('Nama') ? 'is-invalid' : '' }}"
@@ -227,6 +241,28 @@
                                 @if ($errors->has('satuan_baru'))
                                     <div class="invalid-feedback">
                                         {{ $errors->first('satuan_baru') }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="merk" class="col-2 col-form-label"> Supplier</label>
+                            <div class="col-8">
+                                <select class="form-control select2 {{ $errors->has('Supplier') ? 'is-invalid' : '' }}"
+                                    name="Supplier" id="Supplier">
+                                    <option value="">Pilih Supplier</option>
+                                    @foreach ($Supplier as $t)
+                                        <option value="{{ $t->id }}" {{ old('Supplier') == $t->id ? 'selected' : '' }}>
+                                            {{ $t->Nama }}
+                                        </option>
+                                    @endforeach
+                                    <option value="SupplierBaru" {{ old('Supplier') == 'SupplierBaru' ? 'selected' : '' }}> +
+                                        Tambah Supplier
+                                    </option>
+                                </select>
+                                @if ($errors->has('Supplier'))
+                                    <div class="invalid-feedback">
+                                        {{ $errors->first('Supplier') }}
                                     </div>
                                 @endif
                             </div>

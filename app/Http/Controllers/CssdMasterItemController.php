@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\cssdMasterItem;
 use App\Models\cssdMasterSatuan;
+use App\Models\cssdMasterSupplier;
 use App\Models\cssdMasterType;
 use App\Models\cssdMerk;
 use App\Models\MasterItemGroup;
@@ -59,8 +60,8 @@ class CssdMasterItemController extends Controller
         $merks = cssdMerk::get();
         $tipe = cssdMasterType::where('KodeRs', auth()->user()->kodeRS)->get();
         $Satuan = cssdMasterSatuan::where('KodeRs', auth()->user()->kodeRS)->get();
-        // dd($merks);
-        return view('cssd.master-item.create', compact('merks', 'tipe', 'Satuan', 'masteritem'));
+        $Supplier = cssdMasterSupplier::get();
+        return view('cssd.master-item.create', compact('merks', 'tipe', 'Satuan', 'masteritem', 'Supplier'));
     }
 
     /**
@@ -81,6 +82,7 @@ class CssdMasterItemController extends Controller
             'KondisiBarang' => 'required|in:B,KB,R',
             'Gambar' => 'required|file|mimes:jpeg,png,jpg,gif|max:5000',
             'Satuan' => 'required|string',
+            'Supplier' => 'required|string',
 
         ]);
 
@@ -157,8 +159,9 @@ class CssdMasterItemController extends Controller
         $merks = cssdMerk::where('KodeRs', auth()->user()->kodeRS)->get();
         $tipe = cssdMasterType::where('KodeRs', auth()->user()->kodeRS)->get();
         $Satuan = cssdMasterSatuan::where('KodeRs', auth()->user()->kodeRS)->get();
+        $Supplier = cssdMasterSupplier::get();
         // dd($merks);
-        return view('cssd.master-item.edit', compact('merks', 'tipe', 'Satuan', 'data', 'masteritem'));
+        return view('cssd.master-item.edit', compact('merks', 'tipe', 'Satuan', 'data', 'masteritem', 'Supplier'));
 
     }
 
