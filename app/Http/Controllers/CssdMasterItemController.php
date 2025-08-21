@@ -230,12 +230,6 @@ class CssdMasterItemController extends Controller
         return redirect()->route('master-cssd.cssd-master-item.index')->with('success', 'Item Berhasil Diubah');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\cssdMasterItem  $cssdMasterItem
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         $data = cssdMasterItem::find($id);

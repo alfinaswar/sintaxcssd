@@ -69,7 +69,7 @@
         @endif
     </script>
     <script>
-                                                                                    var dataTable = function () {
+                                                                                        var dataTable = function () {
             var table = $('#kt_table_1');
             table.DataTable({
                 responsive: true,
