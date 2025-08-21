@@ -31,5 +31,9 @@ class cssdMasterItem extends Model
     {
         return $this->belongsTo(MasterRs::class, 'KodeRs', 'kodeRS');
     }
+    public function getItemDalamSet()
+    {
+        return $this->hasMany(cssdItemsetDetail::class, 'ItemId', 'id');
+    }
 
 }

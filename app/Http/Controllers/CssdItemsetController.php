@@ -78,7 +78,11 @@ class CssdItemsetController extends Controller
         // $Stok = $cekStokController->CekStok();
         // dd($Stok);
         $NamaSet = MasterNamaSet::get();
-        $items = cssdMasterItem::with('getNama')->where('KodeRs', auth()->user()->kodeRS)->get();
+        $items = cssdMasterItem::with('getNama', 'getItemDalamSet')
+            ->whereDoesntHave('getItemDalamSet')
+            ->where('KodeRs', auth()->user()->kodeRS)
+            ->get();
+        // dd($items);
         // dd($items);
         return view('cssd.master-item-set.create', compact('items', 'NamaSet'));
     }
@@ -204,7 +208,10 @@ class CssdItemsetController extends Controller
     {
         $data = cssdItemset::with('DetailItem', 'DetailItem.MasterItem')->where('KodeRs', auth()->user()->kodeRS)->where('id', $id)->first();
         // dd($data);
-        $items = cssdMasterItem::where('KodeRs', auth()->user()->kodeRS)->get();
+        $items = cssdMasterItem::with('getNama', 'getItemDalamSet')
+            ->whereDoesntHave('getItemDalamSet')
+            ->where('KodeRs', auth()->user()->kodeRS)
+            ->get();
 
         $NamaSet = MasterNamaSet::get();
         // dd($data);

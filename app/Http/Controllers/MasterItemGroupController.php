@@ -21,12 +21,24 @@ class MasterItemGroupController extends Controller
     {
 
         if ($request->ajax()) {
-            $data = MasterItemGroup::with('getMerk')
-                ->withCount(['getListItem as Stok', 'getInUse as jumlah_in_use'])
+            $data = MasterItemGroup::with(['getMerk', 'getListItem.getItemDalamSet'])
                 ->orderBy('id', 'desc')
                 ->get()
                 ->map(function ($item) {
-                    $item->Idle = ($item->Stok ?? 0) - ($item->jumlah_in_use ?? 0);
+                    $stok = 0;
+                    $jumlah_in_use = 0;
+                    if ($item->getListItem) {
+                        foreach ($item->getListItem as $listItem) {
+                            if ($listItem->getItemDalamSet) {
+                                $jumlah = $listItem->getItemDalamSet->count();
+                                $stok += $jumlah;
+                                $jumlah_in_use += $jumlah; // In use dihitung dari jumlah item dalam set
+                            }
+                        }
+                    }
+                    $item->Stok = $stok;
+                    $item->jumlah_in_use = $jumlah_in_use;
+                    $item->Idle = $stok - $jumlah_in_use;
                     return $item;
                 });
             return DataTables::of($data)
