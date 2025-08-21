@@ -272,8 +272,14 @@ class CssdItemsetController extends Controller
     public function destroy($id)
     {
         $data = cssdItemset::with('DetailItem')->find($id);
-        $data->DetailItem->delete();
-        $data->delete();
-        return response()->json(['msg' => 'Data berhasil di hapus'], 200);
+        if ($data) {
+            foreach ($data->DetailItem as $detail) {
+                $detail->delete();
+            }
+            $data->delete();
+            return response()->json(['msg' => 'Data berhasil di hapus'], 200);
+        } else {
+            return response()->json(['msg' => 'Data tidak ditemukan'], 404);
+        }
     }
 }
