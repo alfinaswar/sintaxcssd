@@ -6,6 +6,7 @@ use App\Models\cssdMerk;
 use App\Models\MasterItemGroup;
 use App\Models\MasterMerk;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -20,9 +21,39 @@ class MasterItemGroupController extends Controller
     {
 
         if ($request->ajax()) {
-            $data = MasterItemGroup::with('getMerk')->orderBy('id', 'desc')->get();
+            $data = MasterItemGroup::with('getMerk')
+                ->withCount(['getListItem as Stok', 'getInUse as jumlah_in_use'])
+                ->orderBy('id', 'desc')
+                ->get()
+                ->map(function ($item) {
+                    $item->Idle = ($item->Stok ?? 0) - ($item->jumlah_in_use ?? 0);
+                    return $item;
+                });
             return DataTables::of($data)
                 ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $btnEdite = '<a href="' . route('master-cssd.item-group.edit', $row->id) . '"><button type="button" class="btn btn-outline-success btn-icon" ><i class="fa fa-cogs"></i></button></a>';
+                    $btnlihat = '<button type="button" class="btn btn-outline-danger btn-icon" onclick="delete_data(event,' . $row->id . ')" ><i class="fa fa-times"></i></button>';
+                    $btn = $btnEdite . '&nbsp;' . $btnlihat;
+                    return $btn;
+                })
+
+                ->rawColumns(['action', 'gambar'])
+                ->make(true);
+        }
+
+        return view('cssd.master-item-group.index');
+    }
+    public function Stok(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = MasterItemGroup::with('getListItem')->orderBy('id', 'desc')->get();
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('jumlah_item', function ($row) {
+                    // Hitung jumlah item dari relasi getListItem
+                    return $row->getListItem ? $row->getListItem->count() : 0;
+                })
                 ->addColumn('action', function ($row) {
                     $btnEdite = '<a href="' . route('master-cssd.item-group.edit', $row->id) . '"><button type="button" class="btn btn-outline-success btn-icon" ><i class="fa fa-cogs"></i></button></a>';
                     $btnlihat = '<button type="button" class="btn btn-outline-danger btn-icon" onclick="delete_data(event,' . $row->id . ')" ><i class="fa fa-times"></i></button>';
@@ -33,9 +64,8 @@ class MasterItemGroupController extends Controller
                 ->make(true);
         }
 
-        return view('cssd.master-item-group.index');
+        return view('cssd.master-item-group.stok');
     }
-
     /**
      * Show the form for creating a new resource.
      *

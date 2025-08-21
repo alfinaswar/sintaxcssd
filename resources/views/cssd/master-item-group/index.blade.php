@@ -34,6 +34,9 @@
                         <th width="5%">No</th>
                         <th>Nama</th>
                         <th>Merk</th>
+                        <th>Idle</th>
+                        <th>In Use</th>
+                        <th>Total</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -60,7 +63,7 @@
         @endif
     </script>
     <script>
-                                var dataTable = function () {
+                                                                                                            var dataTable = function () {
             var table = $('#kt_table_1');
             table.DataTable({
                 responsive: true,
@@ -84,7 +87,18 @@
                         data: 'get_merk.Merk',
                         name: 'get_merk.Merk'
                     },
-
+                    {
+                        data: 'Idle',
+                        name: 'Idle'
+                    },
+                    {
+                        data: 'jumlah_in_use',
+                        name: 'jumlah_in_use'
+                    },
+                    {
+                        data: 'Stok',
+                        name: 'Stok'
+                    },
                     {
                         data: 'action',
                         name: 'action',

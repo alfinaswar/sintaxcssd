@@ -11,6 +11,12 @@ use Yajra\DataTables\Facades\DataTables;
 
 class CssdItemsetController extends Controller
 {
+    protected $CekStok;
+
+    public function __construct(CekStokController $CekStok)
+    {
+        $this->CekStok = $CekStok;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -18,8 +24,7 @@ class CssdItemsetController extends Controller
      */
     public function index(Request $request)
     {
-        // $data = cssdMasterItem::with('getMerk', 'getTipe', 'getNamaRS', 'getSatuan')->where('KodeRs', auth()->user()->kodeRS)->orderBy('id', 'desc')->get();
-        // dd($data);
+
         if ($request->ajax()) {
             if (auth()->user()->hasRole('superadmin_cssd')) {
                 $data = cssdItemset::with('getNamaset', 'getrs', 'DetailItem')->orderBy('id', 'desc')->get();
@@ -35,23 +40,25 @@ class CssdItemsetController extends Controller
                     return $btn;
                 })
                 ->addColumn('Item', function ($row) {
-                    $details = $row->DetailItem;
-                    $labels = [];
+                    $details = cssdItemsetDetail::where('IdItemset', $row->id)->get();
+                    $label = '-';
 
-                    if ($details && is_array($details->ItemId)) {
-                        $itemIds = array_slice($details->ItemId, 0, 5);
-                        foreach ($itemIds as $index => $itemId) {
-                            $item = cssdMasterItem::with('getNama')->find($itemId);
-                            $qty = is_array($details->Qty) && isset($details->Qty[$index]) ? $details->Qty[$index] : 0;
+                    if ($details && $details->count() > 0) {
+                        $labels = [];
+                        foreach ($details as $detail) {
+                            $item = cssdMasterItem::with('getNama')->find($detail->ItemId);
+                            $qty = $detail->Qty ?? 0;
+
                             if ($item) {
                                 $namaItem = $item->getNama->Nama ?? '-';
                                 $sn = $item->SerialNumber ?? '-';
                                 $labels[] = '<span class="badge badge-primary m-1">' . $namaItem . ' (SN: ' . $sn . ', Qty: ' . $qty . ')</span>';
                             }
                         }
+                        $label = implode(' ', $labels);
                     }
 
-                    return implode(' ', $labels) ?: '-';
+                    return $label;
                 })
                 ->rawColumns(['action', 'Item'])
                 ->make(true);
@@ -67,7 +74,9 @@ class CssdItemsetController extends Controller
      */
     public function create()
     {
-        // dd(auth()->user()->kodeRS);
+        // $cekStokController = app(CekStokController::class);
+        // $Stok = $cekStokController->CekStok();
+        // dd($Stok);
         $NamaSet = MasterNamaSet::get();
         $items = cssdMasterItem::with('getNama')->where('KodeRs', auth()->user()->kodeRS)->get();
         // dd($items);
@@ -90,6 +99,39 @@ class CssdItemsetController extends Controller
      */
     public function store(Request $request)
     {
+
+        // $data = $request->all();
+        // $groupedItems = [];
+        // if (isset($data['Item']) && is_array($data['Item'])) {
+        //     foreach ($data['Item'] as $item) {
+        //         // Cek apakah $item adalah array dan punya key 'name'
+        //         if (is_array($item) && isset($item['name'])) {
+        //             $name = $item['name'];
+        //         } else {
+        //             // fallback ke value langsung jika tidak ada key 'name'
+        //             $name = $item;
+        //         }
+        //         if (!isset($groupedItems[$name])) {
+        //             $groupedItems[$name] = 1;
+        //         } else {
+        //             $groupedItems[$name]++;
+        //         }
+        //     }
+        // }
+
+        // $result = [];
+        // foreach ($groupedItems as $itemId => $total) {
+        //     $result[] = [
+        //         'ItemId' => $itemId,
+        //         'Total' => $total
+        //     ];
+        // }
+
+        // $cekStokController = app(CekStokController::class);
+        // $Stok = $cekStokController->CekStok();
+
+
+
         if ($request->NamaSet == 'setbaru') {
             $namaset = $request->setBaru;
             MasterNamaSet::create([
@@ -109,12 +151,15 @@ class CssdItemsetController extends Controller
         ]);
         $getlatestid = cssdItemset::where('idUser', auth()->user()->id)->latest()->first()->id;
 
-        cssdItemsetDetail::create([
-            'IdItemset' => $getlatestid,
-            'ItemId' => $request->Item,
-            'Qty' => $request->Qty,
-            'KodeRs' => auth()->user()->kodeRS
-        ]);
+        foreach ($request->Item as $key => $value) {
+            cssdItemsetDetail::create([
+                'IdItemset' => $getlatestid,
+                'ItemId' => $value,
+                'Qty' => $request->Qty[$key],
+                'KodeRs' => auth()->user()->kodeRS
+            ]);
+        }
+
 
         return redirect()->route('cssd-item-set.index')->with('success', 'Set Item Berhasil Ditambahkan');
     }
@@ -157,27 +202,13 @@ class CssdItemsetController extends Controller
      */
     public function edit($id)
     {
-        $data = cssdItemset::with('DetailItem')->where('KodeRs', auth()->user()->kodeRS)->where('id', $id)->first();
-        $itemIds = $data->DetailItem->ItemId;
-        $detailItems = [];
-        foreach ($itemIds as $key => $value) {
-            $detailItems[] = cssdMasterItem::where('id', $value)->first();
-        }
-        $idinstrumen = $data->DetailItem->ItemId;
-        $NamaInstrumen = cssdMasterItem::whereIn('id', (array) $idinstrumen)->get();
-        $data->DetailItem->NamaInstrumen = $detailItems;
+        $data = cssdItemset::with('DetailItem', 'DetailItem.MasterItem')->where('KodeRs', auth()->user()->kodeRS)->where('id', $id)->first();
         // dd($data);
-
-
-        $getItems = cssdMasterItem::with(['getMerk', 'getTipe', 'getNama'])
-            ->whereIn('id', $itemIds)
-            ->get();
-
         $items = cssdMasterItem::where('KodeRs', auth()->user()->kodeRS)->get();
 
         $NamaSet = MasterNamaSet::get();
         // dd($data);
-        return view('cssd.master-item-set.edit', compact('data', 'items', 'getItems', 'NamaInstrumen', 'NamaSet'));
+        return view('cssd.master-item-set.edit', compact('data', 'items', 'NamaSet'));
     }
 
     /**
@@ -187,26 +218,50 @@ class CssdItemsetController extends Controller
      * @param  \App\Models\cssdItemset  $cssdItemset
      * @return \Illuminate\Http\Response
      */
+
+
     public function update(Request $request, $id)
     {
+        // Cek apakah user memilih set baru atau set yang sudah ada
+        if ($request->NamaSet == 'setbaru') {
+            $namaset = $request->setBaru;
+            $newSet = MasterNamaSet::create([
+                'Nama' => $request->setBaru,
+                'UserCreate' => auth()->user()->name,
+            ]);
+            $namaset = $newSet->id;
+        } else {
+            $namaset = $request->NamaSet;
+        }
 
-        $data = $request->all();
-        // dd($data);
-        $itemsetHeader = cssdItemset::find($id);
-        $itemsetHeader->update([
+        // Ambil data itemset yang akan diupdate
+        $itemset = cssdItemset::findOrFail($id);
+
+        // Update data utama itemset
+        $itemset->update([
             'KodeRs' => auth()->user()->kodeRS,
-            'Nama' => $request->NamaSet,
+            // 'Kode' => $this->GenerateKode(), // Biasanya kode tidak diupdate, jika perlu silakan aktifkan
+            'Nama' => $namaset,
             'idUser' => auth()->user()->id,
         ]);
 
-        $cssddetail = cssdItemsetDetail::where('IdItemset', $id);
-        $cssddetail->update([
-            'ItemId' => $request->Item,
-            'Qty' => $request->Qty,
-            'KodeRs' => auth()->user()->kodeRS
-        ]);
-        return redirect()->route('cssd-item-set.index')->with('success', 'Set Item Berhasil Ditambahkan');
+        // Hapus detail lama
+        cssdItemsetDetail::where('IdItemset', $itemset->id)->delete();
+
+        if ($request->Item && is_array($request->Item)) {
+            foreach ($request->Item as $key => $value) {
+                cssdItemsetDetail::create([
+                    'IdItemset' => $itemset->id,
+                    'ItemId' => $value,
+                    'Qty' => $request->Qty[$key],
+                    'KodeRs' => auth()->user()->kodeRS
+                ]);
+            }
+        }
+
+        return redirect()->route('cssd-item-set.index')->with('success', 'Set Item Berhasil Diupdate');
     }
+
 
     /**
      * Remove the specified resource from storage.

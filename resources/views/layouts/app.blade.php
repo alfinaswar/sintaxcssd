@@ -433,6 +433,15 @@
             </a>
         </li>
     @endcan
+    {{-- @can('cssd-stok') --}}
+        {{-- <li class="kt-menu__item @if (request()->is('cssd/stok-item')){{ 'kt-menu__item--active' }}@elseif (request()->is('cssd/stok-item/*')){{ 'kt-menu__item--active' }}@endif"
+            aria-haspopup="true">
+            <a href="{{ route('cssd-stok-item.index') }}" class="kt-menu__link">
+                <span class="kt-menu__link-icon"><i class="fa fa-archive"></i></span>
+                <span class="kt-menu__link-text">Stok Item</span>
+            </a>
+        </li> --}}
+    {{-- @endcan --}}
     @can('cssd-pengajuan-item-baru')
         <li class="kt-menu__item @if (request()->is('cssd/pengajuan-nama-item-cssd')){{ 'kt-menu__item--active' }}@elseif (request()->is('cssd/pengajuan-nama-item-cssd/*')){{ 'kt-menu__item--active' }}@endif" aria-haspopup="true">
             <a href="{{ route('pengajuan-nama-item-cssd.index') }}" class="kt-menu__link ">

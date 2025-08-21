@@ -14,7 +14,7 @@ class cssdItemset extends Model
 
     public function DetailItem()
     {
-        return $this->hasOne(cssdItemsetDetail::class, 'IdItemset', 'id');
+        return $this->hasMany(cssdItemsetDetail::class, 'IdItemset', 'id');
     }
 
     public function getNamaset()

@@ -122,11 +122,13 @@ Route::group(['prefix' => 'cssd'], function () {
     });
     Route::prefix('master-item-group')->group(function () {
         Route::get('/', [MasterItemGroupController::class, 'index'])->name('master-cssd.item-group.index');
+        Route::get('/stok-item', [MasterItemGroupController::class, 'Stok'])->name('cssd-stok-item.index');
         Route::get('/create', [MasterItemGroupController::class, 'create'])->name('master-cssd.item-group.create');
         Route::get('/edit/{id}', [MasterItemGroupController::class, 'edit'])->name('master-cssd.item-group.edit');
         Route::put('/update/{id}', [MasterItemGroupController::class, 'update'])->name('master-cssd.item-group.update');
         Route::post('/store', [MasterItemGroupController::class, 'store'])->name('master-cssd.item-group.store');
         Route::delete('/destroy/{id}', [MasterItemGroupController::class, 'destroy'])->name('master-cssd.item-group.destroy');
+
     });
     Route::prefix('master-nama-set')->group(function () {
         Route::get('/', [MasterNamaSetController::class, 'index'])->name('master-cssd.master-set-item.index');

@@ -21,4 +21,13 @@ class MasterItemGroup extends Model
     {
         return $this->belongsTo(cssdMerk::class, 'Merk', 'id');
     }
+
+    public function getListItem()
+    {
+        return $this->hasMany(cssdMasterItem::class, 'Nama', 'id');
+    }
+    public function getInUse()
+    {
+        return $this->hasMany(cssdItemsetDetail::class, 'ItemId', 'id');
+    }
 }
