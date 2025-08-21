@@ -27,6 +27,7 @@
         </div>
 
         <div class="kt-portlet__body">
+
             <!--begin: Datatable -->
             <table class="table table-striped- table-bordered table-hover table-checkable" id="kt_table_1">
                 <thead class="table-primary">
@@ -69,7 +70,7 @@
         @endif
     </script>
     <script>
-                                                                                        var dataTable = function () {
+                                                                                                                                                                                                                var dataTable = function () {
             var table = $('#kt_table_1');
             table.DataTable({
                 responsive: true,
@@ -192,6 +193,7 @@
         }
         jQuery(document).ready(function () {
             dataTable()
+
             $('.progress').hide();
 
         });

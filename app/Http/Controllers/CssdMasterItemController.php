@@ -8,6 +8,7 @@ use App\Models\cssdMasterSupplier;
 use App\Models\cssdMasterType;
 use App\Models\cssdMerk;
 use App\Models\MasterItemGroup;
+use App\Models\MasterRs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
@@ -45,8 +46,9 @@ class CssdMasterItemController extends Controller
                 ->rawColumns(['action', 'gambar'])
                 ->make(true);
         }
-
-        return view('cssd.master-item.index');
+        $Alat = MasterItemGroup::orderBy('Nama', 'ASC')->get();
+        $Rs = MasterRs::get();
+        return view('cssd.master-item.index', compact('Alat', 'Rs'));
     }
 
     /**

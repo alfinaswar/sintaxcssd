@@ -118,7 +118,7 @@ Route::group(['prefix' => 'cssd'], function () {
         Route::get('/edit/{id}', [CssdMasterItemController::class, 'edit'])->name('master-cssd.cssd-master-item.edit');
         Route::put('/update/{id}', [CssdMasterItemController::class, 'update'])->name('master-cssd.cssd-master-item.update');
         Route::post('/store', [CssdMasterItemController::class, 'store'])->name('master-cssd.cssd-master-item.store');
-        Route::delete('/destroy/{id}', [CssdMasterItemController::class, 'cssd-master-itemestroy'])->name('master-cssd.cssd-master-item.destroy');
+        Route::delete('/destroy/{id}', [CssdMasterItemController::class, 'destroy'])->name('master-cssd.cssd-master-item.destroy');
     });
     Route::prefix('master-item-group')->group(function () {
         Route::get('/', [MasterItemGroupController::class, 'index'])->name('master-cssd.item-group.index');
