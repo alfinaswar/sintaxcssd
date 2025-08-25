@@ -16,7 +16,7 @@ class CssdMerkController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = cssdMerk::where('KodeRs', auth()->user()->kodeRS)->orderBy('id', 'desc')->get();
+            $data = cssdMerk::orderBy('Merk', 'ASC')->get();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {

@@ -30,4 +30,10 @@ class MasterItemGroup extends Model
     {
         return $this->hasMany(cssdItemsetDetail::class, 'ItemId', 'id');
     }
+
+    public function getListItemCount()
+    {
+        return $this->hasMany(cssdMasterItem::class, 'Nama');
+    }
+
 }

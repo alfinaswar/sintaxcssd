@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\cssdMasterItem;
+use App\Models\cssdMasterSupplier;
 use App\Models\cssdMerk;
 use App\Models\cssdPengajuanItem;
 use App\Models\cssdPengajuanItemDetail;
@@ -78,7 +79,8 @@ class CssdPengajuanItemController extends Controller
     public function create()
     {
         $masterMerek = cssdMerk::orderBy('Merk', 'ASC')->get();
-        return view('cssd.master-item.pengajuan.create', compact('masterMerek'));
+        $masterSupplier = cssdMasterSupplier::orderBy('Nama', 'ASC')->get();
+        return view('cssd.master-item.pengajuan.create', compact('masterMerek', 'masterSupplier'));
     }
 
     /**
@@ -105,7 +107,7 @@ class CssdPengajuanItemController extends Controller
                 'IdPengajuan' => $idpengajuan,
                 'NamaItem' => $value,
                 'Merk' => $request->Merk[$key],
-                'Keterangan' => $request->Keterangan[$key] ?? null,
+                'Supplier' => $request->Supplier[$key] ?? null,
             ]);
         }
         return redirect()->route('pengajuan-nama-item-cssd.index')->with('success', 'Data berhasil ditambahkan');
@@ -157,8 +159,8 @@ class CssdPengajuanItemController extends Controller
     {
         $masterMerek = cssdMerk::orderBy('Merk', 'ASC')->get();
         $data = cssdPengajuanItem::with('getDiajukan', 'getRs', 'getDetail')->find($id);
-        // dd($data);
-        return view('cssd.master-item.pengajuan.edit', compact('data', 'masterMerek'));
+        $masterSupplier = cssdMasterSupplier::orderBy('Nama', 'ASC')->get();
+        return view('cssd.master-item.pengajuan.edit', compact('data', 'masterMerek', 'masterSupplier'));
     }
     public function AccPengajuan(Request $request, $id)
     {
@@ -229,7 +231,7 @@ class CssdPengajuanItemController extends Controller
                     'IdPengajuan' => $pengajuan->id,
                     'NamaItem' => $value,
                     'Merk' => $request->Merk[$key] ?? null,
-                    'Keterangan' => $request->Keterangan[$key] ?? null,
+                    'Supplier' => $request->Supplier[$key] ?? null,
                 ]);
             }
         }

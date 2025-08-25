@@ -63,7 +63,7 @@
         @endif
     </script>
     <script>
-                                                                                                            var dataTable = function () {
+                                                                                                                var dataTable = function () {
             var table = $('#kt_table_1');
             table.DataTable({
                 responsive: true,
@@ -96,8 +96,8 @@
                         name: 'jumlah_in_use'
                     },
                     {
-                        data: 'Stok',
-                        name: 'Stok'
+                        data: 'get_list_item_count',
+                        name: 'get_list_item_count'
                     },
                     {
                         data: 'action',

@@ -19,26 +19,36 @@ class MasterItemGroupController extends Controller
      */
     public function index(Request $request)
     {
-
         if ($request->ajax()) {
             $data = MasterItemGroup::with(['getMerk', 'getListItem.getItemDalamSet'])
-                ->orderBy('id', 'desc')
+                ->withCount('getListItem')
+                ->orderBy('Nama', 'Asc')
                 ->get()
                 ->map(function ($item) {
-                    $stok = 0;
-                    $jumlah_in_use = 0;
+                    $total_item = 0;
+                    $total_in_use = 0;
+                    $total_idle = 0;
+
                     if ($item->getListItem) {
                         foreach ($item->getListItem as $listItem) {
-                            if ($listItem->getItemDalamSet) {
-                                $jumlah = $listItem->getItemDalamSet->count();
-                                $stok += $jumlah;
-                                $jumlah_in_use += $jumlah; // In use dihitung dari jumlah item dalam set
+                            // Total item = jumlah item pada group
+                            $total_item++;
+
+                            // Cek apakah item ini sedang digunakan di set
+                            $in_use = 0;
+                            if ($listItem->getItemDalamSet && $listItem->getItemDalamSet->count() > 0) {
+                                $in_use = $listItem->getItemDalamSet->count();
                             }
+                            $total_in_use += $in_use;
                         }
                     }
-                    $item->Stok = $stok;
-                    $item->jumlah_in_use = $jumlah_in_use;
-                    $item->Idle = $stok - $jumlah_in_use;
+
+                    // Idle = total item - total in use
+                    $total_idle = $total_item - $total_in_use;
+
+                    $item->Stok = $total_item;
+                    $item->jumlah_in_use = $total_in_use;
+                    $item->Idle = $total_idle;
                     return $item;
                 });
             return DataTables::of($data)
@@ -50,7 +60,7 @@ class MasterItemGroupController extends Controller
                     return $btn;
                 })
 
-                ->rawColumns(['action', 'gambar'])
+                ->rawColumns(['action'])
                 ->make(true);
         }
 

@@ -4,7 +4,7 @@
 @endpush
 @section('content')
     <div class="kt-portlet kt-portlet--mobile">
-        <div class="kt-portlet__head kt-portlet__head--lg position-relative">
+        <div class="kt-portlet__head kt-portlet__head--lg">
             <div class="kt-portlet__head-label">
                 <span class="kt-portlet__head-icon">
                     <i class="kt-font-brand flaticon2-edit"></i>
@@ -13,39 +13,9 @@
                     Edit Pengajuan Nama Item Baru
                 </h3>
             </div>
-            {{-- Ribbon Status Pengajuan --}}
-            @php
-                $status = $data->Status;
-                $statusText = 'Proses Pengajuan';
-                $statusClass = 'bg-secondary text-white';
-                if ($status == 'Y') {
-                    $statusText = 'Disetujui';
-                    $statusClass = 'bg-success text-white';
-                } elseif ($status == 'N') {
-                    $statusText = 'Ditolak';
-                    $statusClass = 'bg-danger text-white';
-                }
-            @endphp
-            <div style="position: absolute; top: 20px; right: -30px; z-index: 10; transform: rotate(45deg); width: 180px; text-align: center;">
-                <span class="d-block py-2 {{ $statusClass }}" style="font-weight: bold; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
-                    {{ $statusText }}
-                </span>
-            </div>
         </div>
 
         <div class="kt-portlet__body">
-
-            @if ($data->Status == 'N' && $data->Revisi != null)
-                <div class="card mb-4 border-info">
-                    <div class="card-header bg-info text-white">
-                        <strong>Catatan yang Perlu Diperhatikan</strong>
-                    </div>
-                    <div class="card-body">
-                        {!! $data->Revisi !!}
-                    </div>
-                </div>
-            @endif
-
             <form method="post" action="{{ route('pengajuan-nama-item-cssd.update', $data->id) }}" id="form-pengajuan-item">
                 @csrf
                 @method('PUT')
@@ -57,8 +27,8 @@
                             <div class="form-group row">
                                 <div class="col-lg-12 col-md-12 col-sm-12">
                                     <input type="date" class="form-control" name="Tanggal" id="tanggal"
-                                        value="{{ old('Tanggal', $data->Tanggal ?? date('Y-m-d')) }}" required
-                                        min="{{ date('Y-m-d') }}">
+                                        value="{{ old('Tanggal', $data->Tanggal ? date('Y-m-d', strtotime($data->Tanggal)) : date('Y-m-d')) }}"
+                                        required min="{{ date('Y-m-d') }}">
                                 </div>
                             </div>
                         </div>
@@ -78,7 +48,7 @@
                                         <tr>
                                             <th width="35%">Nama</th>
                                             <th width="25%">Merek</th>
-                                            <th width="30%">Keterangan</th>
+                                            <th width="30%">Supplier</th>
                                             <th width="10%">Aksi</th>
                                         </tr>
                                     </thead>
@@ -92,17 +62,30 @@
                                                             value="{{ old('Nama.' . $key, $detail->NamaItem) }}">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control kt-select2" name="Merk[]" required
-                                                            style="width: 100%;">
-                                                            <option value="">-- Pilih Merek --</option>
-                                                            @foreach($masterMerek as $merek)
-                                                                <option value="{{ $merek->id }}" {{ $detail->Merk == $merek->id ? 'selected' : '' }}>{{ $merek->Merk }}</option>
-                                                            @endforeach
-                                                        </select>
+                                                        <div class="form-group mb-0">
+                                                            <select class="form-control kt-select2" name="Merk[]" required
+                                                                style="width: 100%;">
+                                                                <option value="">-- Pilih Merek --</option>
+                                                                @foreach($masterMerek as $merek)
+                                                                    <option value="{{ $merek->id }}" {{ (old('Merk.' . $key, $detail->Merk) == $merek->id) ? 'selected' : '' }}>
+                                                                        {{ $merek->Merk }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
                                                     </td>
                                                     <td>
-                                                        <textarea class="form-control" name="Keterangan[]" placeholder="Keterangan"
-                                                            rows="2">{{ old('Keterangan.' . $key, $detail->Keterangan) }}</textarea>
+                                                        <div class="form-group mb-0">
+                                                            <select class="form-control kt-select2" name="Supplier[]" required
+                                                                style="width: 100%;">
+                                                                <option value="">-- Pilih Supplier --</option>
+                                                                @foreach($masterSupplier as $supp)
+                                                                    <option value="{{ $supp->id }}" {{ (old('Supplier.' . $key, $detail->Supplier) == $supp->id) ? 'selected' : '' }}>
+                                                                        {{ $supp->Nama }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
                                                     </td>
                                                     <td>
                                                         <button type="button" class="btn btn-danger btn-sm remove-row" {{ $loop->first && count($data->getDetail) == 1 ? 'disabled' : '' }}>
@@ -118,17 +101,26 @@
                                                         placeholder="Nama Item" required>
                                                 </td>
                                                 <td>
-                                                    <select class="form-control kt-select2" name="Merk[]" required
-                                                        style="width: 100%;">
-                                                        <option value="">-- Pilih Merek --</option>
-                                                        @foreach($masterMerek as $merek)
-                                                            <option value="{{ $merek->id }}">{{ $merek->Merk }}</option>
-                                                        @endforeach
-                                                    </select>
+                                                    <div class="form-group mb-0">
+                                                        <select class="form-control kt-select2" name="Merk[]" required
+                                                            style="width: 100%;">
+                                                            <option value="">-- Pilih Merek --</option>
+                                                            @foreach($masterMerek as $merek)
+                                                                <option value="{{ $merek->id }}">{{ $merek->Merk }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
                                                 </td>
                                                 <td>
-                                                    <textarea class="form-control" name="Keterangan[]" placeholder="Keterangan"
-                                                        rows="2"></textarea>
+                                                    <div class="form-group mb-0">
+                                                        <select class="form-control kt-select2" name="Supplier[]" required
+                                                            style="width: 100%;">
+                                                            <option value="">-- Pilih Supplier --</option>
+                                                            @foreach($masterSupplier as $supp)
+                                                                <option value="{{ $supp->id }}">{{ $supp->Nama }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
                                                 </td>
                                                 <td>
                                                     <button type="button" class="btn btn-danger btn-sm remove-row" disabled>
@@ -168,7 +160,7 @@
 
         <div class="card-footer">
             <button class="btn btn-primary btn-block" type="submit" form="form-pengajuan-item">
-                <i class="fa fa-paper-plane"></i> Simpan Perubahan
+                <i class="fa fa-save"></i> Simpan Perubahan
             </button>
         </div>
     </div>
@@ -200,36 +192,45 @@
         @endif
     </script>
     <script>
-                                                                                        // Penjelasan:
-                                                                                        // Select2 tidak bekerja pada baris yang baru ditambahkan karena select2 hanya diinisialisasi pada elemen yang sudah ada saat halaman pertama kali dimuat.
-                                                                                        // Solusi: Setelah menambah baris baru, panggil kembali $('.kt-select2').select2() pada elemen select yang baru.
+                // Penjelasan:
+                // Select2 tidak bekerja pada baris yang baru ditambahkan karena select2 hanya diinisialisasi pada elemen yang sudah ada saat halaman pertama kali dimuat.
+                // Solusi: Setelah menambah baris baru, panggil kembali $('.kt-select2').select2() pada elemen select yang baru.
 
-                                                                                        var addRow = function () {
+                var addRow = function () {
             $('#add-row').on('click', function () {
                 var newRow =
                     `
-                                                                                                        <tr>
-                                                                                                            <td>
-                                                                                                                <input type="text" class="form-control" name="Nama[]" placeholder="Nama Item" required>
-                                                                                                            </td>
-                                                                                                            <td>
-                                                                                                                <select class="form-control kt-select2" name="Merk[]" required style="width: 100%;">
-                                                                                                                    <option value="">-- Pilih Merek --</option>
-                                                                                                                    @foreach($masterMerek as $merek)
-                                                                                                                        <option value="{{ $merek->id }}">{{ $merek->Merk }}</option>
-                                                                                                                    @endforeach
-                                                                                                                </select>
-                                                                                                            </td>
-                                                                                                            <td>
-                                                                                                                <textarea class="form-control" name="Keterangan[]" placeholder="Keterangan" rows="2"></textarea>
-                                                                                                            </td>
-                                                                                                            <td>
-                                                                                                                <button type="button" class="btn btn-danger btn-sm remove-row">
-                                                                                                                    <i class="fa fa-trash"></i>
-                                                                                                                </button>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    `;
+                            <tr>
+                                <td>
+                                    <input type="text" class="form-control" name="Nama[]" placeholder="Nama Item" required>
+                                </td>
+                                <td>
+                                    <div class="form-group mb-0">
+                                        <select class="form-control kt-select2" name="Merk[]" required style="width: 100%;">
+                                            <option value="">-- Pilih Merek --</option>
+                                            @foreach($masterMerek as $merek)
+                                                <option value="{{ $merek->id }}">{{ $merek->Merk }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group mb-0">
+                                        <select class="form-control kt-select2" name="Supplier[]" required style="width: 100%;">
+                                            <option value="">-- Pilih Supplier --</option>
+                                            @foreach($masterSupplier as $supp)
+                                                <option value="{{ $supp->id }}">{{ $supp->Nama }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm remove-row">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            `;
 
                 $('#tbody-item-baru').append(newRow);
 

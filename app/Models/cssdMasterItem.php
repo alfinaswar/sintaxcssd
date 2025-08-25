@@ -35,5 +35,7 @@ class cssdMasterItem extends Model
     {
         return $this->hasMany(cssdItemsetDetail::class, 'ItemId', 'id');
     }
+    // Membuat kode otomatis di model dengan event creating
+
 
 }

@@ -115,10 +115,10 @@
             </div>
 
 
-            @if($data->Status == null && auth()->user() && auth()->user()->role == 'admin')
+            @if(($data->Status == null || $data->Status == 'N') && auth()->user() && auth()->user()->role == 'admin')
                 <div class="row mt-4">
                     <div class="col-12 text-center">
-                        <button type="button" class="btn btn-success btn-lg mr-3" onclick="konfirmasiSetujui({{ $data->id }})"
+                        <button type="button" class="btn btn-success btn-lg " onclick="konfirmasiSetujui({{ $data->id }})"
                             @if(!empty($data->ApproveBy)) disabled @endif>
                             <i class="fa fa-check"></i> Setujui Pengajuan
                         </button>

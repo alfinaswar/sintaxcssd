@@ -60,6 +60,7 @@ class CssdMasterItemController extends Controller
     {
         $masteritem = MasterItemGroup::with('getMerk')->latest()->get();
         $merks = cssdMerk::get();
+        // dd($merks);
         $tipe = cssdMasterType::where('KodeRs', auth()->user()->kodeRS)->get();
         $Satuan = cssdMasterSatuan::where('KodeRs', auth()->user()->kodeRS)->get();
         $Supplier = cssdMasterSupplier::get();
@@ -95,6 +96,7 @@ class CssdMasterItemController extends Controller
                 ->withInput();
         }
 
+
         $data = $request->all();
         if ($request->Tipe == 'TipeBaru') {
             $tipe = $request->tipe_baru;
@@ -107,7 +109,6 @@ class CssdMasterItemController extends Controller
         } else {
             $data['Tipe'] = $request->Tipe;
         }
-
         if ($request->Satuan == 'SatuanBaru') {
             $Merk = $request->satuan_baru;
             cssdMerk::create([
@@ -119,28 +120,46 @@ class CssdMasterItemController extends Controller
         } else {
             $data['Satuan'] = $request->Satuan;
         }
-        if ($request->hasFile('Gambar')) {
-            $file = $request->file('Gambar');
-            $namaFile = microtime(true) . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('public/cssd_item', $namaFile);
-            $data['Gambar'] = $namaFile;
-        }
-        $data['Kode'] = $this->generateKode();
-        $data['idUser'] = auth()->user()->id;
-        $data['KodeRs'] = auth()->user()->kodeRS;
-        $data['Harga'] = str_replace('.', '', $request->Harga);
+        if (isset($data['Qty']) && $data['Qty'] > 1) {
+            for ($i = 0; $i < $data['Qty']; $i++) {
+                if ($request->hasFile('Gambar')) {
+                    $file = $request->file('Gambar');
+                    $namaFile = microtime(true) . '.' . $file->getClientOriginalExtension();
+                    $file->storeAs('public/cssd_item', $namaFile);
+                    $data['Gambar'] = $namaFile;
+                }
+                $data['idUser'] = auth()->user()->id;
+                $data['KodeRs'] = auth()->user()->kodeRS;
+                $data['Kode'] = $this->generateKode($i); // <<-- beda tiap loop
+                $data['Harga'] = str_replace('.', '', $request->Harga);
 
-        cssdMasterItem::create($data);
+                cssdMasterItem::create($data);
+            }
+        }
         return redirect()->route('master-cssd.cssd-master-item.index')->with('success', 'Item Berhasil Ditambahkan');
     }
 
-    private function generateKode()
+    private function generateKode($increment = 0)
     {
-        $tahun = date('Y');
+        $kodeRsab = MasterRs::where('kodeRS', auth()->user()->kodeRS)->first()->keterangan;
+        $tahunFull = date('Y');
+        $tahun = substr($tahunFull, 2, 2);
         $bulan = date('m');
-        $nomorUrut = cssdMasterItem::whereYear('created_at', $tahun)->whereMonth('created_at', $bulan)->count() + 1;
+
+        $lastItem = cssdMasterItem::whereYear('created_at', $tahunFull)
+            ->whereMonth('created_at', $bulan)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if ($lastItem && preg_match('/(\d{4})$/', $lastItem->Kode, $matches)) {
+            $lastNumber = (int) $matches[1];
+        } else {
+            $lastNumber = 0;
+        }
+        $nomorUrut = $lastNumber + 1 + $increment;
         $nomorUrut = str_pad($nomorUrut, 4, '0', STR_PAD_LEFT);
-        return 'CSSD' . $bulan . $tahun . $nomorUrut;
+
+        return 'RSAB' . $kodeRsab . $bulan . $tahun . $nomorUrut;
     }
 
     /**
@@ -158,11 +177,11 @@ class CssdMasterItemController extends Controller
     {
         $masteritem = MasterItemGroup::with('getMerk')->latest()->get();
         $data = cssdMasterItem::find($id);
-        $merks = cssdMerk::where('KodeRs', auth()->user()->kodeRS)->get();
+        $merks = cssdMerk::get();
         $tipe = cssdMasterType::where('KodeRs', auth()->user()->kodeRS)->get();
         $Satuan = cssdMasterSatuan::where('KodeRs', auth()->user()->kodeRS)->get();
         $Supplier = cssdMasterSupplier::get();
-        // dd($merks);
+        // dd($masteritem);
         return view('cssd.master-item.edit', compact('merks', 'tipe', 'Satuan', 'data', 'masteritem', 'Supplier'));
 
     }

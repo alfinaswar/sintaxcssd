@@ -207,9 +207,13 @@ class CssdItemsetController extends Controller
     public function edit($id)
     {
         $data = cssdItemset::with('DetailItem', 'DetailItem.MasterItem')->where('KodeRs', auth()->user()->kodeRS)->where('id', $id)->first();
-        // dd($data);
+        $itemIdsInSet = $data->DetailItem->pluck('ItemId')->toArray();
+
         $items = cssdMasterItem::with('getNama', 'getItemDalamSet')
-            ->whereDoesntHave('getItemDalamSet')
+            ->where(function ($query) use ($itemIdsInSet) {
+                $query->whereDoesntHave('getItemDalamSet')
+                    ->orWhereIn('id', $itemIdsInSet);
+            })
             ->where('KodeRs', auth()->user()->kodeRS)
             ->get();
 

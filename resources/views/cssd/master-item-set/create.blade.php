@@ -72,9 +72,9 @@
                                     <thead>
                                         <tr>
                                             <th width="5%">No</th>
-                                            <th width="30%">Nama Item</th>
-                                            <th width="25%">Merk</th>
-                                            <th width="25%">Tipe</th>
+                                            <th width="40%">Nama Item</th>
+                                            <th width="15%">Merk</th>
+                                            <th width="15%">Tipe</th>
                                             <th width="10%">Qty</th>
                                             <th width="5%">Aksi</th>
                                         </tr>
@@ -84,11 +84,13 @@
                                         <tr>
                                             <td class="text-center row-number">1</td>
                                             <td>
-                                                <select class="form-control select2 Itemset" name="Item[]" required>
+                                                <select class="form-control select2 Itemset" name="Item[]" required
+                                                    style="width: 100%;">
                                                     <option value="">Pilih Item</option>
                                                     @foreach ($items as $item)
                                                         <option value="{{ $item->id }}">{{ $item->getNama->Nama }} -
-                                                            {{ $item->SerialNumber }}
+                                                            {{ $item->getMerk->Merk }}
+                                                            {{ $item->Kode }}
                                                         </option>
                                                     @endforeach
                                                 </select>
@@ -103,7 +105,7 @@
                                             </td>
                                             <td>
                                                 <input type="number" class="form-control" name="Qty[]" placeholder="Qty"
-                                                    min="1" value="1" required>
+                                                    min="1" value="1" required readonly>
                                             </td>
                                             <td class="text-center">
                                                 <button type="button" class="btn btn-danger btn-md remove-row text-center"
@@ -165,39 +167,42 @@
             const tbody = document.querySelector('#itemTable tbody');
             const newRow = document.createElement('tr');
 
+            // Perhatikan: tambahkan style="width: 100%;" pada select agar select2 tidak memanjang
             newRow.innerHTML = `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td class="text-center row-number">${rowCount + 1}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            <select class="form-control select2 Itemset" name="Item[]" required>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                <option value="">Pilih Item</option>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                @foreach ($items as $item)
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             <option value="{{ $item->id }}">{{ $item->getNama->Nama }} -
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                        {{ $item->SerialNumber }}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </option>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                @endforeach
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            </select>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        </td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            <input type="text" class="form-control" name="Merk[]" placeholder="Merk" readonly>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        </td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            <input type="text" class="form-control" name="Tipe[]" placeholder="Tipe" readonly>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        </td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            <input type="number" class="form-control" name="Qty[]" placeholder="Qty" min="1" value="1" required>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        </td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td class="text-center">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            <button type="button" class="btn btn-danger btn-md remove-row" onclick="removeRow(this)">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                <i class="fa fa-trash"></i>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            </button>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        </td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                    `;
+                    <td class="text-center row-number">${rowCount + 1}</td>
+                    <td>
+                        <select class="form-control select2 Itemset" name="Item[]" required style="width: 100%;">
+                            <option value="">Pilih Item</option>
+                            @foreach ($items as $item)
+                                <option value="{{ $item->id }}">{{ $item->getNama->Nama }} - {{ $item->getMerk->Merk }}
+                                    {{ $item->Kode }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="Merk[]" placeholder="Merk" readonly>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="Tipe[]" placeholder="Tipe" readonly>
+                    </td>
+                    <td>
+                        <input type="number" class="form-control" name="Qty[]" placeholder="Qty" readonly min="1" value="1" required>
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-danger btn-md remove-row" onclick="removeRow(this)">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </td>
+                `;
 
             tbody.appendChild(newRow);
             rowCount++;
 
-            // Reinitialize select2 for new row
-            $(newRow).find('.select2').select2();
+            // Reinitialize select2 untuk baris baru, dan pastikan width 100%
+            $(newRow).find('.select2').select2({
+                width: '100%'
+            });
 
             // Update row numbers
             updateRowNumbers();
@@ -207,7 +212,7 @@
             const row = button.closest('tr');
             const tbody = document.querySelector('#itemTable tbody');
 
-            // Don't allow removing if it's the last row
+            // Jangan hapus jika hanya tersisa satu baris
             if (tbody.children.length > 1) {
                 row.remove();
                 updateRowNumbers();
@@ -232,8 +237,7 @@
             });
         }
 
-        // Auto-fill merk and tipe when item is selected
-        // Script ini menyesuaikan pengisian otomatis field Merk dan Tipe sesuai dengan form yang ada
+        // Auto-fill merk dan tipe ketika item dipilih
         $(document).on('change', '.Itemset', function () {
             const row = $(this).closest('tr');
             const itemId = $(this).val();
@@ -243,7 +247,6 @@
                     method: 'GET',
                     data: { id: itemId },
                     success: function (data) {
-                        // Mengisi input Merk dan Tipe pada baris yang sama
                         row.find('input[name="Merk[]"]').val(data.Merk || '');
                         row.find('input[name="Tipe[]"]').val(data.Tipe || '');
                     },
@@ -258,11 +261,12 @@
             }
         });
 
-        // Initialize select2 on page load
+        // Inisialisasi select2 pada page load, pastikan width 100%
         $(document).ready(function () {
-            $('.select2').select2();
+            $('.select2').select2({
+                width: '100%'
+            });
         });
-
 
     </script>
 
@@ -282,6 +286,15 @@
 
         .row-number {
             font-weight: 600;
+        }
+
+        /* Tambahan agar select2 di table tidak memanjang */
+        .select2-container {
+            width: 100% !important;
+        }
+
+        .select2-selection--single {
+            width: 100% !important;
         }
     </style>
 @endpush
