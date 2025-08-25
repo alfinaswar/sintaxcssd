@@ -80,7 +80,7 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="form-group row">
+                        {{-- <div class="form-group row">
                             <label for="serial_number" class="col-2 col-form-label">* Serial Number</label>
                             <div class="col-8">
                                 <input class="form-control {{ $errors->has('SerialNumber') ? 'is-invalid' : '' }}"
@@ -92,7 +92,7 @@
                                     </div>
                                 @endif
                             </div>
-                        </div>
+                        </div> --}}
 
                         <div class="form-group row">
                             <label for="merk" class="col-2 col-form-label">* Merk</label>

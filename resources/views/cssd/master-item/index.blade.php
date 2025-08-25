@@ -34,7 +34,7 @@
                     <tr>
                         <th width="5%">No</th>
                         <th>Kode</th>
-                        <th>Serial Number</th>
+
                         <th>Nama</th>
                         <th>Merk</th>
                         <th>Tipe</th>
@@ -42,7 +42,7 @@
                         <th>Tahun Perolehan</th>
                         <th>Kondisi Barang</th>
                         <th>Gambar</th>
-                        <th>Satuan</th>
+
                         <th>Kode RS</th>
                         <th>Actions</th>
                     </tr>
@@ -70,7 +70,7 @@
         @endif
     </script>
     <script>
-                                                                                                                                                                                                                var dataTable = function () {
+                                                                                                                                                                                                                                var dataTable = function () {
             var table = $('#kt_table_1');
             table.DataTable({
                 responsive: true,
@@ -90,10 +90,7 @@
                     name: 'Kode'
                 },
 
-                {
-                    data: 'SerialNumber',
-                    name: 'SerialNumber'
-                },
+
                 {
                     data: 'get_nama.Nama',
                     name: 'get_nama.Nama'
@@ -104,7 +101,8 @@
                 },
                 {
                     data: 'get_tipe.Tipe',
-                    name: 'get_tipe.Tipe'
+                    name: 'get_tipe.Tipe',
+                    defaultContent: '-'
                 },
                 {
                     data: 'Qty',
@@ -122,10 +120,7 @@
                     data: 'gambar',
                     name: 'gambar'
                 },
-                {
-                    data: 'get_satuan.Satuan',
-                    name: 'get_satuan.Satuan'
-                },
+
                 {
                     data: 'get_nama_r_s.nama',
                     name: 'get_nama_r_s.nama'

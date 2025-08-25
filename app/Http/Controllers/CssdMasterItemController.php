@@ -76,14 +76,13 @@ class CssdMasterItemController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'SerialNumber' => 'required|string|max:255',
             'Nama' => 'required|string|max:255',
             'Merk' => 'required|string',
             'Tipe' => 'required|string',
             'Qty' => 'required|integer|min:1',
             'TahunPerolehan' => 'required|integer|between:2010,' . date('Y'),
             'KondisiBarang' => 'required|in:B,KB,R',
-            'Gambar' => 'required|file|mimes:jpeg,png,jpg,gif|max:5000',
+            'Gambar' => 'required|file|mimes:jpeg,png,jpg,gif',
             'Satuan' => 'required|string',
             'Supplier' => 'required|string',
 
@@ -120,21 +119,33 @@ class CssdMasterItemController extends Controller
         } else {
             $data['Satuan'] = $request->Satuan;
         }
+        if ($request->hasFile('Gambar')) {
+            $file = $request->file('Gambar');
+            $namaFile = microtime(true) . '.' . $file->getClientOriginalExtension();
+            $image = \Intervention\Image\Facades\Image::make($file);
+            $image->resize(1200, null, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+            $image->save(storage_path('app/public/cssd_item/' . $namaFile), 65);
+        }
         if (isset($data['Qty']) && $data['Qty'] > 1) {
             for ($i = 0; $i < $data['Qty']; $i++) {
-                if ($request->hasFile('Gambar')) {
-                    $file = $request->file('Gambar');
-                    $namaFile = microtime(true) . '.' . $file->getClientOriginalExtension();
-                    $file->storeAs('public/cssd_item', $namaFile);
-                    $data['Gambar'] = $namaFile;
-                }
                 $data['idUser'] = auth()->user()->id;
                 $data['KodeRs'] = auth()->user()->kodeRS;
                 $data['Kode'] = $this->generateKode($i); // <<-- beda tiap loop
                 $data['Harga'] = str_replace('.', '', $request->Harga);
-
+                $data['Gambar'] = $namaFile ?? '';
                 cssdMasterItem::create($data);
             }
+        } else {
+            // Jika Qty tidak ada atau kurang dari 1, tetap simpan satu data
+            $data['idUser'] = auth()->user()->id;
+            $data['KodeRs'] = auth()->user()->kodeRS;
+            $data['Kode'] = $this->generateKode(0);
+            $data['Harga'] = str_replace('.', '', $request->Harga);
+            $data['Gambar'] = $namaFile ?? '';
+            cssdMasterItem::create($data);
         }
         return redirect()->route('master-cssd.cssd-master-item.index')->with('success', 'Item Berhasil Ditambahkan');
     }
@@ -196,15 +207,13 @@ class CssdMasterItemController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-
-            'SerialNumber' => 'required|string|max:255',
             'Nama' => 'required|string|max:255',
             'Merk' => 'required|string',
             'Tipe' => 'required|string',
             'Qty' => 'required|integer|min:1',
             'TahunPerolehan' => 'required|integer|between:2010,' . date('Y'),
             'KondisiBarang' => 'required|in:B,KB,R',
-            'Gambar' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:5000',
+            'Gambar' => 'nullable|file|mimes:jpeg,png,jpg,gif',
             'Satuan' => 'required|string',
         ]);
 
@@ -240,12 +249,17 @@ class CssdMasterItemController extends Controller
         if ($request->hasFile('Gambar')) {
             $file = $request->file('Gambar');
             $namaFile = microtime(true) . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('public/cssd_item', $namaFile);
-            $data['Gambar'] = $namaFile;
+            $image = \Intervention\Image\Facades\Image::make($file);
+            $image->resize(1200, null, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+            $image->save(storage_path('app/public/cssd_item/' . $namaFile), 65);
         }
         $data['Kode'] = $this->generateKode();
         $data['UserUpdate'] = auth()->user()->name;
         $data['KodeRs'] = auth()->user()->kodeRS;
+        $data['Gambar'] = $namaFile ?? '';
 
         cssdMasterItem::find($id)->update($data);
         return redirect()->route('master-cssd.cssd-master-item.index')->with('success', 'Item Berhasil Diubah');
