@@ -24,6 +24,19 @@
                 <div class="row">
                     <div class="col-md-8">
                         <div class="form-group row">
+                            <label for="kode" class="col-2 col-form-label">* Kode</label>
+                            <div class="col-8">
+                                <input class="form-control {{ $errors->has('Kode') ? 'is-invalid' : '' }}" name="Kode"
+                                    value="{{ old('Kode', $itemGroup->Kode) }}" placeholder="Masukkan Kode Item Group"
+                                    type="text" id="kode">
+                                @if ($errors->has('Kode'))
+                                    <div class="invalid-feedback">
+                                        {{ $errors->first('Kode') }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group row">
                             <label for="nama" class="col-2 col-form-label">* Nama</label>
                             <div class="col-8">
                                 <input class="form-control {{ $errors->has('Nama') ? 'is-invalid' : '' }}" name="Nama"
@@ -170,7 +183,7 @@
                     @else
                         preview.innerHTML = '';
                     @endif
-                        }
+                                }
             }
         });
     </script>
@@ -217,7 +230,7 @@
                 @else
                     preview.innerHTML = '';
                 @endif
-                    }
+                            }
         }
     </script>
 @endpush

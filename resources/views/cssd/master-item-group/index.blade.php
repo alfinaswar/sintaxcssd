@@ -27,23 +27,38 @@
         </div>
 
         <div class="kt-portlet__body">
-            <!--begin: Datatable -->
-            <table class="table table-striped- table-bordered table-hover table-checkable" id="kt_table_1">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <select id="filter-merk" class="form-control kt-select2" style="width: 100%;">
+                        <option value="">-- Semua Merk --</option>
+                        @foreach ($merk as $m)
+                            <option value="{{$m->id}}">{{$m->Merk}}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end mt-3 mb-3">
+                <button id="applyFilter" class="btn btn-primary mr-2">Terapkan</button>
+                <button id="resetFilter" class="btn btn-secondary">Reset</button>
+            </div>
+            <table class="table table-striped table-bordered table-hover table-checkable" id="kt_table_1">
                 <thead class="table-primary">
                     <tr>
                         <th width="5%">No</th>
+                        <th>Kode</th>
                         <th>Nama</th>
                         <th>Merk</th>
                         <th>Idle</th>
                         <th>In Use</th>
                         <th>Total</th>
-                        <th>Actions</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                 </tbody>
             </table>
-            <!--end: Datatable -->
+
+            <!-- end: Datatable -->
         </div>
     </div>
 @endsection
@@ -62,10 +77,8 @@
             @endforeach
         @endif
     </script>
-    <script>
-                                                                                                                var dataTable = function () {
-            var table = $('#kt_table_1');
-            table.DataTable({
+    <script>                                                                                                                                                                  var dataTable = function () {
+            var table = $('#kt_table_1').DataTable({
                 responsive: true,
                 serverSide: true,
                 bDestroy: true,
@@ -73,40 +86,35 @@
                 language: {
                     processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span> '
                 },
-                ajax: "{{ route('master-cssd.item-group.index') }}",
+                ajax: {
+                    url: "{{ route('master-cssd.item-group.index') }}",
+                    data: function (d) {
+                        d.merk = $('#filter-merk').val(); // kirim value filter merk ke server
+                    }
+                },
                 columns: [
-                    {
-                        data: 'DT_RowIndex',
-                        name: 'DT_RowIndex'
-                    },
-                    {
-                        data: 'Nama',
-                        name: 'Nama'
-                    },
-                    {
-                        data: 'get_merk.Merk',
-                        name: 'get_merk.Merk'
-                    },
-                    {
-                        data: 'Idle',
-                        name: 'Idle'
-                    },
-                    {
-                        data: 'jumlah_in_use',
-                        name: 'jumlah_in_use'
-                    },
-                    {
-                        data: 'get_list_item_count',
-                        name: 'get_list_item_count'
-                    },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        searchable: false
-                    },
+                    { data: 'DT_RowIndex', name: 'DT_RowIndex' },
+                    { data: 'Kode', name: 'Kode' },
+                    { data: 'Nama', name: 'Nama' },
+                    { data: 'get_merk.Merk', name: 'get_merk.Merk' },
+                    { data: 'Idle', name: 'Idle' },
+                    { data: 'jumlah_in_use', name: 'jumlah_in_use' },
+                    { data: 'get_list_item_count', name: 'get_list_item_count' },
+                    { data: 'action', name: 'action', orderable: false, searchable: false }
                 ]
-            })
+            });
+
+            // Tombol apply filter
+            $('#applyFilter').on('click', function () {
+                table.ajax.reload();
+            });
+
+            // Tombol reset filter
+            $('#resetFilter').on('click', function () {
+                $('#filter-merk').val('');
+                table.ajax.reload();
+            });
+
         };
         var delete_data = function (e, id) {
             e.preventDefault()
@@ -162,6 +170,7 @@
         }
         jQuery(document).ready(function () {
             dataTable()
+            $('.kt-select2').select2();
             $('.progress').hide();
         });
     </script>

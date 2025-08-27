@@ -20,21 +20,23 @@ class MasterItemGroupController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = MasterItemGroup::with(['getMerk', 'getListItem.getItemDalamSet'])
+            $query = MasterItemGroup::with(['getMerk', 'getListItem.getItemDalamSet'])
                 ->withCount('getListItem')
-                ->orderBy('Nama', 'Asc')
-                ->get()
+                ->orderBy('Nama', 'Asc');
+            if ($request->merk) {
+                $query->whereHas('getMerk', function ($q) use ($request) {
+                    $q->where('id', $request->merk);
+                });
+            }
+            $data = $query->get()
                 ->map(function ($item) {
                     $total_item = 0;
                     $total_in_use = 0;
-                    $total_idle = 0;
 
                     if ($item->getListItem) {
                         foreach ($item->getListItem as $listItem) {
-                            // Total item = jumlah item pada group
                             $total_item++;
 
-                            // Cek apakah item ini sedang digunakan di set
                             $in_use = 0;
                             if ($listItem->getItemDalamSet && $listItem->getItemDalamSet->count() > 0) {
                                 $in_use = $listItem->getItemDalamSet->count();
@@ -43,29 +45,28 @@ class MasterItemGroupController extends Controller
                         }
                     }
 
-                    // Idle = total item - total in use
-                    $total_idle = $total_item - $total_in_use;
-
                     $item->Stok = $total_item;
                     $item->jumlah_in_use = $total_in_use;
-                    $item->Idle = $total_idle;
+                    $item->Idle = $total_item - $total_in_use;
                     return $item;
                 });
+
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     $btnEdite = '<a href="' . route('master-cssd.item-group.edit', $row->id) . '"><button type="button" class="btn btn-outline-success btn-icon" ><i class="fa fa-cogs"></i></button></a>';
                     $btnlihat = '<button type="button" class="btn btn-outline-danger btn-icon" onclick="delete_data(event,' . $row->id . ')" ><i class="fa fa-times"></i></button>';
-                    $btn = $btnEdite . '&nbsp;' . $btnlihat;
-                    return $btn;
+                    return $btnEdite . '&nbsp;' . $btnlihat;
                 })
-
                 ->rawColumns(['action'])
                 ->make(true);
         }
 
-        return view('cssd.master-item-group.index');
+        // untuk dropdown filter merk
+        $merk = cssdMerk::orderBy('Merk', 'ASC')->get();
+        return view('cssd.master-item-group.index', compact('merk'));
     }
+
     public function Stok(Request $request)
     {
         if ($request->ajax()) {
@@ -180,6 +181,7 @@ class MasterItemGroupController extends Controller
         $validator = Validator::make($request->all(), [
             'Nama' => 'required|string|max:255',
             'Merk' => 'required|string',
+            'Kode' => 'required|string|max:255',
             'Foto' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:5000',
         ]);
 
@@ -221,7 +223,7 @@ class MasterItemGroupController extends Controller
         return redirect()->route('master-cssd.item-group.index')->with('success', 'Item Berhasil Diupdate');
     }
 
-    /**
+    /**   
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\MasterItemGroup  $masterItemGroup
