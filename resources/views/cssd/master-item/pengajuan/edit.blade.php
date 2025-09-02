@@ -14,6 +14,16 @@
                 </h3>
             </div>
         </div>
+        @if($data->Status == 'N' && !empty($data->Revisi))
+            <div class="card mt-4 mx-4 border-info">
+                <div class="card-header bg-info text-dark font-weight-bold">
+                    Catatan Revisi
+                </div>
+                <div class="card-body">
+                    {!! $data->Revisi !!}
+                </div>
+            </div>
+        @endif
 
         <div class="kt-portlet__body">
             <form method="post" action="{{ route('pengajuan-nama-item-cssd.update', $data->id) }}" id="form-pengajuan-item">
@@ -192,45 +202,45 @@
         @endif
     </script>
     <script>
-                // Penjelasan:
-                // Select2 tidak bekerja pada baris yang baru ditambahkan karena select2 hanya diinisialisasi pada elemen yang sudah ada saat halaman pertama kali dimuat.
-                // Solusi: Setelah menambah baris baru, panggil kembali $('.kt-select2').select2() pada elemen select yang baru.
+                            // Penjelasan:
+                            // Select2 tidak bekerja pada baris yang baru ditambahkan karena select2 hanya diinisialisasi pada elemen yang sudah ada saat halaman pertama kali dimuat.
+                            // Solusi: Setelah menambah baris baru, panggil kembali $('.kt-select2').select2() pada elemen select yang baru.
 
-                var addRow = function () {
+                            var addRow = function () {
             $('#add-row').on('click', function () {
                 var newRow =
                     `
-                            <tr>
-                                <td>
-                                    <input type="text" class="form-control" name="Nama[]" placeholder="Nama Item" required>
-                                </td>
-                                <td>
-                                    <div class="form-group mb-0">
-                                        <select class="form-control kt-select2" name="Merk[]" required style="width: 100%;">
-                                            <option value="">-- Pilih Merek --</option>
-                                            @foreach($masterMerek as $merek)
-                                                <option value="{{ $merek->id }}">{{ $merek->Merk }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="form-group mb-0">
-                                        <select class="form-control kt-select2" name="Supplier[]" required style="width: 100%;">
-                                            <option value="">-- Pilih Supplier --</option>
-                                            @foreach($masterSupplier as $supp)
-                                                <option value="{{ $supp->id }}">{{ $supp->Nama }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </td>
-                                <td>
-                                    <button type="button" class="btn btn-danger btn-sm remove-row">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            `;
+                                        <tr>
+                                            <td>
+                                                <input type="text" class="form-control" name="Nama[]" placeholder="Nama Item" required>
+                                            </td>
+                                            <td>
+                                                <div class="form-group mb-0">
+                                                    <select class="form-control kt-select2" name="Merk[]" required style="width: 100%;">
+                                                        <option value="">-- Pilih Merek --</option>
+                                                        @foreach($masterMerek as $merek)
+                                                            <option value="{{ $merek->id }}">{{ $merek->Merk }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="form-group mb-0">
+                                                    <select class="form-control kt-select2" name="Supplier[]" required style="width: 100%;">
+                                                        <option value="">-- Pilih Supplier --</option>
+                                                        @foreach($masterSupplier as $supp)
+                                                            <option value="{{ $supp->id }}">{{ $supp->Nama }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-danger btn-sm remove-row">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        `;
 
                 $('#tbody-item-baru').append(newRow);
 

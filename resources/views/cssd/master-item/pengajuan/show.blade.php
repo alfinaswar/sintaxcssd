@@ -16,7 +16,16 @@
                 </h3>
             </div>
         </div>
-
+        @if($data->Status == 'N' && !empty($data->Revisi))
+            <div class="card mt-4 mx-4 border-info">
+                <div class="card-header bg-info text-dark font-weight-bold">
+                    Catatan Revisi
+                </div>
+                <div class="card-body">
+                    {!! $data->Revisi !!}
+                </div>
+            </div>
+        @endif
         <div class="kt-portlet__body">
             <!-- Informasi Umum -->
             <div class="row mb-4">
@@ -115,17 +124,21 @@
             </div>
 
 
-            @if(($data->Status == null || $data->Status == 'N') && auth()->user() && auth()->user()->role == 'admin')
+            @if(auth()->user() && auth()->user()->role == 'admin')
                 <div class="row mt-4">
                     <div class="col-12 text-center">
-                        <button type="button" class="btn btn-success btn-lg " onclick="konfirmasiSetujui({{ $data->id }})"
-                            @if(!empty($data->ApproveBy)) disabled @endif>
-                            <i class="fa fa-check"></i> Setujui Pengajuan
-                        </button>
-                        <button type="button" class="btn btn-danger btn-lg" onclick="konfirmasiTolak({{ $data->id }})"
-                            @if(!empty($data->ApproveBy)) disabled @endif>
-                            <i class="fa fa-times"></i> Tolak Pengajuan
-                        </button>
+                        @if($data->Status == null || $data->Status == 'N')
+                            <button type="button" class="btn btn-success btn-lg" onclick="konfirmasiSetujui({{ $data->id }})"
+                                @if(!empty($data->ApproveBy) && $data->Status == 'Y') disabled @endif>
+                                <i class="fa fa-check"></i> Setujui Pengajuan
+                            </button>
+                        @endif
+                        @if($data->Status == null)
+                            <button type="button" class="btn btn-danger btn-lg" onclick="konfirmasiTolak({{ $data->id }})"
+                                @if(!empty($data->ApproveBy) && $data->Status == 'Y') disabled @endif>
+                                <i class="fa fa-times"></i> Tolak Pengajuan
+                            </button>
+                        @endif
                     </div>
                 </div>
             @endif
