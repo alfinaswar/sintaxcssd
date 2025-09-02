@@ -27,7 +27,7 @@ class CssdPengajuanItemController extends Controller
                 $data = cssdPengajuanItem::with('getDiajukan', 'getRs')->orderBy('id', 'desc')->get();
             } else {
                 $data = cssdPengajuanItem::with('getDiajukan', 'getRs')
-                    ->where('KodeRs', auth()->user()->KodeRs)
+                    ->where('KodeRs', auth()->user()->kodeRS)
                     ->orderBy('id', 'desc')
                     ->get();
             }
@@ -35,8 +35,6 @@ class CssdPengajuanItemController extends Controller
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-
-                    // Jika status disetujui (Y), tombol hapus tidak ditampilkan
                     if ($row->Status == 'Y') {
                         $btnDelete = '';
                         $btnEdit = '';
