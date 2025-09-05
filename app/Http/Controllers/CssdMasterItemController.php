@@ -39,8 +39,15 @@ class CssdMasterItemController extends Controller
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     $btnEdite = '<a href="' . route('master-cssd.cssd-master-item.edit', $row->id) . '"><button type="button" class="btn btn-outline-success btn-icon" ><i class="fa fa-cogs"></i></button></a>';
-                    $btnlihat = '<button type="button" class="btn btn-outline-danger btn-icon" onclick="delete_data(event,' . $row->id . ')" ><i class="fa fa-times"></i></button>';
-                    $btn = $btnEdite . '&nbsp;' . $btnlihat;
+                    $btn = $btnEdite;
+                    if (
+                        auth()->user()->hasRole('superadmin_cssd') ||
+                        auth()->user()->hasRole('admin') ||
+                        auth()->user()->hasRole('Admin')
+                    ) {
+                        $btnlihat = '<button type="button" class="btn btn-outline-danger btn-icon" onclick="delete_data(event,' . $row->id . ')" ><i class="fa fa-times"></i></button>';
+                        $btn .= '&nbsp;' . $btnlihat;
+                    }
                     return $btn;
                 })
                 ->addColumn('gambar', function ($row) {
