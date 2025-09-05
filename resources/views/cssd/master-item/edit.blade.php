@@ -459,7 +459,7 @@
 
             // Initialize Select2
             $('.select2').select2({
-                placeholder: "Pilih Merk",
+                placeholder: "Pilih Data",
                 allowClear: true
             });
 
