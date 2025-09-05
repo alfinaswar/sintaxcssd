@@ -23,10 +23,17 @@ class CssdMasterItemController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            if (auth()->user()->hasRole('superadmin_cssd')) {
-                $data = cssdMasterItem::with('getNama', 'getMerk', 'getTipe', 'getNamaRS', 'getSatuan')->orderBy('id', 'desc')->get();
+            if (auth()->user()->hasRole('superadmin_cssd') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('Admin')) {
+                $data = cssdMasterItem::with('getNama', 'getMerk', 'getTipe', 'getNamaRS', 'getSatuan')
+                    ->where('Aktif', 'Y')
+                    ->orderBy('id', 'desc')
+                    ->get();
             } else {
-                $data = cssdMasterItem::with('getNama', 'getMerk', 'getTipe', 'getNamaRS', 'getSatuan')->where('KodeRs', auth()->user()->kodeRS)->orderBy('id', 'desc')->get();
+                $data = cssdMasterItem::with('getNama', 'getMerk', 'getTipe', 'getNamaRS', 'getSatuan')
+                    ->where('KodeRs', auth()->user()->kodeRS)
+                    ->where('Aktif', 'Y')
+                    ->orderBy('id', 'desc')
+                    ->get();
             }
             return DataTables::of($data)
                 ->addIndexColumn()
