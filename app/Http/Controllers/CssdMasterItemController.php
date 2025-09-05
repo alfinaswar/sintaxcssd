@@ -91,12 +91,12 @@ class CssdMasterItemController extends Controller
         $validator = Validator::make($request->all(), [
             'Nama' => 'required|string|max:255',
             'Merk' => 'required|string',
-            'Tipe' => 'required|string',
+            // 'Tipe' => 'required|string',
             'Qty' => 'required|integer|min:1',
             'TahunPerolehan' => 'required|integer|between:2010,' . date('Y'),
             'KondisiBarang' => 'required|in:B,KB,R',
             'Gambar' => 'required|file|mimes:jpeg,png,jpg,gif',
-            'Satuan' => 'required|string',
+            // 'Satuan' => 'required|string',
             'Supplier' => 'required|string',
 
         ]);
@@ -222,12 +222,12 @@ class CssdMasterItemController extends Controller
         $validator = Validator::make($request->all(), [
             'Nama' => 'required|string|max:255',
             'Merk' => 'required|string',
-            'Tipe' => 'required|string',
+            // 'Tipe' => 'required|string',
             'Qty' => 'required|integer|min:1',
             'TahunPerolehan' => 'required|integer|between:2010,' . date('Y'),
             'KondisiBarang' => 'required|in:B,KB,R',
             'Gambar' => 'nullable|file|mimes:jpeg,png,jpg,gif',
-            'Satuan' => 'required|string',
+            // 'Satuan' => 'required|string',
         ]);
 
         if ($validator->fails()) {
