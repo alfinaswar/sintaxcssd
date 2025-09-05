@@ -68,8 +68,8 @@
                                     @foreach ($masteritem as $NamaItem)
                                         <option value="{{ $NamaItem->id }}"
                                             {{ old('Nama', $data->Nama) == $NamaItem->id ? 'selected' : '' }}
-                                            data-merk="{{ $NamaItem->getMerk->Merk }}">
-                                            {{ $NamaItem->Nama }} - {{ $NamaItem->getMerk->Merk }}
+                                            data-merk="{{ $NamaItem->getMerkGroup->Merk ?? '' }}">
+                                            {{ $NamaItem->Nama }} - {{ $NamaItem->getMerkGroup->Merk ?? '' }}
                                         </option>
                                     @endforeach
                                 </select>
