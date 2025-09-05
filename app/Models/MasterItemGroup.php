@@ -19,9 +19,12 @@ class MasterItemGroup extends Model
      */
     public function getMerk()
     {
-        return $this->belongsTo(cssdMerk::class, 'Merk', 'id');
+        return $this->hasOne(cssdMerk::class, 'id', 'Merk');
     }
-
+    public function getMerkGroup()
+    {
+        return $this->hasOne(cssdMerk::class, 'id', 'Merk');
+    }
     public function getListItem()
     {
         return $this->hasMany(cssdMasterItem::class, 'Nama', 'id');

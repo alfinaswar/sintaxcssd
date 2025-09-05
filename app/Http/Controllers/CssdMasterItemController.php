@@ -65,9 +65,8 @@ class CssdMasterItemController extends Controller
      */
     public function create()
     {
-        $masteritem = MasterItemGroup::with('getMerk')->latest()->get();
+        $masteritem = MasterItemGroup::with('getMerkGroup')->latest()->get();
         $merks = cssdMerk::get();
-        // dd($merks);
         $tipe = cssdMasterType::where('KodeRs', auth()->user()->kodeRS)->get();
         $Satuan = cssdMasterSatuan::where('KodeRs', auth()->user()->kodeRS)->get();
         $Supplier = cssdMasterSupplier::get();

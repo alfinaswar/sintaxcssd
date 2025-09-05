@@ -17,7 +17,7 @@ class cssdMasterItem extends Model
     }
     public function getMerk()
     {
-        return $this->belongsTo(cssdMerk::class, 'Merk', 'id');
+        return $this->hasOne(cssdMerk::class, 'id', 'Merk');
     }
     public function getTipe()
     {
