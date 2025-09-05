@@ -68,10 +68,10 @@
                                     name="Nama" id="Nama">
                                     <option value="">Pilih Nama</option>
                                     @foreach ($masteritem as $NamaItem)
-                                        <option value="{{ $NamaItem->id }}" {{ old('Nama') == $NamaItem->id ? 'selected' : '' }}
-                                            data-merk="{{ $NamaItem->getMerk->Merk }}">
-                                            {{ $NamaItem->Nama }} - {{ $NamaItem->Kode }} -
-                                            {{ $NamaItem->getMerk->Merk }}
+                                        <option value="{{ $NamaItem->id ?? '' }}" {{ old('Nama') == ($NamaItem->id ?? '') ? 'selected' : '' }}
+                                            data-merk="{{ $NamaItem->getMerkGroup->Merk ?? '' }}">
+                                            {{ $NamaItem->Nama ?? '' }} - {{ $NamaItem->Kode ?? '' }} -
+                                            {{ $NamaItem->getMerkGroup->Merk ?? '' }}
                                         </option>
                                     @endforeach
                                 </select>
