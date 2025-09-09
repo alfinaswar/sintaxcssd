@@ -110,25 +110,29 @@ class CssdMasterItemController extends Controller
 
 
         $data = $request->all();
+        // Secara umum logika ini sudah benar, tapi ada sedikit perbaikan agar lebih aman dan efisien.
         if ($request->Tipe == 'TipeBaru') {
-            $tipe = $request->tipe_baru;
-            cssdMasterType::create([
+            $tipeBaru = cssdMasterType::create([
                 'KodeRs' => auth()->user()->kodeRS,
                 'Tipe' => $request->tipe_baru,
                 'idUser' => auth()->user()->id
             ]);
-            $data['Tipe'] = cssdMasterType::where('idUser', auth()->user()->id)->latest()->first()->id;
+            $data['Tipe'] = $tipeBaru->id;
         } else {
             $data['Tipe'] = $request->Tipe;
         }
+        // Kode di bawah ini kurang tepat, karena Anda membuat data baru di tabel cssdMerk,
+        // padahal seharusnya membuat data baru di tabel cssdMasterSatuan jika ingin menambah satuan baru.
+        // Berikut perbaikannya:
+
         if ($request->Satuan == 'SatuanBaru') {
-            $Merk = $request->satuan_baru;
-            cssdMerk::create([
+            // Simpan satuan baru ke tabel cssdMasterSatuan
+            $satuanBaru = cssdMasterSatuan::create([
                 'KodeRs' => auth()->user()->kodeRS,
                 'Satuan' => $request->satuan_baru,
                 'idUser' => auth()->user()->id
             ]);
-            $data['Satuan'] = cssdMasterSatuan::where('idUser', auth()->user()->id)->latest()->first()->id;
+            $data['Satuan'] = $satuanBaru->id;
         } else {
             $data['Satuan'] = $request->Satuan;
         }
@@ -238,24 +242,29 @@ class CssdMasterItemController extends Controller
         }
         $data = $request->all();
         // dd($data);
+        // Secara logika, kode ini sudah benar untuk menambahkan tipe atau satuan baru jika user memilih "TipeBaru" atau "SatuanBaru".
+        // Namun, ada potensi masalah jika ada lebih dari satu user yang menambah tipe/satuan secara bersamaan,
+        // karena pengambilan id dengan "latest()->first()" berdasarkan "idUser" saja.
+        // Untuk lebih aman, sebaiknya simpan hasil create ke variabel, lalu ambil id-nya langsung.
+
         if ($request->Tipe == 'TipeBaru') {
-            $tipe = $request->tipe_baru;
-            cssdMasterType::create([
+            $tipeBaru = cssdMasterType::create([
                 'KodeRs' => auth()->user()->kodeRS,
                 'Tipe' => $request->tipe_baru,
                 'idUser' => auth()->user()->id
             ]);
-            $data['Tipe'] = cssdMasterType::where('idUser', auth()->user()->id)->latest()->first()->id;
+            $data['Tipe'] = $tipeBaru->id;
         } else {
             $data['Tipe'] = $request->Tipe;
         }
+
         if ($request->Satuan == 'SatuanBaru') {
-            cssdMasterSatuan::create([
+            $satuanBaru = cssdMasterSatuan::create([
                 'KodeRs' => auth()->user()->kodeRS,
                 'Satuan' => $request->satuan_baru,
                 'idUser' => auth()->user()->id
             ]);
-            $data['Satuan'] = cssdMasterSatuan::where('idUser', auth()->user()->id)->latest()->first()->id;
+            $data['Satuan'] = $satuanBaru->id;
         } else {
             $data['Satuan'] = $request->Satuan;
         }
