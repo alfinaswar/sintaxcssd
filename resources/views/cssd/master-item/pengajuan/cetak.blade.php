@@ -182,8 +182,10 @@
         <thead>
             <tr>
                 <th style="width: 5%;">No</th>
+                <th style="width: 30%;">Kode Instrumen</th>
                 <th style="width: 30%;">Nama Item</th>
                 <th style="width: 10%;">Merk</th>
+                <th style="width: 10%;">Tipe / Kategori</th>
                 <th style="width: 30%;">Keterangan</th>
             </tr>
         </thead>
@@ -191,9 +193,10 @@
             @forelse ($data->getDetail as $index => $detail)
                 <tr>
                     <td style="text-align: center;">{{ $index + 1 }}</td>
+                    <td>{{ $detail->KodeInstrumen ?? '-' }}</td>
                     <td>{{ $detail->NamaItem ?? '-' }}</td>
                     <td>{{ $detail->getMerk->Merk ?? '-' }}</td>
-
+                    <td>{{ $detail->getType->Tipe ?? '-' }}</td>
                     <td>{{ $detail->Keterangan ?? '-' }}</td>
                 </tr>
             @empty

@@ -96,6 +96,7 @@ class CssdPengajuanItemController extends Controller
         $data['Keterangan'] = $request->Catatan ?? null;
         $data['KodeRs'] = auth()->user()->kodeRS ?? null;
         $data['idUser'] = auth()->user()->id ?? null;
+        $data['UserCreate'] = auth()->user()->name ?? null;
         $data['Kode'] = $this->generatenomor();
 
         cssdPengajuanItem::create($data);
@@ -105,9 +106,14 @@ class CssdPengajuanItemController extends Controller
         foreach ($request->Nama as $key => $value) {
             cssdPengajuanItemDetail::create([
                 'IdPengajuan' => $idpengajuan,
+                'KodeInstrumen' => $request->KodeInstrumen[$key],
                 'NamaItem' => $value,
                 'Merk' => $request->Merk[$key],
+                'TypeKategori' => $request->TypeKategori[$key],
                 'Supplier' => $request->Supplier[$key] ?? null,
+                'UserCreate' => auth()->user()->name ?? null,
+                'idUser' => auth()->user()->id ?? null,
+                'KodeRs' => auth()->user()->kodeRS ?? null,
             ]);
         }
         return redirect()->route('pengajuan-nama-item-cssd.index')->with('success', 'Data berhasil ditambahkan');
@@ -160,7 +166,8 @@ class CssdPengajuanItemController extends Controller
         $masterMerek = cssdMerk::orderBy('Merk', 'ASC')->get();
         $data = cssdPengajuanItem::with('getDiajukan', 'getRs', 'getDetail')->find($id);
         $masterSupplier = cssdMasterSupplier::orderBy('Nama', 'ASC')->get();
-        return view('cssd.master-item.pengajuan.edit', compact('data', 'masterMerek', 'masterSupplier'));
+        $tipe = cssdMasterType::where('KodeRs', auth()->user()->kodeRS)->get();
+        return view('cssd.master-item.pengajuan.edit', compact('tipe', 'data', 'masterMerek', 'masterSupplier'));
     }
     public function AccPengajuan(Request $request, $id)
     {
@@ -187,7 +194,7 @@ class CssdPengajuanItemController extends Controller
     }
     public function Print($id)
     {
-        $data = cssdPengajuanItem::with('getDiajukan', 'getRs', 'getDetail', 'getDetail.getMerk')->find($id);
+        $data = cssdPengajuanItem::with('getDiajukan', 'getRs', 'getDetail', 'getDetail.getMerk', 'getDetail.getType')->find($id);
 
         $pdf = Pdf::loadView('cssd.master-item.pengajuan.cetak', compact('data'));
         return $pdf->stream('Pengajuan Item Baru' . $data->Kode . '.pdf');
@@ -220,6 +227,7 @@ class CssdPengajuanItemController extends Controller
         $pengajuan = cssdPengajuanItem::findOrFail($id);
         $pengajuan->Keterangan = $request->Catatan ?? null;
         $pengajuan->KodeRs = auth()->user()->kodeRS ?? null;
+        $pengajuan->UserUpdate = auth()->user()->name ?? null;
         $pengajuan->Tanggal = $request->Tanggal ?? $pengajuan->Tanggal;
         $pengajuan->save();
 
@@ -229,8 +237,10 @@ class CssdPengajuanItemController extends Controller
             foreach ($request->Nama as $key => $value) {
                 cssdPengajuanItemDetail::create([
                     'IdPengajuan' => $pengajuan->id,
+                    'KodeInstrumen' => $request->KodeInstrumen[$key] ?? null,
                     'NamaItem' => $value,
                     'Merk' => $request->Merk[$key] ?? null,
+                    'TypeKategori' => $request->TypeKategori[$key] ?? null,
                     'Supplier' => $request->Supplier[$key] ?? null,
                 ]);
             }

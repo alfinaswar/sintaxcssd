@@ -115,6 +115,9 @@ class CssdMasterItemController extends Controller
      */
     public function store(Request $request)
     {
+        return redirect()->back()->with('error', 'Maaf, halaman ini sedang dalam perbaikan.
+Silakan kembali lagi nanti');
+
         $validator = Validator::make($request->all(), [
             'Nama' => 'required|string|max:255',
             'Merk' => 'required|string',

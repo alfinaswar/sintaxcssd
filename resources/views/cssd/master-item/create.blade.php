@@ -31,6 +31,15 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
     </style>
+    @push('js')
+    <script>
+        @if ($errors->any())
+            @foreach ($errors->all() as $error)
+                toastr.error(`{{ $error }}`, "Gagal");
+            @endforeach
+        @endif
+    </script>
+    @endpush
     <div class="kt-portlet">
         <div class="kt-portlet__head">
             <div class="kt-portlet__head-label">

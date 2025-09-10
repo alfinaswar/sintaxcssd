@@ -15,4 +15,8 @@ class cssdPengajuanItemDetail extends Model
     {
         return $this->hasOne(cssdMerk::class, 'id', 'Merk');
     }
+    public function getType()
+    {
+        return $this->hasOne(cssdMasterType::class, 'id', 'Typekategori');
+    }
 }
