@@ -22,7 +22,7 @@ class CreateCssdPeminjamanBarangsTable extends Migration
             $table->string('NamaPenerima')->nullable();
             $table->string('RuanganPenerima')->nullable();
             $table->enum('StatusPeminjaman', ['Y', 'N'])->nullable();
-            $table->string('', 100)->nullable()->default('text');
+            // $table->string('', 100)->nullable()->default('text');
             $table->timestamps();
         });
     }

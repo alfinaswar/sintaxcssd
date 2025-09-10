@@ -25,7 +25,7 @@
                 </div>
             </div>
         </div>
-        <div class="row justify-content-center my-5">
+        {{-- <div class="row justify-content-center my-5">
             <div class="col-md-6">
                 <div class="card text-center border-warning">
                     <div class="card-header bg-warning text-white">
@@ -39,7 +39,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         <div class="kt-portlet__body">
 
@@ -84,7 +84,7 @@
         @endif
     </script>
     <script>
-                                                                                                                                                                                                                                                                                                        var dataTable = function () {
+                                                                                                                                                                                                                                                                                                                        var dataTable = function () {
             var table = $('#kt_table_1');
             table.DataTable({
                 responsive: true,

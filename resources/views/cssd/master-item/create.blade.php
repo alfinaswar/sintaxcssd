@@ -49,7 +49,7 @@
             </div>
         </div>
         <!--begin::Form-->
-        <div class="row justify-content-center my-5">
+        {{-- <div class="row justify-content-center my-5">
             <div class="col-md-6">
                 <div class="card text-center border-warning">
                     <div class="card-header bg-warning text-white">
@@ -63,7 +63,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
         <form class="kt-form kt-form--label-right" id="simpanFrom"
             action="{{ route('master-cssd.cssd-master-item.store') }}" method="POST" accept-charset="utf-8"
             enctype="multipart/form-data">
@@ -293,6 +293,18 @@
                                 @endif
                             </div>
                         </div>
+                        <div class="form-group row" id="supplier_baru_group" style="display: none;">
+                            <label for="supplier_baru" class="col-2 col-form-label">* Supplier Baru</label>
+                            <div class="col-8">
+                                <input class="form-control {{ $errors->has('supplier_baru') ? 'is-invalid' : '' }}" name="supplier_baru"
+                                    value="{{ old('supplier_baru') }}" placeholder="Nama Supplier Baru" type="text" id="supplier_baru">
+                                @if ($errors->has('supplier_baru'))
+                                    <div class="invalid-feedback">
+                                        {{ $errors->first('supplier_baru') }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
                         <div class="form-group row">
                             <label for="Keterangan" class="col-2 col-form-label">Keterangan</label>
                             <div class="col-8">
@@ -353,14 +365,14 @@
 
             </div>
 
-            {{-- <div class="kt-portlet__foot">
+            <div class="kt-portlet__foot">
                 <div class="kt-form__actions">
                     <button type="button" onclick="simpan(event,this)" class="btn btn-info">Submit</button>
                     <a href="{{ route('master-cssd.cssd-master-item.index') }}">
                         <button type="button" class="btn btn-secondary">Cancel</button>
                     </a>
                 </div>
-            </div> --}}
+            </div>
         </form>
     </div>
 @endsection
@@ -479,6 +491,17 @@
                     $('#satuan_baru_group').hide();
                     $('#satuan_baru').attr('required', false);
                     $('#satuan_baru').val('');
+                }
+            });
+             $('#Supplier').on('change', function () {
+                var selectedValue = $(this).val();
+                if (selectedValue === 'SupplierBaru') {
+                    $('#supplier_baru_group').show();
+                    $('#supplier_baru').attr('required', true);
+                } else {
+                    $('#supplier_baru_group').hide();
+                    $('#supplier_baru').attr('required', false);
+                    $('#supplier_baru').val('');
                 }
             });
             // Ketika Nama dipilih, otomatis set Merk sesuai data-merk pada option Nama
