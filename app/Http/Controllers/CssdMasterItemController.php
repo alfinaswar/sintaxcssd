@@ -176,7 +176,7 @@ class CssdMasterItemController extends Controller
 
         if ($request->Qty > 1) {
             for ($i = 0; $i < $request->Qty; $i++) {
-                $data['idUser'] = auth()->user()->id;
+                $data['idUser'] = auth()->user()->name;
                 $data['KodeRs'] = auth()->user()->kodeRS;
                 $data['Kode'] = $this->generateKode($i);
                 $data['Harga'] = str_replace('.', '', $request->Harga);
@@ -185,7 +185,7 @@ class CssdMasterItemController extends Controller
                 cssdMasterItem::create($data);
             }
         } else {
-            $data['idUser'] = auth()->user()->id;
+            $data['idUser'] = auth()->user()->name;
             $data['KodeRs'] = auth()->user()->kodeRS;
             $data['Kode'] = $this->generateKode(0);
             $data['Harga'] = str_replace('.', '', $request->Harga);
