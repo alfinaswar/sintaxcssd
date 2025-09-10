@@ -173,23 +173,25 @@ class CssdMasterItemController extends Controller
             });
             $image->save(storage_path('app/public/cssd_item/' . $namaFile), 65);
         }
-        if (isset($data['Qty']) && $data['Qty'] > 1) {
-            for ($i = 0; $i < $data['Qty']; $i++) {
+        // Pastikan Qty selalu 1 saat insert ke database
+        // Ganti isset($data['Qty']) menjadi $request->Qty
+        if ($request->Qty > 1) {
+            for ($i = 0; $i < $request->Qty; $i++) {
                 $data['idUser'] = auth()->user()->id;
                 $data['KodeRs'] = auth()->user()->kodeRS;
                 $data['Kode'] = $this->generateKode($i);
                 $data['Harga'] = str_replace('.', '', $request->Harga);
                 $data['Gambar'] = $namaFile ?? '';
-                $data['Qty'] = 1;
+                $data['Qty'] = 1; // Set Qty selalu 1
                 cssdMasterItem::create($data);
             }
         } else {
-            $data['Qty'] = 1;
             $data['idUser'] = auth()->user()->id;
             $data['KodeRs'] = auth()->user()->kodeRS;
             $data['Kode'] = $this->generateKode(0);
             $data['Harga'] = str_replace('.', '', $request->Harga);
             $data['Gambar'] = $namaFile ?? '';
+            $data['Qty'] = 1;
             cssdMasterItem::create($data);
         }
         return redirect()->route('master-cssd.cssd-master-item.index')->with('success', 'Item Berhasil Ditambahkan');
