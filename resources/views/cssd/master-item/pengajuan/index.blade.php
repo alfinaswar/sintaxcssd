@@ -16,11 +16,14 @@
             <div class="kt-portlet__head-toolbar">
                 <div class="kt-portlet__head-wrapper">
                     <div class="kt-portlet__head-actions">
-                        <a href="{{ route('pengajuan-nama-item-cssd.create') }}"
+                        {{-- <a href="{{ route('pengajuan-nama-item-cssd.create') }}"
                             class="btn btn-brand btn-elevate btn-icon-sm">
                             <i class="la la-plus"></i>
                             Tambah Pengajuan
-                        </a>
+                        </a> --}}
+                        <marquee behavior="scroll" direction="left" style="color: red; font-weight: bold; font-size: 16px;">
+                            Mohon maaf, halaman ini sedang dalam perbaikan. Silakan kembali lagi nanti.
+                        </marquee>
                     </div>
                 </div>
             </div>
@@ -63,7 +66,7 @@
         @endif
     </script>
     <script>
-                            var dataTable = function () {
+                                        var dataTable = function () {
             var table = $('#kt_table_1');
             table.DataTable({
                 responsive: true,
