@@ -49,6 +49,21 @@
             </div>
         </div>
         <!--begin::Form-->
+        <div class="row justify-content-center my-5">
+            <div class="col-md-6">
+                <div class="card text-center border-warning">
+                    <div class="card-header bg-warning text-white">
+                        <h4 class="mb-0"><i class="fa fa-tools"></i> Under Maintenance</h4>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text" style="font-size: 1.2rem;">
+                            Maaf, halaman ini sedang dalam perbaikan.<br>
+                            Silakan kembali lagi nanti.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
         <form class="kt-form kt-form--label-right" id="simpanFrom"
             action="{{ route('master-cssd.cssd-master-item.store') }}" method="POST" accept-charset="utf-8"
             enctype="multipart/form-data">
@@ -338,14 +353,14 @@
 
             </div>
 
-            <div class="kt-portlet__foot">
+            {{-- <div class="kt-portlet__foot">
                 <div class="kt-form__actions">
                     <button type="button" onclick="simpan(event,this)" class="btn btn-info">Submit</button>
                     <a href="{{ route('master-cssd.cssd-master-item.index') }}">
                         <button type="button" class="btn btn-secondary">Cancel</button>
                     </a>
                 </div>
-            </div>
+            </div> --}}
         </form>
     </div>
 @endsection
