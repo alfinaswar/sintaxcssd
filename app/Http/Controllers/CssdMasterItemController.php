@@ -173,8 +173,7 @@ class CssdMasterItemController extends Controller
             });
             $image->save(storage_path('app/public/cssd_item/' . $namaFile), 65);
         }
-        // Pastikan Qty selalu 1 saat insert ke database
-        // Ganti isset($data['Qty']) menjadi $request->Qty
+
         if ($request->Qty > 1) {
             for ($i = 0; $i < $request->Qty; $i++) {
                 $data['idUser'] = auth()->user()->id;
@@ -182,7 +181,7 @@ class CssdMasterItemController extends Controller
                 $data['Kode'] = $this->generateKode($i);
                 $data['Harga'] = str_replace('.', '', $request->Harga);
                 $data['Gambar'] = $namaFile ?? '';
-                $data['Qty'] = 1; // Set Qty selalu 1
+                $data['Qty'] = 1;
                 cssdMasterItem::create($data);
             }
         } else {
