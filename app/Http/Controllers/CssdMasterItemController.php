@@ -64,12 +64,12 @@ class CssdMasterItemController extends Controller
                         return $row->Kode;
                     }
                 })
-                ->rawColumns(['action', 'gambar'])
+                ->rawColumns(['action', 'gambar', 'KodeGrafir'])
                 ->make(true);
         }
         $Alat = MasterItemGroup::orderBy('Nama', 'ASC')->get();
         $Rs = MasterRs::get();
-        return view('cssd.master-item.index', compact('Alat', 'Rs', 'KodeGrafir'));
+        return view('cssd.master-item.index', compact('Alat', 'Rs'));
     }
 
     /**
