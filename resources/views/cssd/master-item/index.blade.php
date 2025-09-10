@@ -33,16 +33,15 @@
                 <thead class="table-primary">
                     <tr>
                         <th width="5%">No</th>
-                        <th>Kode</th>
-
+                        <th>Kode Grafir</th>
+                        <th>Kode Alat</th>
                         <th>Nama</th>
                         <th>Merk</th>
                         <th>Tipe</th>
                         <th>Qty</th>
                         <th>Tahun Perolehan</th>
-                        <th>Kondisi Barang</th>
+                        <th>Kondisi</th>
                         <th>Gambar</th>
-
                         <th>Kode RS</th>
                         <th>Actions</th>
                     </tr>
@@ -70,7 +69,7 @@
         @endif
     </script>
     <script>
-                                                                                                                                                                                                                                                                                    var dataTable = function () {
+                                                                                                                                                                                                                                                                                                var dataTable = function () {
             var table = $('#kt_table_1');
             table.DataTable({
                 responsive: true,
@@ -89,7 +88,10 @@
                     data: 'KodeGrafir',
                     name: 'KodeGrafir'
                 },
-
+                {
+                    data: 'KodeAlat',
+                    name: 'KodeAlat'
+                },
 
                 {
                     data: 'get_nama.Nama',

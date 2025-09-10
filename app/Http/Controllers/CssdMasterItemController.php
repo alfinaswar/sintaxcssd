@@ -57,6 +57,10 @@ class CssdMasterItemController extends Controller
                         return '<img src="' . asset('storage/cssd_item/' . $row->Gambar) . '" alt="Gambar" class="img-fluid" style="max-width: 100px;">';
                     }
                 })
+                ->addColumn('KodeAlat', function ($row) {
+
+                    return $row->getNama->Kode;
+                })
                 ->addColumn('KodeGrafir', function ($row) {
                     if ($row->KodeGrafir != null) {
                         return $row->KodeGrafir;
@@ -64,7 +68,23 @@ class CssdMasterItemController extends Controller
                         return $row->Kode;
                     }
                 })
-                ->rawColumns(['action', 'gambar', 'KodeGrafir'])
+                ->addColumn('KondisiBarang', function ($row) {
+                    $kondisi = strtoupper($row->KondisiBarang);
+                    switch ($kondisi) {
+                        case 'B':
+                        case 'BAIK':
+                            return '<span class="badge bg-success text-white"><i class="fa fa-check-circle"></i> Baik</span>';
+                        case 'KB':
+                        case 'KURANG BAIK':
+                            return '<span class="badge bg-warning text-dark"><i class="fa fa-exclamation-triangle"></i> Kurang Baik</span>';
+                        case 'R':
+                        case 'RUSAK':
+                            return '<span class="badge bg-danger text-white"><i class="fa fa-times-circle"></i> Rusak</span>';
+                        default:
+                            return '<span class="badge bg-secondary text-white"><i class="fa fa-question-circle"></i> Tidak Diketahui</span>';
+                    }
+                })
+                ->rawColumns(['action', 'gambar', 'KodeGrafir', 'KodeAlat', 'KondisiBarang'])
                 ->make(true);
         }
         $Alat = MasterItemGroup::orderBy('Nama', 'ASC')->get();
