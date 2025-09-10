@@ -113,91 +113,91 @@ class CssdMasterItemController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    //     public function store(Request $request)
-//     {
-//         //         return redirect()->back()->with('error', 'Maaf, halaman ini sedang dalam perbaikan.
-// // Silakan kembali lagi nanti');
+    public function store(Request $request)
+    {
+        return redirect()->back()->with('error', 'Maaf, halaman ini sedang dalam perbaikan.
+Silakan kembali lagi nanti');
 
-    //         $validator = Validator::make($request->all(), [
-//             'Nama' => 'required|string|max:255',
-//             'Merk' => 'required|string',
-//             // 'Tipe' => 'required|string',
-//             'Qty' => 'required|integer|min:1',
-//             'TahunPerolehan' => 'required|integer|between:2010,' . date('Y'),
-//             'KondisiBarang' => 'required|in:B,KB,R',
-//             'Gambar' => 'required|file|mimes:jpeg,png,jpg,gif',
-//             // 'Satuan' => 'required|string',
-//             'Supplier' => 'required|string',
+        // $validator = Validator::make($request->all(), [
+        //     'Nama' => 'required|string|max:255',
+        //     'Merk' => 'required|string',
+        //     // 'Tipe' => 'required|string',
+        //     'Qty' => 'required|integer|min:1',
+        //     'TahunPerolehan' => 'required|integer|between:2010,' . date('Y'),
+        //     'KondisiBarang' => 'required|in:B,KB,R',
+        //     'Gambar' => 'required|file|mimes:jpeg,png,jpg,gif',
+        //     // 'Satuan' => 'required|string',
+        //     'Supplier' => 'required|string',
 
-    //         ]);
+        // ]);
 
-    //         if ($validator->fails()) {
-//             return redirect()
-//                 ->back()
-//                 ->withErrors($validator)
-//                 ->withInput();
-//         }
+        // if ($validator->fails()) {
+        //     return redirect()
+        //         ->back()
+        //         ->withErrors($validator)
+        //         ->withInput();
+        // }
 
 
-    //         $data = $request->all();
-//         // Secara umum logika ini sudah benar, tapi ada sedikit perbaikan agar lebih aman dan efisien.
-//         if ($request->Tipe == 'TipeBaru') {
-//             $tipeBaru = cssdMasterType::create([
-//                 'KodeRs' => auth()->user()->kodeRS,
-//                 'Tipe' => $request->tipe_baru,
-//                 'idUser' => auth()->user()->id
-//             ]);
-//             $data['Tipe'] = $tipeBaru->id;
-//         } else {
-//             $data['Tipe'] = $request->Tipe;
-//         }
-//         // Kode di bawah ini kurang tepat, karena Anda membuat data baru di tabel cssdMerk,
-//         // padahal seharusnya membuat data baru di tabel cssdMasterSatuan jika ingin menambah satuan baru.
-//         // Berikut perbaikannya:
+        // $data = $request->all();
+        // // Secara umum logika ini sudah benar, tapi ada sedikit perbaikan agar lebih aman dan efisien.
+        // if ($request->Tipe == 'TipeBaru') {
+        //     $tipeBaru = cssdMasterType::create([
+        //         'KodeRs' => auth()->user()->kodeRS,
+        //         'Tipe' => $request->tipe_baru,
+        //         'idUser' => auth()->user()->id
+        //     ]);
+        //     $data['Tipe'] = $tipeBaru->id;
+        // } else {
+        //     $data['Tipe'] = $request->Tipe;
+        // }
+        // // Kode di bawah ini kurang tepat, karena Anda membuat data baru di tabel cssdMerk,
+        // // padahal seharusnya membuat data baru di tabel cssdMasterSatuan jika ingin menambah satuan baru.
+        // // Berikut perbaikannya:
 
-    //         if ($request->Satuan == 'SatuanBaru') {
-//             // Simpan satuan baru ke tabel cssdMasterSatuan
-//             $satuanBaru = cssdMasterSatuan::create([
-//                 'KodeRs' => auth()->user()->kodeRS,
-//                 'Satuan' => $request->satuan_baru,
-//                 'idUser' => auth()->user()->id
-//             ]);
-//             $data['Satuan'] = $satuanBaru->id;
-//         } else {
-//             $data['Satuan'] = $request->Satuan;
-//         }
-//         if ($request->hasFile('Gambar')) {
-//             $file = $request->file('Gambar');
-//             $namaFile = microtime(true) . '.' . $file->getClientOriginalExtension();
-//             $image = \Intervention\Image\Facades\Image::make($file);
-//             $image->resize(1200, null, function ($constraint) {
-//                 $constraint->aspectRatio();
-//                 $constraint->upsize();
-//             });
-//             $image->save(storage_path('app/public/cssd_item/' . $namaFile), 65);
-//         }
+        // if ($request->Satuan == 'SatuanBaru') {
+        //     // Simpan satuan baru ke tabel cssdMasterSatuan
+        //     $satuanBaru = cssdMasterSatuan::create([
+        //         'KodeRs' => auth()->user()->kodeRS,
+        //         'Satuan' => $request->satuan_baru,
+        //         'idUser' => auth()->user()->id
+        //     ]);
+        //     $data['Satuan'] = $satuanBaru->id;
+        // } else {
+        //     $data['Satuan'] = $request->Satuan;
+        // }
+        // if ($request->hasFile('Gambar')) {
+        //     $file = $request->file('Gambar');
+        //     $namaFile = microtime(true) . '.' . $file->getClientOriginalExtension();
+        //     $image = \Intervention\Image\Facades\Image::make($file);
+        //     $image->resize(1200, null, function ($constraint) {
+        //         $constraint->aspectRatio();
+        //         $constraint->upsize();
+        //     });
+        //     $image->save(storage_path('app/public/cssd_item/' . $namaFile), 65);
+        // }
 
-    //         if ($request->Qty > 1) {
-//             for ($i = 0; $i < $request->Qty; $i++) {
-//                 $data['idUser'] = auth()->user()->name;
-//                 $data['KodeRs'] = auth()->user()->kodeRS;
-//                 $data['Kode'] = $this->generateKode($i);
-//                 $data['Harga'] = str_replace('.', '', $request->Harga);
-//                 $data['Gambar'] = $namaFile ?? '';
-//                 $data['Qty'] = 1;
-//                 cssdMasterItem::create($data);
-//             }
-//         } else {
-//             $data['idUser'] = auth()->user()->name;
-//             $data['KodeRs'] = auth()->user()->kodeRS;
-//             $data['Kode'] = $this->generateKode(0);
-//             $data['Harga'] = str_replace('.', '', $request->Harga);
-//             $data['Gambar'] = $namaFile ?? '';
-//             $data['Qty'] = 1;
-//             cssdMasterItem::create($data);
-//         }
-//         return redirect()->route('master-cssd.cssd-master-item.index')->with('success', 'Item Berhasil Ditambahkan');
-//     }
+        // if ($request->Qty > 1) {
+        //     for ($i = 0; $i < $request->Qty; $i++) {
+        //         $data['idUser'] = auth()->user()->name;
+        //         $data['KodeRs'] = auth()->user()->kodeRS;
+        //         $data['Kode'] = $this->generateKode($i);
+        //         $data['Harga'] = str_replace('.', '', $request->Harga);
+        //         $data['Gambar'] = $namaFile ?? '';
+        //         $data['Qty'] = 1;
+        //         cssdMasterItem::create($data);
+        //     }
+        // } else {
+        //     $data['idUser'] = auth()->user()->name;
+        //     $data['KodeRs'] = auth()->user()->kodeRS;
+        //     $data['Kode'] = $this->generateKode(0);
+        //     $data['Harga'] = str_replace('.', '', $request->Harga);
+        //     $data['Gambar'] = $namaFile ?? '';
+        //     $data['Qty'] = 1;
+        //     cssdMasterItem::create($data);
+        // }
+        // return redirect()->route('master-cssd.cssd-master-item.index')->with('success', 'Item Berhasil Ditambahkan');
+    }
 
     private function generateKode($increment = 0)
     {
