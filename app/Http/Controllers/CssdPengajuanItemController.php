@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\cssdMasterItem;
 use App\Models\cssdMasterSupplier;
+use App\Models\cssdMasterType;
 use App\Models\cssdMerk;
 use App\Models\cssdPengajuanItem;
 use App\Models\cssdPengajuanItemDetail;
@@ -78,7 +79,8 @@ class CssdPengajuanItemController extends Controller
     {
         $masterMerek = cssdMerk::orderBy('Merk', 'ASC')->get();
         $masterSupplier = cssdMasterSupplier::orderBy('Nama', 'ASC')->get();
-        return view('cssd.master-item.pengajuan.create', compact('masterMerek', 'masterSupplier'));
+        $tipe = cssdMasterType::where('KodeRs', auth()->user()->kodeRS)->get();
+        return view('cssd.master-item.pengajuan.create', compact('masterMerek', 'masterSupplier', 'tipe'));
     }
 
     /**

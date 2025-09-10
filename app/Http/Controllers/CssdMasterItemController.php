@@ -177,13 +177,14 @@ class CssdMasterItemController extends Controller
             for ($i = 0; $i < $data['Qty']; $i++) {
                 $data['idUser'] = auth()->user()->id;
                 $data['KodeRs'] = auth()->user()->kodeRS;
-                $data['Kode'] = $this->generateKode($i); // <<-- beda tiap loop
+                $data['Kode'] = $this->generateKode($i);
                 $data['Harga'] = str_replace('.', '', $request->Harga);
                 $data['Gambar'] = $namaFile ?? '';
+                $data['Qty'] = 1;
                 cssdMasterItem::create($data);
             }
         } else {
-            // Jika Qty tidak ada atau kurang dari 1, tetap simpan satu data
+            $data['Qty'] = 1;
             $data['idUser'] = auth()->user()->id;
             $data['KodeRs'] = auth()->user()->kodeRS;
             $data['Kode'] = $this->generateKode(0);
