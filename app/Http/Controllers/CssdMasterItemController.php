@@ -57,12 +57,19 @@ class CssdMasterItemController extends Controller
                         return '<img src="' . asset('storage/cssd_item/' . $row->Gambar) . '" alt="Gambar" class="img-fluid" style="max-width: 100px;">';
                     }
                 })
+                ->addColumn('KodeGrafir', function ($row) {
+                    if ($row->KodeGrafir != null) {
+                        return $row->KodeGrafir;
+                    } else {
+                        return $row->Kode;
+                    }
+                })
                 ->rawColumns(['action', 'gambar'])
                 ->make(true);
         }
         $Alat = MasterItemGroup::orderBy('Nama', 'ASC')->get();
         $Rs = MasterRs::get();
-        return view('cssd.master-item.index', compact('Alat', 'Rs'));
+        return view('cssd.master-item.index', compact('Alat', 'Rs', 'KodeGrafir'));
     }
 
     /**

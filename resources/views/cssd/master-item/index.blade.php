@@ -70,7 +70,7 @@
         @endif
     </script>
     <script>
-                                                                                                                                                                                                                                var dataTable = function () {
+                                                                                                                                                                                                                                                                                    var dataTable = function () {
             var table = $('#kt_table_1');
             table.DataTable({
                 responsive: true,
@@ -86,8 +86,8 @@
                     name: 'DT_RowIndex'
                 },
                 {
-                    data: 'Kode',
-                    name: 'Kode'
+                    data: 'KodeGrafir',
+                    name: 'KodeGrafir'
                 },
 
 
