@@ -3,6 +3,7 @@
     Master Item CSSD
 @endpush
 @section('content')
+
     <div class="kt-portlet kt-portlet--mobile">
         <div class="kt-portlet__head kt-portlet__head--lg">
             <div class="kt-portlet__head-label">
@@ -16,30 +17,35 @@
             <div class="kt-portlet__head-toolbar">
                 <div class="kt-portlet__head-wrapper">
                     <div class="kt-portlet__head-actions">
-                        {{-- <a href="{{ route('master-cssd.cssd-master-item.create') }}"
+                        <a href="{{ route('master-cssd.cssd-master-item.create') }}"
                             class="btn btn-brand btn-elevate btn-icon-sm">
                             <i class="la la-plus"></i>
                             Tambah
-                        </a> --}}
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-        {{-- <div class="row justify-content-center my-5">
-            <div class="col-md-6">
-                <div class="card text-center border-warning">
-                    <div class="card-header bg-warning text-white">
-                        <h4 class="mb-0"><i class="fa fa-tools"></i> Under Maintenance</h4>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text" style="font-size: 1.2rem;">
-                            Maaf, halaman ini sedang dalam perbaikan.<br>
-                            Silakan kembali lagi nanti.
-                        </p>
+
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-8">
+                <div class="card border-danger shadow-sm">
+                    <div class="card-body py-3 d-flex align-items-center">
+                        <i class="fa fa-exclamation-triangle text-danger mr-3" style="font-size: 2rem;"></i>
+                        <div>
+                            <span class="font-weight-bold text-danger" style="font-size: 1.1rem;">
+                                Perhatian!
+                            </span>
+                            <br>
+                            <span style="font-size: 1rem;">
+                                Jika ditemukan <b>kode yang double</b> pada data master item, <b>segera laporkan ke
+                                    grup</b> untuk dicek lebih lanjut.
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div> --}}
+        </div>
 
         <div class="kt-portlet__body">
 
@@ -84,7 +90,7 @@
         @endif
     </script>
     <script>
-                                                                                                                                                                                                                                                                                                                        var dataTable = function () {
+                                                                                                                                                                                                                                                                                                                                                var dataTable = function () {
             var table = $('#kt_table_1');
             table.DataTable({
                 responsive: true,

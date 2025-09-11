@@ -44,19 +44,25 @@
                 <label class="font-weight-bold">Daftar Item yang Diajukan</label>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped">
-                        <thead class="thead-light">
+                        <thead class="thead-light fw-bold">
                             <tr>
-                                <th style="width: 30%;">Nama Item</th>
-                                <th style="width: 20%;">Merk</th>
-                                <th style="width: 20%;">RS</th>
-                                <th style="width: 30%;">Keterangan</th>
+                                <th width="15%"><b>Kode Instrumen Dari Katalog</b></th>
+                                <th width="25%"><b>Nama Barang Di PO Ro / Katalog</b></th>
+                                <th width="15%"><b>Merek</b></th>
+                                <th width="15%"><b>Tipe / Kategori</b></th>
+                                <th width="15%"><b>Supplier</b></th>
+                                <th width="25%"><b>RS</b></th>
+                                <th width="25%"><b>Keterangan</b></th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse ($data->getDetail as $detail)
                                 <tr>
+                                    <td>{{ $detail->KodeInstrumen ?? '-' }}</td>
                                     <td>{{ $detail->NamaItem ?? '-' }}</td>
                                     <td>{{ $detail->getMerk->Merk ?? '-' }}</td>
+                                    <td>{{ $detail->getType->Tipe ?? '-' }}</td>
+                                    <td>{{ $detail->getSupplier->Nama ?? '-' }}</td>
                                     <td>{{ $data->getRs->nama ?? '-' }}</td>
                                     <td>{{ $detail->Keterangan ?? '-' }}</td>
                                 </tr>

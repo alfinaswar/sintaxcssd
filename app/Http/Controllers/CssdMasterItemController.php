@@ -212,7 +212,8 @@ class CssdMasterItemController extends Controller
         $bulan = date('m');
 
         // Hitung jumlah item pada bulan dan tahun ini
-        $count = cssdMasterItem::whereYear('created_at', $tahunFull)
+        $count = cssdMasterItem::withTrashed()
+            ->whereYear('created_at', $tahunFull)
             ->whereMonth('created_at', $bulan)
             ->where('KodeRS', auth()->user()->kodeRS)
             ->count();
