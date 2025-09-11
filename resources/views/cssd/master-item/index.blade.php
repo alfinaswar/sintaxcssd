@@ -48,6 +48,19 @@
         </div>
 
         <div class="kt-portlet__body">
+            {{-- @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('Admin'))
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="filter_rs" class="form-label">Filter Rumah Sakit</label>
+                    <select id="filter_rs" class="form-control">
+                        <option value="">-- Semua Rumah Sakit --</option>
+                        @foreach ($Rs as $rs)
+                        <option value="{{ $rs->kodeRS }}">{{ $rs->nama }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            @endif --}}
 
             <!--begin: Datatable -->
             <table class="table table-striped- table-bordered table-hover table-checkable" id="kt_table_1">
@@ -90,7 +103,7 @@
         @endif
     </script>
     <script>
-                                                                                                                                                                                                                                                                                                                                                var dataTable = function () {
+                                                                                                                                                                                                                                                                                                                                                                                var dataTable = function () {
             var table = $('#kt_table_1');
             table.DataTable({
                 responsive: true,

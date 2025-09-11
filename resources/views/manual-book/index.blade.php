@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @push('title')
-    Pengajuan Nama Item Baru CSSD
+    Manualbook
 @endpush
 @section('content')
     <div class="kt-portlet kt-portlet--mobile">
@@ -10,20 +10,20 @@
                     <i class="kt-font-brand flaticon2-line-chart"></i>
                 </span>
                 <h3 class="kt-portlet__head-title">
-                    Pengajuan Nama Item Baru CSSD
+                    Manualbook
                 </h3>
             </div>
             <div class="kt-portlet__head-toolbar">
-                <div class="kt-portlet__head-wrapper">
-                    <div class="kt-portlet__head-actions">
-                        <a href="{{ route('pengajuan-nama-item-cssd.create') }}"
-                            class="btn btn-brand btn-elevate btn-icon-sm">
-                            <i class="la la-plus"></i>
-                            Tambah Pengajuan
-                        </a>
-
+                @if(auth()->user()->role == 'Admin')
+                    <div class="kt-portlet__head-wrapper">
+                        <div class="kt-portlet__head-actions">
+                            <a href="{{ route('manualbook.create') }}" class="btn btn-brand btn-elevate btn-icon-sm">
+                                <i class="la la-plus"></i>
+                                Tambah
+                            </a>
+                        </div>
                     </div>
-                </div>
+                @endif
             </div>
         </div>
 
@@ -32,13 +32,11 @@
             <table class="table table-striped- table-bordered table-hover table-checkable" id="kt_table_1">
                 <thead class="table-primary">
                     <tr>
-                        <th width="5%">No</th>
-                        <th>Kode</th>
-                        <th>Tanggal</th>
-                        <th>Status</th>
+                        <th width="4%">No</th>
+                        <th width="65%">Nama</th>
+                        <th>Dokumen</th>
                         <th>Keterangan</th>
-                        <th>Kode RS</th>
-                        <th width="15%">Aksi</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -64,7 +62,7 @@
         @endif
     </script>
     <script>
-                                                    var dataTable = function () {
+                                                                var dataTable = function () {
             var table = $('#kt_table_1');
             table.DataTable({
                 responsive: true,
@@ -74,31 +72,46 @@
                 language: {
                     processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span> '
                 },
-                ajax: "{{ route('pengajuan-nama-item-cssd.index') }}",
+                ajax: "{{ route('manualbook.index') }}",
                 columns: [
-                    { data: 'DT_RowIndex', name: 'DT_RowIndex' },
-                    { data: 'Kode', name: 'Kode' },
-                    { data: 'Tanggal', name: 'Tanggal' },
-                    { data: 'Status', name: 'Status', orderable: false, searchable: false },
-                    { data: 'Keterangan', name: 'Keterangan' },
-                    { data: 'get_rs.nama', name: 'get_rs.nama' },
-                    { data: 'action', name: 'action', orderable: false, searchable: false },
+                    {
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex'
+                    },
+                    {
+                        data: 'Nama',
+                        name: 'Nama'
+                    },
+                    {
+                        data: 'Dokumen',
+                        name: 'Dokumen'
+                    },
+                    {
+                        data: 'Keterangan',
+                        name: 'Keterangan'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    },
                 ]
             })
         };
         var delete_data = function (e, id) {
             e.preventDefault()
-            var url = "{{ route('pengajuan-nama-item-cssd.destroy', 'id') }}"
+            var url = "{{ route('manualbook.destroy', 'id') }}"
             url = url.replace('id', id)
 
             swal.fire({
-                title: 'Apakah kamu yakin?',
-                text: "Kamu akan menghapus data ini!",
+                title: 'Kamu yakin?',
+                text: "Kamu akan menghapus data manualbook ini!",
                 type: 'warning',
                 showCancelButton: true,
                 confirmButtonText: "<i class='la la-check'></i> Ya, Hapus!",
                 confirmButtonClass: "btn btn-danger",
-                cancelButtonText: "<i class='la la-close'></i>Tidak, batalkan!",
+                cancelButtonText: "<i class='la la-close'></i>Tidak, cancel!",
                 cancelButtonClass: "btn btn-default",
                 reverseButtons: true
             }).then(function (result) {
@@ -116,7 +129,7 @@
                                 overlayColor: '#000000',
                                 type: 'v2',
                                 state: 'success',
-                                message: 'Mohon tunggu...'
+                                message: 'Please wait...'
                             });
                             $('.progress').show()
                         },
@@ -141,6 +154,7 @@
         jQuery(document).ready(function () {
             dataTable()
             $('.progress').hide();
+
         });
     </script>
 @endpush

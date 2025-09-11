@@ -15,6 +15,16 @@ class CreateCssdPeminjamanBarangDetailsTable extends Migration
     {
         Schema::create('cssd_peminjaman_barang_details', function (Blueprint $table) {
             $table->id();
+            $table->string('IdPeminjaman')->nullable();
+            $table->string('IdAlat')->nullable();
+            $table->string('Merk')->nullable();
+            $table->string('Tipe')->nullable();
+            $table->string('Jumlah')->nullable();
+            $table->string('KondisiAlat')->nullable();
+            $table->string('Keterangan')->nullable();
+            $table->string('UserCreated')->nullable();
+            $table->string('UserUpdated')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

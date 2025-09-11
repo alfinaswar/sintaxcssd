@@ -207,6 +207,14 @@
                                             class="kt-menu__link-text">Inventaris</span></a></li>
                             @endcan
 
+    <li class="kt-menu__item @if (request()->is('manual-book'))
+        {{ 'kt-menu__item--active' }}
+    @elseif (request()->is('manual-book/*'))
+                                        {{ 'kt-menu__item--active' }}
+                                    @endif" aria-haspopup="true"><a href="{{ route('manualbook.index') }}"
+            class="kt-menu__link "><span class="kt-menu__link-icon"><i class="fa fa-boxes"></i></span><span
+                class="kt-menu__link-text">Manual Book</span></a></li>
+
                             @can('flipbook')
                                 <li class="kt-menu__item @if (request()->is('flipbook'))
                                     {{ 'kt-menu__item--active' }}
@@ -452,6 +460,17 @@
             </a>
         </li>
     @endcan
+    {{-- @can('cssd-peminjaman-alat') --}}
+        {{-- <li class="kt-menu__item @if (request()->is('cssd/cssd-peminjaman-alat')){{ 'kt-menu__item--active' }}@elseif (request()->is('cssd/cssd-peminjaman-alat/*')){{ 'kt-menu__item--active' }}@endif"
+            aria-haspopup="true">
+            <a href="{{ route('pinjam.index') }}" class="kt-menu__link ">
+                <span class="kt-menu__link-icon">
+                    <i class="fa fa-exchange-alt"></i>
+                </span>
+                <span class="kt-menu__link-text">Peminjaman Alat</span>
+            </a>
+        </li> --}}
+    {{-- @endcan --}}
     @can('cssd-data-master')
         <li class="kt-menu__item  kt-menu__item--submenu @if (request()->segment(1) == 'cssd')
             {{ 'kt-menu__item--open kt-menu__item--here' }}

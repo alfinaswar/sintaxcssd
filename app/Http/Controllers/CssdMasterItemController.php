@@ -210,14 +210,12 @@ class CssdMasterItemController extends Controller
         $tahunFull = date('Y');
         $tahun = substr($tahunFull, 2, 2);
         $bulan = date('m');
-
-        // Hitung jumlah item pada bulan dan tahun ini
         $count = cssdMasterItem::withTrashed()
             ->whereYear('created_at', $tahunFull)
             ->whereMonth('created_at', $bulan)
             ->where('KodeRS', auth()->user()->kodeRS)
             ->count();
-        // dd($count);
+
         $nomorUrut = $count + 1;
         $nomorUrut = str_pad($nomorUrut, 4, '0', STR_PAD_LEFT);
 

@@ -7,6 +7,7 @@ use App\Http\Controllers\CssdMasterSatuanController;
 use App\Http\Controllers\CssdMasterSupplierController;
 use App\Http\Controllers\CssdMasterTypeController;
 use App\Http\Controllers\CssdMerkController;
+use App\Http\Controllers\CssdPeminjamanBarangController;
 use App\Http\Controllers\CssdPengajuanItemController;
 use App\Http\Controllers\DataInventarisController;
 use App\Http\Controllers\FileTemplateController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\KalibrasiController;
 use App\Http\Controllers\KsoController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\MaintananceController;
+use App\Http\Controllers\ManualBookController;
 use App\Http\Controllers\MasalahController;
 use App\Http\Controllers\MasterDepartemenController;
 use App\Http\Controllers\MasterIPController;
@@ -104,6 +106,15 @@ Route::group(['prefix' => 'master'], function () {
         Route::get('/create', [MasterRsController::class, 'create'])->name('master.master-rs.create');
         Route::post('/store', [MasterRsController::class, 'store'])->name('master.master-rs.store');
     });
+    Route::prefix('manual-book')->group(function () {
+        Route::get('/', [ManualBookController::class, 'index'])->name('manualbook.index');
+        Route::get('/create', [ManualBookController::class, 'create'])->name('manualbook.create');
+        Route::post('/store', [ManualBookController::class, 'store'])->name('manualbook.store');
+        Route::get('/edit/{id}', [ManualBookController::class, 'edit'])->name('manualbook.edit');
+        Route::put('/update/{id}', [ManualBookController::class, 'update'])->name('manualbook.update');
+        Route::get('/show/{id}', [ManualBookController::class, 'show'])->name('manualbook.show');
+        Route::delete('destroy/{id}', [ManualBookController::class, 'destroy'])->name('manualbook.destroy');
+    });
 
 });
 Route::group(['prefix' => 'cssd'], function () {
@@ -137,6 +148,14 @@ Route::group(['prefix' => 'cssd'], function () {
         Route::put('/update/{id}', [MasterNamaSetController::class, 'update'])->name('master-cssd.master-set-item.update');
         Route::post('/store', [MasterNamaSetController::class, 'store'])->name('master-cssd.master-set-item.store');
         Route::delete('/destroy/{id}', [MasterNamaSetController::class, 'destroy'])->name('master-cssd.master-set-item.destroy');
+    });
+    Route::prefix('cssd-peminjaman-alat')->group(function () {
+        Route::get('/', [CssdPeminjamanBarangController::class, 'index'])->name('pinjam.index');
+        Route::get('/create', [CssdPeminjamanBarangController::class, 'create'])->name('pinjam.create');
+        Route::get('/edit/{id}', [CssdPeminjamanBarangController::class, 'edit'])->name('pinjam.edit');
+        Route::put('/update/{id}', [CssdPeminjamanBarangController::class, 'update'])->name('pinjam.update');
+        Route::post('/store', [CssdPeminjamanBarangController::class, 'store'])->name('pinjam.store');
+        Route::delete('/destroy/{id}', [CssdPeminjamanBarangController::class, 'destroy'])->name('pinjam.destroy');
     });
     Route::prefix('pengajuan-nama-item-cssd')->group(function () {
         Route::get('/', [CssdPengajuanItemController::class, 'index'])->name('pengajuan-nama-item-cssd.index');

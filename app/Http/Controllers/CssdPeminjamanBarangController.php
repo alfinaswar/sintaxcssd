@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CssdPeminjamanBarang;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class CssdPeminjamanBarangController extends Controller
 {
@@ -12,9 +13,54 @@ class CssdPeminjamanBarangController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if ($request->ajax()) {
+
+            if (auth()->user() && auth()->user()->role == 'admin') {
+                $data = CssdPeminjamanBarang::with('getDiajukan', 'getRs')->orderBy('id', 'desc')->get();
+            } else {
+                $data = CssdPeminjamanBarang::with('getDiajukan', 'getRs')
+                    ->where('KodeRS', auth()->user()->kodeRS)
+                    ->orderBy('id', 'desc')
+                    ->get();
+            }
+
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    if ($row->Status == 'Y') {
+                        $btnDelete = '';
+                        $btnEdit = '';
+                    } else {
+                        $btnDelete = '<button type="button" class="btn btn-outline-danger btn-icon" onclick="delete_data(event,' . $row->id . ')" ><i class="fa fa-times"></i></button>';
+                        $btnEdit = '<a href="' . route('pinjam.edit', $row->id) . '" class="btn btn-outline-primary btn-icon" title="Edit"><i class="fa fa-edit"></i></a>';
+                    }
+                    $btn = $btnEdit . ' ' . $btnDelete;
+                    return $btn;
+                })
+                ->editColumn('Kode', function ($row) {
+                    if (auth()->user() && auth()->user()->role == 'admin') {
+                        return '<a href="' . route('pinjam.show', $row->id) . '" class="text-primary">' . e($row->Kode) . '</a>';
+                    } else {
+                        return e($row->Kode);
+                    }
+                })
+                ->editColumn('Status', function ($row) {
+                    if ($row->Status == 'Y') {
+                        return '<span class="badge badge-success">Disetujui</span>';
+                    } elseif ($row->Status == 'N') {
+                        return '<span class="badge badge-danger">Ditolak</span>';
+                    } else {
+                        return '<span class="badge badge-secondary">Proses Pengajuan</span>';
+                    }
+                })
+
+                ->rawColumns(['action', 'Status', 'Kode'])
+                ->make(true);
+        }
+
+        return view('cssd.peminjaman-alat.index');
     }
 
     /**
