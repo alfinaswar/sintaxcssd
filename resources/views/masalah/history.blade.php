@@ -182,7 +182,7 @@
                                         $data_alat->manualbook .
                                         '" target="_blank">Dokumen SPO Alat</a>' !!}
                                     @else
-                                        Manual Book Belum Tersedia
+                                        SPO Belum Tersedia
                                     @endif
                                 </span>
                                 {{-- <span class="kt-widget__value">{!!$file!!}</span> --}}
