@@ -14,7 +14,7 @@
                 </h3>
             </div>
             <div class="kt-portlet__head-toolbar">
-                @if(auth()->user()->role == 'Admin')
+                @if(auth()->user()->role == 'Admin' || auth()->user()->role == 'admin')
                     <div class="kt-portlet__head-wrapper">
                         <div class="kt-portlet__head-actions">
                             <a href="{{ route('manualbook.create') }}" class="btn btn-brand btn-elevate btn-icon-sm">
@@ -62,7 +62,7 @@
         @endif
     </script>
     <script>
-                                                                var dataTable = function () {
+                                                                                    var dataTable = function () {
             var table = $('#kt_table_1');
             table.DataTable({
                 responsive: true,
