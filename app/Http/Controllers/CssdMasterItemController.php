@@ -10,6 +10,7 @@ use App\Models\cssdMerk;
 use App\Models\MasterItemGroup;
 use App\Models\MasterRs;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -115,7 +116,7 @@ class CssdMasterItemController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($this->generateKode());
+        // dd($this->generateKodeWithAdvisoryLock());
 
         $validator = Validator::make($request->all(), [
             'Nama' => 'required|string|max:255',
@@ -186,7 +187,7 @@ class CssdMasterItemController extends Controller
             for ($i = 0; $i < $request->Qty; $i++) {
                 $data['idUser'] = auth()->user()->name;
                 $data['KodeRs'] = auth()->user()->kodeRS;
-                $data['Kode'] = $this->generateKode();
+                $data['Kode'] = $this->generateKodeWithAdvisoryLock();
                 $data['Harga'] = str_replace('.', '', $request->Harga);
                 $data['Gambar'] = $namaFile ?? '';
                 $data['Qty'] = 1;
@@ -195,7 +196,7 @@ class CssdMasterItemController extends Controller
         } else {
             $data['idUser'] = auth()->user()->name;
             $data['KodeRs'] = auth()->user()->kodeRS;
-            $data['Kode'] = $this->generateKode();
+            $data['Kode'] = $this->generateKodeWithAdvisoryLock();
             $data['Harga'] = str_replace('.', '', $request->Harga);
             $data['Gambar'] = $namaFile ?? '';
             $data['Qty'] = 1;
@@ -204,24 +205,58 @@ class CssdMasterItemController extends Controller
         return redirect()->route('master-cssd.cssd-master-item.index')->with('success', 'Item Berhasil Ditambahkan');
     }
 
-    private function generateKode()
+    // private function generateKode()
+    // {
+    //     $kodeRsab = MasterRs::where('kodeRS', auth()->user()->kodeRS)->first()->keterangan;
+    //     $tahunFull = date('Y');
+    //     $tahun = substr($tahunFull, 2, 2);
+    //     $bulan = date('m');
+
+    //     $count = cssdMasterItem::withTrashed()
+    //         ->whereYear('created_at', $tahunFull)
+    //         ->whereMonth('created_at', $bulan)
+    //         ->where('KodeRS', auth()->user()->kodeRS)
+    //         ->lockForUpdate()
+    //         ->count();
+
+    //     $nomorUrut = $count + 1;
+    //     $nomorUrut = str_pad($nomorUrut, 4, '0', STR_PAD_LEFT);
+
+    //     return 'RSAB' . $kodeRsab . $bulan . $tahun . $nomorUrut;
+    // }
+    private function generateKodeWithAdvisoryLock()
     {
         $kodeRsab = MasterRs::where('kodeRS', auth()->user()->kodeRS)->first()->keterangan;
         $tahunFull = date('Y');
         $tahun = substr($tahunFull, 2, 2);
         $bulan = date('m');
+        $kodeRS = auth()->user()->kodeRS;
 
-        $count = cssdMasterItem::withTrashed()
-            ->whereYear('created_at', $tahunFull)
-            ->whereMonth('created_at', $bulan)
-            ->where('KodeRS', auth()->user()->kodeRS)
-            ->lockForUpdate()
-            ->count();
+        $lockName = "generate_kode_{$kodeRS}_{$tahunFull}_{$bulan}";
 
-        $nomorUrut = $count + 1;
-        $nomorUrut = str_pad($nomorUrut, 4, '0', STR_PAD_LEFT);
+        return DB::transaction(function () use ($lockName, $kodeRsab, $tahunFull, $tahun, $bulan, $kodeRS) {
+            $lockResult = DB::selectOne("SELECT GET_LOCK(?, 10) as lock_result", [$lockName]);
 
-        return 'RSAB' . $kodeRsab . $bulan . $tahun . $nomorUrut;
+            if (!$lockResult->lock_result) {
+                throw new \Exception('Could not acquire lock for code generation');
+            }
+            try {
+                $count = cssdMasterItem::withTrashed()
+                    ->whereYear('created_at', $tahunFull)
+                    ->whereMonth('created_at', $bulan)
+                    ->where('KodeRS', $kodeRS)
+                    ->count();
+
+                $nomorUrut = $count + 1;
+                $nomorUrut = str_pad($nomorUrut, 4, '0', STR_PAD_LEFT);
+
+                return 'RSAB' . $kodeRsab . $bulan . $tahun . $nomorUrut;
+
+            } finally {
+                // Release lock
+                DB::selectOne("SELECT RELEASE_LOCK(?) as release_result", [$lockName]);
+            }
+        });
     }
 
     /**
