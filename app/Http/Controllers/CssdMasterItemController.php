@@ -357,7 +357,6 @@ class CssdMasterItemController extends Controller
             });
             $image->save(storage_path('app/public/cssd_item/' . $namaFile), 65);
         }
-        $data['Kode'] = $this->generateKode();
         $data['UserUpdate'] = auth()->user()->name;
         $data['KodeRs'] = auth()->user()->kodeRS;
         $data['Gambar'] = $namaFile ?? '';
