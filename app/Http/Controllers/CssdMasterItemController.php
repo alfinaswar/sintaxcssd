@@ -356,10 +356,11 @@ class CssdMasterItemController extends Controller
                 $constraint->upsize();
             });
             $image->save(storage_path('app/public/cssd_item/' . $namaFile), 65);
+            $data['Gambar'] = $namaFile ?? '';
         }
         $data['UserUpdate'] = auth()->user()->name;
         $data['KodeRs'] = auth()->user()->kodeRS;
-        $data['Gambar'] = $namaFile ?? '';
+
 
         cssdMasterItem::find($id)->update($data);
         return redirect()->route('master-cssd.cssd-master-item.index')->with('success', 'Item Berhasil Diubah');
