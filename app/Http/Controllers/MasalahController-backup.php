@@ -24,7 +24,7 @@ class MasalahController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = MasalahModel::orderBy('id', 'desc')->where('nama_rs',auth()->user()->kodeRS)->get();
+            $data = MasalahModel::orderBy('id', 'desc')->where('nama_rs', auth()->user()->kodeRS)->get();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -32,14 +32,15 @@ class MasalahController extends Controller
                     $btnlihat = '';
                     $btnupdate = '';
 
-                    $print = '<a href="' . route('masalah.history', $row->kode_item) . '" target="_blank"><button type="button" data-skin="brand" data-toggle="kt-tooltip" data-placement="top" title="Brand skin" class="btn btn-outline-primary btn-icon" ><i class="fa fa-print"></i></button></a>';                    $btn = $show;
+                    $print = '<a href="' . route('masalah.history', $row->kode_item) . '" target="_blank"><button type="button" data-skin="brand" data-toggle="kt-tooltip" data-placement="top" title="Brand skin" class="btn btn-outline-primary btn-icon" ><i class="fa fa-print"></i></button></a>';
+                    $btn = $show;
                     return $btn = $print;
                 })
                 ->addColumn('tanggal', function ($row) {
                     $show = $row->created_at;
                     return $show;
                 })
-                ->rawColumns(['action','tanggal'])
+                ->rawColumns(['action', 'tanggal'])
                 ->make(true);
         }
         return view('masalah.index');
@@ -166,8 +167,8 @@ class MasalahController extends Controller
                     $row->where('UserGroupID', 'LIKE', "%$request->cariGroup%");
                 }
             })
-            ->where('statusID',2)
-            ->orderBy('TanggalBuat','desc')
+            ->where('statusID', 2)
+            ->orderBy('TanggalBuat', 'desc')
             ->take(10)->get();
         $view = view('masalah.data-asset', compact('query'))->render();
         return response()->json(['data' => $query, 'view' => $view], 200);
@@ -229,7 +230,7 @@ class MasalahController extends Controller
         $dataItem = DB::connection('mysql')->table('data_inventaris');
         if ($request->has('q')) {
             $search = $request->q;
-            $dataItem->where('nama', 'LIKE', "%$search%")->orderBy('id','DESC')->limit(5)
+            $dataItem->where('nama', 'LIKE', "%$search%")->orderBy('id', 'DESC')->limit(5)
                 ->get(['kode_item', 'nama']);
             $item = $dataItem->pluck('nama', 'kode_item');
         } else {
@@ -243,20 +244,20 @@ class MasalahController extends Controller
     {
         $tgl_mulai = $request->input('tgl_mulai') . ' 00:00:00';
         $tgl_akhir = $request->input('tgl_akhir') . ' 23:59:59';
-        $nama_file = 'laporan kasus' . $tgl_mulai .'Hingga'. $tgl_akhir. '.xlsx';
+        $nama_file = 'laporan kasus' . $tgl_mulai . 'Hingga' . $tgl_akhir . '.xlsx';
         return Excel::download(new MasalahExport($tgl_mulai, $tgl_akhir), $nama_file);
     }
     public function history($kode_item)
     {
         // dd($kode_item);
-        $data_alat = DataInventaris::join('master_rs', 'data_inventaris.nama_rs', '=','master_rs.kodeRS')
-        ->where('kode_item',$kode_item)
-        ->select('data_inventaris.*', 'master_rs.nama as rumahsakit')->first();
+        $data_alat = DataInventaris::join('master_rs', 'data_inventaris.nama_rs', '=', 'master_rs.kodeRS')
+            ->where('kode_item', $kode_item)
+            ->select('data_inventaris.*', 'master_rs.nama as rumahsakit')->first();
         $detail_masalah = MasalahModel::where('kode_item', $kode_item)->orderby('created_at', 'desc')->get();
         $data_kalibrasi = KalibrasiModel::where('assetID', $kode_item)->orderby('created_at', 'desc')->first();
-        $data_mtnc = Maintanance::where('assetID', $kode_item)->orderby('created_at', 'desc')->get();
+        $data_mtnc = Maintanance::with('getUser')->where('assetID', $kode_item)->orderby('created_at', 'desc')->get();
         $bulanakhir = Maintanance::where('assetID', $kode_item)->orderby('created_at', 'desc')->latest();
-        return view('masalah.history', compact('data_alat','detail_masalah','data_kalibrasi','data_mtnc','bulanakhir'));
+        return view('masalah.history', compact('data_alat', 'detail_masalah', 'data_kalibrasi', 'data_mtnc', 'bulanakhir'));
 
     }
 
