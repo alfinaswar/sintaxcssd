@@ -156,6 +156,7 @@ Route::group(['prefix' => 'cssd'], function () {
         Route::put('/update/{id}', [CssdPeminjamanBarangController::class, 'update'])->name('pinjam.update');
         Route::post('/store', [CssdPeminjamanBarangController::class, 'store'])->name('pinjam.store');
         Route::delete('/destroy/{id}', [CssdPeminjamanBarangController::class, 'destroy'])->name('pinjam.destroy');
+        Route::get('/cssd-get-unit-his', [CssdPeminjamanBarangController::class, 'getUnitHis'])->name('pinjam.get-unit-his');
     });
     Route::prefix('pengajuan-nama-item-cssd')->group(function () {
         Route::get('/', [CssdPengajuanItemController::class, 'index'])->name('pengajuan-nama-item-cssd.index');

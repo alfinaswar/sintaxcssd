@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CssdPeminjamanBarang;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
 class CssdPeminjamanBarangController extends Controller
@@ -70,7 +71,8 @@ class CssdPeminjamanBarangController extends Controller
      */
     public function create()
     {
-        //
+        $item  = 
+         return view('cssd.peminjaman-alat.create');
     }
 
     /**
@@ -81,9 +83,63 @@ class CssdPeminjamanBarangController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->all();
+        dd($data);
     }
-
+    public function getUnitHis(Request $request)
+    {
+        if (auth()->check()) {
+            $kodeRS = auth()->user()->kodeRS;
+            switch ($kodeRS) {
+                case 'K':
+                    $selectdb = 'mysql2';
+                    break;
+                case 'I':
+                    $selectdb = 'mysql3';
+                    break;
+                case 'B':
+                    $selectdb = 'mysql4';
+                    break;
+                case 'A':
+                    $selectdb = 'mysql5';
+                    break;
+                case 'G':
+                    $selectdb = 'mysql6';
+                    break;
+                case 'S':
+                    $selectdb = 'mysql7';
+                    break;
+                case 'R':
+                    $selectdb = 'mysql8';
+                    break;
+                case 'D':
+                    $selectdb = 'mysql9';
+                    break;
+                case 'Q':
+                    $selectdb = 'mysql13';
+                    break;
+                case 'W':
+                    $selectdb = 'mysql14';
+                    break;
+                default:
+                    $selectdb = 'Unknown';
+                    break;
+            }
+        }
+        $item = [];
+        $dataItem = DB::connection($selectdb)->table('departemen')->where('NA', 'N');
+        if ($request->has('q')) {
+            $search = $request->q;
+            $dataItem
+                ->where('Nama', 'LIKE', "%$search%")
+                ->limit(10)
+                ->get(['Nama', 'DepartemenID']);
+            $item = $dataItem->pluck('Nama', 'DepartemenID');
+        } else {
+            $item = $dataItem->limit(10)->get(['Nama', 'DepartemenID'])->pluck('Nama', 'DepartemenID');
+        }
+        return response()->json($item);
+    }
     /**
      * Display the specified resource.
      *
