@@ -21,7 +21,11 @@
                             <i class="la la-plus"></i>
                             Tambah Pengajuan
                         </a>
-
+                        <a href="{{ route('pengajuan-nama-item-cssd.history') }}" target="_blank"
+                            class="btn btn-warning btn-elevate btn-icon-sm ml-2">
+                            <i class="la la-history"></i>
+                            Lihat History Pengajuan
+                        </a>
                     </div>
                 </div>
             </div>
@@ -64,7 +68,7 @@
         @endif
     </script>
     <script>
-                                                    var dataTable = function () {
+                                                                    var dataTable = function () {
             var table = $('#kt_table_1');
             table.DataTable({
                 responsive: true,

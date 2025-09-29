@@ -214,6 +214,42 @@ class CssdPengajuanItemController extends Controller
             'message' => 'Pengajuan telah ditolak oleh Manager.'
         ], 200);
     }
+    public function History(Request $request)
+    {
+        if ($request->ajax()) {
+
+            if (auth()->user() && auth()->user()->role == 'admin') {
+                $data = cssdPengajuanItemDetail::with('getHeader', 'getRs', 'getType')->orderBy('id', 'desc')->get();
+            } else {
+                $data = cssdPengajuanItemDetail::with('getHeader', 'getRs', 'getType')
+                    ->where('KodeRs', auth()->user()->kodeRS)
+                    ->orderBy('id', 'desc')
+                    ->get();
+            }
+            // dd($data);
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->editColumn('KodeInstrumen', function ($row) {
+                    return $row->KodeInstrumen ? $row->KodeInstrumen : '-';
+                })
+                ->editColumn('Merk', function ($row) {
+                    return $row->getMerk ? $row->getMerk->Merk : '-';
+                })
+                ->editColumn('Supplier', function ($row) {
+                    return $row->getSupplier ? $row->getSupplier->Nama : '-';
+                })
+                ->editColumn('TypeKategori', function ($row) {
+                    return $row->getType ? $row->getType->Tipe : '-';
+                })
+                ->editColumn('KodeRs', function ($row) {
+                    return $row->getRs ? $row->getRs->nama : '-';
+                })
+                // ->rawColumns(['Kode'])
+                ->make(true);
+        }
+
+        return view('cssd.master-item.pengajuan.history');
+    }
     /**
      * Update the specified resource in storage.
      *
@@ -242,6 +278,7 @@ class CssdPengajuanItemController extends Controller
                     'Merk' => $request->Merk[$key] ?? null,
                     'TypeKategori' => $request->TypeKategori[$key] ?? null,
                     'Supplier' => $request->Supplier[$key] ?? null,
+
                 ]);
             }
         }

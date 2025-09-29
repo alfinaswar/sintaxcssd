@@ -83,8 +83,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('Role', RoleController::class);
     });
 
-    Route::resource('file-template', FileTemplateController::class);
-    Route::get('file-template/download/{id}', [FileTemplateController::class, 'downloadFile'])->name('download-file-template');
+    // Route::resource('file-template', FileTemplateController::class);
+    // Route::get('file-template/download/{id}', [FileTemplateController::class, 'downloadFile'])->name('download-file-template');
 });
 // Auth::routes();
 Route::group(['prefix' => 'master'], function () {
@@ -163,6 +163,7 @@ Route::group(['prefix' => 'cssd'], function () {
         Route::get('/create', [CssdPengajuanItemController::class, 'create'])->name('pengajuan-nama-item-cssd.create');
         Route::get('/edit/{id}', [CssdPengajuanItemController::class, 'edit'])->name('pengajuan-nama-item-cssd.edit');
         Route::get('/detail/{id}', [CssdPengajuanItemController::class, 'show'])->name('pengajuan-nama-item-cssd.show');
+        Route::get('/riwayat-pengajuan-item', [CssdPengajuanItemController::class, 'history'])->name('pengajuan-nama-item-cssd.history');
         Route::put('/update/{id}', [CssdPengajuanItemController::class, 'update'])->name('pengajuan-nama-item-cssd.update');
         Route::post('/store', [CssdPengajuanItemController::class, 'store'])->name('pengajuan-nama-item-cssd.store');
         Route::delete('/destroy/{id}', [CssdPengajuanItemController::class, 'destroy'])->name('pengajuan-nama-item-cssd.destroy');

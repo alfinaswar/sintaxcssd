@@ -71,7 +71,7 @@ class CssdPeminjamanBarangController extends Controller
      */
     public function create()
     {
-        $item  = 
+        $item  =
          return view('cssd.peminjaman-alat.create');
     }
 

@@ -17,10 +17,18 @@ class cssdPengajuanItemDetail extends Model
     }
     public function getType()
     {
-        return $this->hasOne(cssdMasterType::class, 'id', 'Typekategori');
+        return $this->hasOne(cssdMasterType::class, 'id', 'TypeKategori');
     }
     public function getSupplier()
     {
         return $this->hasOne(cssdMasterSupplier::class, 'id', 'Supplier');
+    }
+    public function getRs()
+    {
+        return $this->hasOne(MasterRs::class, 'kodeRS', 'KodeRs');
+    }
+    public function getHeader()
+    {
+        return $this->hasOne(cssdPengajuanItem::class, 'id', 'IdPengajuan');
     }
 }
