@@ -182,16 +182,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="form-group row">
-                                        <label class="col-form-label col-lg-3 col-sm-12">* Gambar</label>
-                                        <div class="col-lg-9 col-md-9 col-sm-12">
-                                            <input type="file" class="custom-file" value="{{ old('gambar') }}" name="gambar"
-                                                id="gambar" type="text" placeholder="" required />
-                                            <input type="text" hidden class="form-control"
-                                                value="{{ old('nama_rs', auth()->check() ? auth()->user()->kodeRS : '') }}"
-                                                name="nama_rs" id="nama_rs" type="text" placeholder="" />
-                                        </div>
-                                    </div>
+
                                     <div class="form-group row">
                                         <label for="isKalibrasi" class="col-3 col-form-label">Kalibrasi</label>
                                         <div class="col-9">
@@ -222,28 +213,11 @@
 
     </div>
     <div class="kt-portlet kt-portlet--tabs">
-        <div class="kt-portlet__head">
-            <div class="kt-portlet__head-label">
-                <h3 class="kt-portlet__head-title">
-                    Informasi Tambahan
-                </h3>
-            </div>
-            <div class="kt-portlet__head-toolbar">
-                <ul class="nav nav-tabs nav-tabs-line nav-tabs-line-brand nav-tabs-line-2x nav-tabs-line-right nav-tabs-bold"
-                    role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#" role="tab">
-                            <i class="flaticon2-pie-chart-2" aria-hidden="true"></i>Informasi Tambahan
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
         <div class="kt-portlet__body">
             <div class="tab-content">
                 <div class="tab-pane active" id="kt_portlet_base_demo_3_3_tab_content" role="tabpanel">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             {{-- <div class="form-group row">
                                 <label class="col-form-label col-lg-3 col-sm-12">Tanggal Kalibrasi</label>
                                 <div class="col-lg-9 col-md-9 col-sm-12">
@@ -265,13 +239,138 @@
                                     <input type="file" name="dokumen" id="upload-btn" class="form-control-file">
                                 </div>
                             </div> --}}
-                            <div class="form-group row">
-                                <label for="nama_perangkat" class="col-form-label col-lg-3 col-sm-12">* Upload SPO
-                                    Alat</label>
-                                <div class=" col-lg-9 col-md-9 col-sm-12">
-                                    <input type="file" name="manualbook" id="upload-btn" class="form-control-file">
+                            <div class="form-group row align-items-center">
+                                <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
+                                    <label class="col-form-label">* Upload SPO Alat</label>
+                                    <div id="drop-area-manualbook" class="drop-area mb-2"
+                                        style="border: 2px dashed #ccc; border-radius: 6px; padding: 20px; text-align: center; cursor: pointer;">
+                                        <span id="drop-text-manualbook">Drag & Drop file PDF di sini atau klik untuk
+                                            memilih</span>
+                                        <input type="file" name="manualbook" id="manualbook"
+                                            class="form-control-file d-none" accept="application/pdf">
+                                        <div id="manualbook-preview" class="mt-2"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
+                                    <label class="col-form-label">* Gambar</label>
+                                    <div id="drop-area-gambar" class="drop-area mb-2"
+                                        style="border: 2px dashed #ccc; border-radius: 6px; padding: 20px; text-align: center; cursor: pointer;">
+                                        <span id="drop-text-gambar">Drag & Drop gambar di sini atau klik untuk
+                                            memilih</span>
+                                        <input type="file" class="form-control-file d-none" value="{{ old('gambar') }}"
+                                            name="gambar" id="gambar" accept="image/*" required />
+                                        <div id="gambar-preview" class="mt-2"></div>
+                                    </div>
+                                    <input type="text" hidden class="form-control"
+                                        value="{{ old('nama_rs', auth()->check() ? auth()->user()->kodeRS : '') }}"
+                                        name="nama_rs" id="nama_rs" placeholder="" />
                                 </div>
                             </div>
+
+                            <style>
+                                .drop-area {
+                                    transition: border-color 0.2s;
+                                }
+
+                                .drop-area.dragover {
+                                    border-color: #007bff;
+                                    background: #f0f8ff;
+                                }
+
+                                .preview-img {
+                                    max-width: 120px;
+                                    max-height: 120px;
+                                    margin-top: 10px;
+                                    border-radius: 6px;
+                                    border: 1px solid #ddd;
+                                }
+
+                                .preview-pdf {
+                                    margin-top: 10px;
+                                    color: #007bff;
+                                    font-weight: bold;
+                                }
+                            </style>
+                            <script>
+                                // Gambar
+                                const dropAreaGambar = document.getElementById('drop-area-gambar');
+                                const inputGambar = document.getElementById('gambar');
+                                const gambarPreview = document.getElementById('gambar-preview');
+                                const dropTextGambar = document.getElementById('drop-text-gambar');
+
+                                dropAreaGambar.addEventListener('click', () => inputGambar.click());
+                                dropAreaGambar.addEventListener('dragover', (e) => {
+                                    e.preventDefault();
+                                    dropAreaGambar.classList.add('dragover');
+                                });
+                                dropAreaGambar.addEventListener('dragleave', () => {
+                                    dropAreaGambar.classList.remove('dragover');
+                                });
+                                dropAreaGambar.addEventListener('drop', (e) => {
+                                    e.preventDefault();
+                                    dropAreaGambar.classList.remove('dragover');
+                                    if (e.dataTransfer.files.length) {
+                                        inputGambar.files = e.dataTransfer.files;
+                                        previewGambar();
+                                    }
+                                });
+                                inputGambar.addEventListener('change', previewGambar);
+
+                                function previewGambar() {
+                                    gambarPreview.innerHTML = '';
+                                    if (inputGambar.files && inputGambar.files[0]) {
+                                        const file = inputGambar.files[0];
+                                        const reader = new FileReader();
+                                        reader.onload = function (e) {
+                                            gambarPreview.innerHTML = `<img src="${e.target.result}" class="preview-img" alt="Preview Gambar">`;
+                                        }
+                                        reader.readAsDataURL(file);
+                                        dropTextGambar.style.display = 'none';
+                                    } else {
+                                        dropTextGambar.style.display = '';
+                                    }
+                                }
+
+                                // Manualbook (PDF)
+                                const dropAreaManualbook = document.getElementById('drop-area-manualbook');
+                                const inputManualbook = document.getElementById('manualbook');
+                                const manualbookPreview = document.getElementById('manualbook-preview');
+                                const dropTextManualbook = document.getElementById('drop-text-manualbook');
+
+                                dropAreaManualbook.addEventListener('click', () => inputManualbook.click());
+                                dropAreaManualbook.addEventListener('dragover', (e) => {
+                                    e.preventDefault();
+                                    dropAreaManualbook.classList.add('dragover');
+                                });
+                                dropAreaManualbook.addEventListener('dragleave', () => {
+                                    dropAreaManualbook.classList.remove('dragover');
+                                });
+                                dropAreaManualbook.addEventListener('drop', (e) => {
+                                    e.preventDefault();
+                                    dropAreaManualbook.classList.remove('dragover');
+                                    if (e.dataTransfer.files.length) {
+                                        inputManualbook.files = e.dataTransfer.files;
+                                        previewManualbook();
+                                    }
+                                });
+                                inputManualbook.addEventListener('change', previewManualbook);
+
+                                function previewManualbook() {
+                                    manualbookPreview.innerHTML = '';
+                                    if (inputManualbook.files && inputManualbook.files[0]) {
+                                        const file = inputManualbook.files[0];
+                                        if (file.type === "application/pdf") {
+                                            manualbookPreview.innerHTML = `<span class="preview-pdf"><i class="fa fa-file-pdf"></i> ${file.name}</span>`;
+                                            dropTextManualbook.style.display = 'none';
+                                        } else {
+                                            manualbookPreview.innerHTML = `<span class="text-danger">File harus berupa PDF</span>`;
+                                            dropTextManualbook.style.display = '';
+                                        }
+                                    } else {
+                                        dropTextManualbook.style.display = '';
+                                    }
+                                }
+                            </script>
                         </div>
                     </div>
 
@@ -288,6 +387,7 @@
             </div>
 
         </div>
+
 
     </div>
     </div>

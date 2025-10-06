@@ -8,6 +8,7 @@ use App\Models\MasterMerk;
 use App\Models\MasterRs;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Intervention\Image\Facades\Image;
 use Maatwebsite\Excel\Facades\Excel;
 
 class FormulirPembersihanController extends Controller
@@ -84,17 +85,30 @@ class FormulirPembersihanController extends Controller
         $data = $request->all();
         $data['createdBy'] = auth()->user()->id ?? 1;
 
+        // Kompres gambar sebelum disimpan agar ukuran file lebih kecil
         if ($request->hasFile('Before')) {
             $file = $request->file('Before');
             $filename = $file->getClientOriginalName() . '-' . microtime(true) . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('storage/gambar/Pembersihan/Before'), $filename);
+
+            // Kompres gambar menggunakan Intervention Image
+            $image = Image::make($file->getRealPath());
+            $image->encode('jpg', 70); // Kompres ke kualitas 70
+            $path = public_path('storage/gambar/Pembersihan/Before/' . $filename);
+            $image->save($path);
+
             $data['Before'] = $filename;
         }
 
         if ($request->hasFile('After')) {
             $file = $request->file('After');
             $filename = $file->getClientOriginalName() . '-' . microtime(true) . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('storage/gambar/Pembersihan/After'), $filename);
+
+            // Kompres gambar menggunakan Intervention Image
+            $image = Image::make($file->getRealPath());
+            $image->encode('jpg', 70); // Kompres ke kualitas 70
+            $path = public_path('storage/gambar/Pembersihan/After/' . $filename);
+            $image->save($path);
+
             $data['After'] = $filename;
         }
 

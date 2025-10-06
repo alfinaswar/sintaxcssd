@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Intervention\Image\Facades\Image;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Yajra\DataTables\DataTables;
 
@@ -494,10 +495,19 @@ class DataInventarisController extends Controller
             'departemen' => 'required',
             'unit' => 'required',
         ]);
+        // Kompres gambar sebelum disimpan agar ukuran file tidak terlalu besar
         if ($request->hasFile('gambar')) {
-            $gambar = $request->file('gambar');
-            $gambar->storeAs('public/gambar', $gambar->hashName());
-            $gambar = $gambar->hashName();
+            $gambarFile = $request->file('gambar');
+            $namaFile = $gambarFile->hashName();
+            $lokasiSimpan = storage_path('app/public/gambar/' . $namaFile);
+
+            // Kompres gambar menggunakan Intervention Image
+            $image = Image::make($gambarFile->getRealPath());
+
+            // Kompres ke kualitas 70 (bisa diubah sesuai kebutuhan)
+            $image->encode('jpg', 70)->save($lokasiSimpan);
+
+            $gambar = $namaFile;
         } else {
             $gambar = null;
         }
@@ -596,7 +606,11 @@ class DataInventarisController extends Controller
                 'unit' => 'required',
             ]);
             $gambar = $request->file('gambar');
-            $gambar->storeAs('public/gambar', $gambar->hashName());
+            // Kompres gambar sebelum disimpan
+            $img = Image::make($gambar->getRealPath());
+            $img->encode('jpg', 70);
+            $namaFile = $gambar->hashName();
+            $img->save(storage_path('app/public/gambar/' . $namaFile));
             // $dokumen = $request->file('dokumen');
             // $dokumen->storeAs('public/dokumen', $dokumen->hashName());
             $manualbook = $request->file('manualbook');
@@ -638,7 +652,11 @@ class DataInventarisController extends Controller
                 'unit' => 'required',
             ]);
             $gambar = $request->file('gambar');
-            $gambar->storeAs('public/gambar', $gambar->hashName());
+            // Kompres gambar sebelum disimpan
+            $img = Image::make($gambar->getRealPath());
+            $img->encode('jpg', 70);
+            $namaFile = $gambar->hashName();
+            $img->save(storage_path('app/public/gambar/' . $namaFile));
             // $dokumen = $request->file('dokumen');
             // $dokumen->storeAs('public/dokumen', $dokumen->hashName());
 
@@ -783,8 +801,16 @@ class DataInventarisController extends Controller
             if ($namaGambarLama) {
                 Storage::delete('public/gambar/' . $namaGambarLama);
             }
-            $gambar->storeAs('public/gambar', $gambar->hashName());
-            $data['gambar'] = $gambar->hashName();
+
+            // Kompres gambar menggunakan Intervention Image
+            $namaFile = $gambar->hashName();
+            $lokasiSimpan = storage_path('app/public/gambar/' . $namaFile);
+
+            // Pastikan library Intervention Image sudah diimport di atas
+            $image = Image::make($gambar->getRealPath());
+            $image->encode('jpg', 70)->save($lokasiSimpan);
+
+            $data['gambar'] = $namaFile;
         }
 
         if ($request->hasFile('dokumen')) {
