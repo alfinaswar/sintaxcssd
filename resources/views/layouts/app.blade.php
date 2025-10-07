@@ -461,7 +461,8 @@
         </li>
     @endcan
     {{-- @can('cssd-peminjaman-alat') --}}
-        {{-- <li class="kt-menu__item @if (request()->is('cssd/cssd-peminjaman-alat')){{ 'kt-menu__item--active' }}@elseif (request()->is('cssd/cssd-peminjaman-alat/*')){{ 'kt-menu__item--active' }}@endif"
+        @can('cssd-peminjaman-alat')
+        <li class="kt-menu__item @if (request()->is('cssd/cssd-peminjaman-alat') || request()->is('cssd/cssd-peminjaman-alat/*')) kt-menu__item--active @endif"
             aria-haspopup="true">
             <a href="{{ route('pinjam.index') }}" class="kt-menu__link ">
                 <span class="kt-menu__link-icon">
@@ -469,7 +470,8 @@
                 </span>
                 <span class="kt-menu__link-text">Peminjaman Alat</span>
             </a>
-        </li> --}}
+        </li>
+        @endcan
     {{-- @endcan --}}
     @can('cssd-data-master')
         <li class="kt-menu__item  kt-menu__item--submenu @if (request()->segment(1) == 'cssd')

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\cssdMasterItem;
 use App\Models\CssdPeminjamanBarang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -71,8 +72,8 @@ class CssdPeminjamanBarangController extends Controller
      */
     public function create()
     {
-        $item  =
-         return view('cssd.peminjaman-alat.create');
+        $NamaAlat = cssdMasterItem::with('getNama')->orderBy('Nama', 'ASC')->get();
+        return view('cssd.peminjaman-alat.create', compact('NamaAlat'));
     }
 
     /**

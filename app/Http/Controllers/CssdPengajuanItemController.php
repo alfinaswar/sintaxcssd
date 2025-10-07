@@ -182,6 +182,7 @@ class CssdPengajuanItemController extends Controller
         ]);
         foreach ($pengajuan->getDetail as $key => $value) {
             MasterItemGroup::create([
+                'Kode' => $value->KodeInstrumen,
                 'Nama' => $value->NamaItem,
                 'Merk' => $value->Merk,
             ]);

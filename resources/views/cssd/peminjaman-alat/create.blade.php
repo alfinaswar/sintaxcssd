@@ -144,10 +144,10 @@
                                 <td>
                                     <select class="form-control select2" name="alat[0][IdAlat]" required>
                                         <option value="">Pilih Alat</option>
-                                        @foreach ($alatList ?? [] as $alat)
-                                            <option value="{{ $alat->id }}" data-merk="{{ $alat->merk ?? '' }}"
-                                                data-tipe="{{ $alat->tipe ?? '' }}">
-                                                {{ $alat->nama ?? '' }}
+                                        @foreach ($NamaAlat ?? [] as $alat)
+                                            <option value="{{ $alat->id }}" data-merk="{{ $alat->getNama->Merk ?? '' }}"
+                                                data-tipe="{{ $alat->getNama->Tipe ?? '' }}">
+                                                {{ $alat->getNama->Nama ?? '' }} - {{$alat->getNama->Kode}}
                                             </option>
                                         @endforeach
                                     </select>
@@ -186,6 +186,19 @@
                     <button type="button" class="btn btn-success btn-sm" id="add-row-alat"><i class="fa fa-plus"></i> Tambah
                         Alat</button>
                 </div>
+                <div class="form-group row">
+                    <label for="Keterangan" class="col-form-label">Keterangan</label>
+                    <div class="col-12">
+                        <textarea class="form-control {{ $errors->has('Keterangan') ? 'is-invalid' : '' }}"
+                            name="Keterangan" id="Keterangan" rows="2"
+                            placeholder="Masukkan keterangan tambahan">{{ old('Keterangan') }}</textarea>
+                        @if ($errors->has('Keterangan'))
+                            <div class="invalid-feedback">
+                                {{ $errors->first('Keterangan') }}
+                            </div>
+                        @endif
+                    </div>
+                </div>
             </div>
             <div class="kt-portlet__foot">
                 <div class="kt-form__actions">
@@ -219,7 +232,7 @@
                 allowClear: true
             });
 
-            // Dynamic add/remove row for alat detail
+
             let alatIndex = 1;
             $('#add-row-alat').on('click', function () {
                 let row = $('#alat-detail-table tbody tr:first').clone();
