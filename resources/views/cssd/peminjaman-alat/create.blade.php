@@ -153,19 +153,17 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control" name="alat[0][Merk]" readonly
-                                        placeholder="Merk">
+                                    <input type="text" class="form-control" name="Merk[]" readonly placeholder="Merk">
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control" name="alat[0][Tipe]" readonly
-                                        placeholder="Tipe">
+                                    <input type="text" class="form-control" name="Tipe[]" readonly placeholder="Tipe">
                                 </td>
                                 <td>
-                                    <input type="number" class="form-control" name="alat[0][Jumlah]" min="1" value="1"
-                                        required placeholder="Jumlah">
+                                    <input type="number" class="form-control" name="Jumlah[]" min="1" value="1" required
+                                        placeholder="Jumlah" readonly>
                                 </td>
                                 <td>
-                                    <select class="form-control" name="alat[0][KondisiAlat]" required>
+                                    <select class="form-control" name="KondisiAlat[]" required>
                                         <option value="">Pilih Kondisi</option>
                                         <option value="B">Baik</option>
                                         <option value="KB">Kurang Baik</option>
@@ -173,18 +171,23 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control" name="alat[0][Keterangan]"
-                                        placeholder="Keterangan">
+                                    <input type="text" class="form-control" name="Keterangan[]" placeholder="Keterangan">
                                 </td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-danger btn-sm btn-remove-row"
-                                        title="Hapus Baris"><i class="fa fa-trash"></i></button>
+                                    <button type="button" class="btn btn-danger btn-sm btn-square btn-remove-row"
+                                        title="Hapus Baris"
+                                        style="border-radius:0; padding:0.375rem 0.75rem; min-width:36px; min-height:36px;">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                     <button type="button" class="btn btn-success btn-sm" id="add-row-alat"><i class="fa fa-plus"></i> Tambah
                         Alat</button>
+
+
+
                 </div>
                 <div class="form-group row">
                     <label for="Keterangan" class="col-form-label">Keterangan</label>
@@ -211,106 +214,132 @@
         </form>
     </div>
 @endsection
-@push('js')
+@push('after-js')
     <script>
-        function simpan(e, id) {
-            e.preventDefault();
-            KTApp.block('.kt-portlet', {
-                overlayColor: '#000000',
-                type: 'v2',
-                state: 'success',
-                message: 'Please wait...'
+                        function simpan(e, id) {
+                            e.preventDefault();
+                            KTApp.block('.kt-portlet', {
+                                overlayColor: '#000000',
+                                type: 'v2',
+                                state: 'success',
+                                message: 'Please wait...'
+                            });
+                            $('.progress').show()
+                            $(id).addClass('kt-spinner kt-spinner--md kt-spinner--danger disabled');
+                            $("#simpanForm").submit();
+                        }
+    </script>
+
+    <script>
+        function initSelect2() {
+            $('.select2').select2({
+                width: '100%',
+                dropdownParent: $('#alat-detail-table').parent()
             });
-            $('.progress').show()
-            $(id).addClass('kt-spinner kt-spinner--md kt-spinner--danger disabled');
-            $("#simpanForm").submit();
+        }
+
+        function setAlatChangeHandler() {
+            $('#alat-detail-table').on('change', '.select2', function () {
+                var selected = $(this).find('option:selected');
+                var merk = selected.data('merk') || '';
+                var tipe = selected.data('tipe') || '';
+                var $row = $(this).closest('tr');
+                $row.find('input[name="Merk[]"]').val(merk);
+                $row.find('input[name="Tipe[]"]').val(tipe);
+            });
+        }
+
+        // Tambah baris baru
+        function addRowAlat() {
+            var $table = $('#alat-detail-table tbody');
+            var rowCount = $table.find('tr').length;
+            var alatOptions = `
+                                                                                                                                                                    <option value="">Pilih Alat</option>
+                                                                                                                                                                    @foreach ($NamaAlat ?? [] as $alat)
+                                                                                                                                                                        <option value="{{ $alat->id }}" data-merk="{{ $alat->getNama->Merk ?? '' }}" data-tipe="{{ $alat->getNama->Tipe ?? '' }}">
+                                                                                                                                                                            {{ $alat->getNama->Nama ?? '' }} - {{$alat->getNama->Kode}}
+                                                                                                                                                                        </option>
+                                                                                                                                                                    @endforeach
+                                                                                                                                                                `;
+            var newRow = `
+                                                                                                                                                                    <tr>
+                                                                                                                                                                        <td>
+                                                                                                                                                                            <select class="form-control select2" name="alat[${rowCount}][IdAlat]" required>
+                                                                                                                                                                                ${alatOptions}
+                                                                                                                                                                            </select>
+                                                                                                                                                                        </td>
+                                                                                                                                                                        <td>
+                                                                                                                                                                            <input type="text" class="form-control" name="Merk[]" readonly placeholder="Merk">
+                                                                                                                                                                        </td>
+                                                                                                                                                                        <td>
+                                                                                                                                                                            <input type="text" class="form-control" name="Tipe[]" readonly placeholder="Tipe">
+                                                                                                                                                                        </td>
+                                                                                                                                                                        <td>
+                                                                                                                                                                            <input type="number" class="form-control" name="Jumlah[]" min="1" value="1" required placeholder="Jumlah" readonly>
+                                                                                                                                                                        </td>
+                                                                                                                                                                        <td>
+                                                                                                                                                                            <select class="form-control" name="KondisiAlat[]" required>
+                                                                                                                                                                                <option value="">Pilih Kondisi</option>
+                                                                                                                                                                                <option value="B">Baik</option>
+                                                                                                                                                                                <option value="KB">Kurang Baik</option>
+                                                                                                                                                                                <option value="R">Rusak</option>
+                                                                                                                                                                            </select>
+                                                                                                                                                                        </td>
+                                                                                                                                                                        <td>
+                                                                                                                                                                            <input type="text" class="form-control" name="Keterangan[]" placeholder="Keterangan">
+                                                                                                                                                                        </td>
+                                                                                                                                                                        <td class="text-center">
+                                                                                                                                                                            <button type="button" class="btn btn-danger btn-sm btn-remove-row" title="Hapus Baris"><i class="fa fa-trash"></i></button>
+                                                                                                                                                                        </td>
+                                                                                                                                                                    </tr>
+                                                                                                                                                                `;
+            $table.append(newRow);
+            initSelect2();
+        }
+
+        // Hapus baris
+        function removeRowAlat() {
+            $('#alat-detail-table').on('click', '.btn-remove-row', function () {
+                var $row = $(this).closest('tr');
+                if ($('#alat-detail-table tbody tr').length > 1) {
+                    $row.remove();
+                }
+            });
         }
 
         $(document).ready(function () {
-            $('.select2').select2({
-                placeholder: "Pilih Data",
-                allowClear: true
-            });
+            initSelect2();
+            setAlatChangeHandler();
+            removeRowAlat();
 
-
-            let alatIndex = 1;
             $('#add-row-alat').on('click', function () {
-                let row = $('#alat-detail-table tbody tr:first').clone();
-                row.find('select, input').each(function () {
-                    let name = $(this).attr('name');
-                    if (name) {
-                        name = name.replace(/\[\d+\]/, '[' + alatIndex + ']');
-                        $(this).attr('name', name);
-                    }
-                    if ($(this).is('select')) {
-                        $(this).val('').trigger('change');
-                    } else {
-                        $(this).val('');
-                    }
-                });
-                row.find('input[type=number]').val(1);
-                // Tambahkan placeholder pada input baru
-                row.find('input[name$="[Merk]"]').attr('placeholder', 'Merk');
-                row.find('input[name$="[Tipe]"]').attr('placeholder', 'Tipe');
-                row.find('input[name$="[Jumlah]"]').attr('placeholder', 'Jumlah');
-                row.find('input[name$="[Keterangan]"]').attr('placeholder', 'Keterangan');
-                $('#alat-detail-table tbody').append(row);
-                alatIndex++;
+                addRowAlat();
             });
-
-            // Remove row
-            $(document).on('click', '.btn-remove-row', function () {
-                if ($('#alat-detail-table tbody tr').length > 1) {
-                    $(this).closest('tr').remove();
-                } else {
-                    // clear values if only one row left
-                    $(this).closest('tr').find('select, input').val('');
-                    $(this).closest('tr').find('input[type=number]').val(1);
+            $('.Ruangan').select2({
+                placeholder: "Pilih Ruangan",
+                minimumInputLength: 1,
+                ajax: {
+                    url: '{{ route('pinjam.get-unit-his') }}',
+                    dataType: 'json',
+                    delay: 250,
+                    processResults: function (data) {
+                        return {
+                            results: $.map(data, function (text, id) {
+                                return { id: id, text: text };
+                            })
+                        };
+                    },
+                    cache: true
                 }
             });
-
-            // Auto fill Merk & Tipe when alat selected
-            $(document).on('change', 'select[name^="alat"][name$="[IdAlat]"]', function () {
-                let $row = $(this).closest('tr');
-                let merk = $(this).find('option:selected').data('merk') || '';
-                let tipe = $(this).find('option:selected').data('tipe') || '';
-                $row.find('input[name$="[Merk]"]').val(merk);
-                $row.find('input[name$="[Tipe]"]').val(tipe);
-            });
-            var select_unit = function () {
-                $('.Ruangan').select2({
-                    placeholder: "Select Data",
-                    minimumInputLength: 1,
-                    ajax: {
-                        url: '{{ route('pinjam.get-unit-his') }}',
-                        dataType: 'json',
-                        delay: 250,
-                        processResults: function (data) {
-                            return {
-                                results: $.map(data, function (text, id) {
-                                    return {
-                                        text: text,
-                                        id: id
-                                    }
-                                })
-                            };
-                        },
-                        cache: true
-                    }
-                });
-            }
-            select_unit()
-            // Untuk Ruangan Penerima
-            $('#RuanganPenerima').on('select2:select', function (e) {
-                let data = e.params.data;
-                $('#KodeRuanganPenerima').val(data.id);
-            });
-
-            // Untuk Ruangan Peminjam
             $('#RuanganPeminjam').on('select2:select', function (e) {
-                let data = e.params.data;
-                $('#KodeRuanganPeminjam').val(data.id);
+                $('#KodeRuanganPeminjam').val(e.params.data.id);
+            });
+
+            $('#RuanganPenerima').on('select2:select', function (e) {
+                $('#KodeRuanganPenerima').val(e.params.data.id);
             });
         });
+
     </script>
 @endpush

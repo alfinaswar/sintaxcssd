@@ -461,7 +461,7 @@
         </li>
     @endcan
     {{-- @can('cssd-peminjaman-alat') --}}
-        @can('cssd-peminjaman-alat')
+        {{-- @can('cssd-peminjaman-alat') --}}
         <li class="kt-menu__item @if (request()->is('cssd/cssd-peminjaman-alat') || request()->is('cssd/cssd-peminjaman-alat/*')) kt-menu__item--active @endif"
             aria-haspopup="true">
             <a href="{{ route('pinjam.index') }}" class="kt-menu__link ">
@@ -471,7 +471,7 @@
                 <span class="kt-menu__link-text">Peminjaman Alat</span>
             </a>
         </li>
-        @endcan
+        {{-- @endcan --}}
     {{-- @endcan --}}
     @can('cssd-data-master')
         <li class="kt-menu__item  kt-menu__item--submenu @if (request()->segment(1) == 'cssd')
@@ -524,6 +524,11 @@
                             href="{{ route('cssd-master-supplier.index') }}" class="kt-menu__link "><i
                                 class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
                                 class="kt-menu__link-text">Master Supplier</span></a></li>
+                                <li class="kt-menu__item  @if (request()->segment(2) == 'cssd-master-unit')
+                                    {{ 'kt-menu__item--active' }}
+                                @endif" aria-haspopup="true"><a href="{{ route('cssd-master-unit.index') }}"
+                                        class="kt-menu__link "><i class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+                                            class="kt-menu__link-text">Master Unit</span></a></li>
 
                 </ul>
             </div>

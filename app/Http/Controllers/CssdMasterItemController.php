@@ -125,7 +125,7 @@ class CssdMasterItemController extends Controller
             'Qty' => 'required|integer|min:1',
             'TahunPerolehan' => 'required|integer|between:2010,' . date('Y'),
             'KondisiBarang' => 'required|in:B,KB,R',
-            'Gambar' => 'required|file|mimes:jpeg,png,jpg,gif',
+            'Gambar' => 'nullable|file|mimes:jpeg,png,jpg,gif',
             // 'Satuan' => 'required|string',
             'Supplier' => 'required|string',
 

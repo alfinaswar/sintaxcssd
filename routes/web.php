@@ -27,6 +27,7 @@ use App\Http\Controllers\MasterMerkController;
 use App\Http\Controllers\MasterNamaSetController;
 use App\Http\Controllers\MasterPenggunaController;
 use App\Http\Controllers\MasterRsController;
+use App\Http\Controllers\MasterUnitBaruController;
 use App\Http\Controllers\MasterUnitController;
 use App\Http\Controllers\MutasiController;
 use App\Http\Controllers\PemakaianController;
@@ -121,6 +122,7 @@ Route::group(['prefix' => 'cssd'], function () {
     Route::resource('cssd-master-merk', CssdMerkController::class);
     Route::resource('cssd-master-tipe', CssdMasterTypeController::class);
     Route::resource('cssd-master-satuan', CssdMasterSatuanController::class);
+    Route::resource('cssd-master-unit', MasterUnitBaruController::class);
 
     Route::prefix('cssd-master-item')->group(function () {
         // Route::resource('master-rs', CssdMasterItemController::class);
