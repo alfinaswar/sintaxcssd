@@ -32,7 +32,6 @@ class DataInventarisController extends Controller
 
     public function index(Request $request)
     {
-
         if ($request->ajax()) {
             if (auth()->user()->role == 'admin' || auth()->user()->role == 'DKH') {
                 $data = DataInventaris::latest();
@@ -149,6 +148,11 @@ class DataInventarisController extends Controller
         // $dataItem = DB::connection("mysql2")->table('departemen')->get();
         // dd($dataItem);
         return view('data-inventaris.create');
+    }
+
+    public function KsoAna()
+    {
+        return view('data-inventaris.kso-ana');
     }
 
     public function CreateBc()
@@ -269,7 +273,6 @@ class DataInventarisController extends Controller
 
     public function getDepartemenHis(Request $request)
     {
-
         if (auth()->user()->role == 'admin') {
             $kodeRS = $request->rs;
         } else {
@@ -455,7 +458,7 @@ class DataInventarisController extends Controller
             'unit' => 'required|string|max:255',
             'userPengguna' => 'required|in:Medis,Non Medis',
             'klasifikasi' => 'nullable|in:None,High Risk,Medium Risk,Low to Medium Risk,Low Risk',
-            'gambar' => 'required|image|max:3048', //
+            'gambar' => 'required|image|max:3048',  //
             'isKalibrasi' => 'nullable|in:0,1',
             'keterangan' => 'nullable|string|max:1000',
         ]);
@@ -566,7 +569,7 @@ class DataInventarisController extends Controller
             'unit' => 'required|string|max:255',
             'userPengguna' => 'required|in:Medis,Non Medis',
             'klasifikasi' => 'nullable|in:None,High Risk,Medium Risk,Low to Medium Risk,Low Risk',
-            'gambar' => 'required|image|max:3048', //
+            'gambar' => 'required|image|max:3048',  //
             'isKalibrasi' => 'nullable|in:0,1',
             'keterangan' => 'nullable|string|max:1000',
         ]);
@@ -643,7 +646,6 @@ class DataInventarisController extends Controller
                 'UserId' => auth()->user()->id ?? null,
                 'UpdateName' => null,
                 'UpdateById' => null,
-
             ]);
         } elseif ($request->hasFile('gambar')) {
             $this->validate($request, [
@@ -793,6 +795,27 @@ class DataInventarisController extends Controller
         return view('data-inventaris.edit', compact('datainv', 'dept', 'unit'));
     }
 
+    public function updateKsoAna(Request $request)
+    {
+        if ($request->hasFile('dokumen_kso')) {
+            $manualbook = $request->file('dokumen_kso');
+            // $namaManualbookLama = DataInventaris::where('assetID')->first()->manualbook;
+            // if ($namaManualbookLama) {
+            //     Storage::delete('public/manualbook/' . $namaManualbookLama);
+            // }
+            $manualbook->storeAs('public/manualbook', $manualbook->hashName());
+        }
+
+        $assetID = $request->kode_item;
+        $manualbookName = isset($manualbook) ? $manualbook->hashName() : null;
+        DataInventaris::where('assetID', $assetID)->update([
+            'manualbook' => $manualbookName,
+            'UpdateName' => 'KSO ANA'
+        ]);
+
+        return redirect()->back()->with('success', 'Manualbook berhasil diupdate');
+    }
+
     public function update(Request $request, $id)
     {
         if ($request->hasFile('gambar')) {
@@ -860,6 +883,7 @@ class DataInventarisController extends Controller
         }
         return response()->json($dataItem);
     }
+
     public function destroy($id)
     {
         $data = DataInventaris::find($id);

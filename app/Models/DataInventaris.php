@@ -17,7 +17,6 @@ class DataInventaris extends Model
      */
     protected $table = 'data_inventaris';
 
-    // protected $fillable = ['RO2ID', 'harga', 'ROID', 'nama', 'merk', 'real_name', 'kode_item', 'assetID', 'no_inventaris', 'no_sn', 'tanggal_beli', 'nama_rs', 'departemen', 'unit', 'pengguna', 'gambar', 'tgl_kalibrasi', 'tgl_expire', 'dokumen', 'manualbook', 'isKalibrasi', 'keterangan', 'klasifikasi'];
     protected $guarded = ['id'];
 
     public function DataMaintenance()
@@ -39,6 +38,7 @@ class DataInventaris extends Model
     {
         return $this->belongsTo(FormulirPembersihan::class, 'idAlat', 'id');
     }
+
     public function getLaporanMonitoring()
     {
         return $this->hasMany(FormulirPembersihan::class, 'kode_item', 'kode_item');

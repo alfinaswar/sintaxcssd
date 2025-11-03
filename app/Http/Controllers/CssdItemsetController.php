@@ -17,6 +17,7 @@ class CssdItemsetController extends Controller
     {
         $this->CekStok = $CekStok;
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -24,7 +25,6 @@ class CssdItemsetController extends Controller
      */
     public function index(Request $request)
     {
-
         if ($request->ajax()) {
             if (auth()->user()->hasRole('superadmin_cssd')) {
                 $data = cssdItemset::with('getNamaset', 'getrs', 'DetailItem')->orderBy('id', 'desc')->get();
@@ -86,6 +86,7 @@ class CssdItemsetController extends Controller
         // dd($items);
         return view('cssd.master-item-set.create', compact('items', 'NamaSet'));
     }
+
     public function getItemDetail(Request $request)
     {
         $item = cssdMasterItem::with('getMerk', 'getTipe')->where('id', $request->id)->where('KodeRs', auth()->user()->kodeRS)->first();
@@ -95,6 +96,7 @@ class CssdItemsetController extends Controller
             'Tipe' => $item->getTipe->Tipe ?? ''
         ]);
     }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -103,7 +105,6 @@ class CssdItemsetController extends Controller
      */
     public function store(Request $request)
     {
-
         // $data = $request->all();
         // $groupedItems = [];
         // if (isset($data['Item']) && is_array($data['Item'])) {
@@ -134,8 +135,6 @@ class CssdItemsetController extends Controller
         // $cekStokController = app(CekStokController::class);
         // $Stok = $cekStokController->CekStok();
 
-
-
         if ($request->NamaSet == 'setbaru') {
             $namaset = $request->setBaru;
             MasterNamaSet::create([
@@ -164,9 +163,9 @@ class CssdItemsetController extends Controller
             ]);
         }
 
-
         return redirect()->route('cssd-item-set.index')->with('success', 'Set Item Berhasil Ditambahkan');
     }
+
     private function GenerateKode()
     {
         $prefix = 'SET';
@@ -193,10 +192,7 @@ class CssdItemsetController extends Controller
      * @param  \App\Models\cssdItemset  $cssdItemset
      * @return \Illuminate\Http\Response
      */
-    public function show(cssdItemset $cssdItemset)
-    {
-
-    }
+    public function show(cssdItemset $cssdItemset) {}
 
     /**
      * Show the form for editing the specified resource.
@@ -211,7 +207,8 @@ class CssdItemsetController extends Controller
 
         $items = cssdMasterItem::with('getNama', 'getItemDalamSet')
             ->where(function ($query) use ($itemIdsInSet) {
-                $query->whereDoesntHave('getItemDalamSet')
+                $query
+                    ->whereDoesntHave('getItemDalamSet')
                     ->orWhereIn('id', $itemIdsInSet);
             })
             ->where('KodeRs', auth()->user()->kodeRS)
@@ -229,8 +226,6 @@ class CssdItemsetController extends Controller
      * @param  \App\Models\cssdItemset  $cssdItemset
      * @return \Illuminate\Http\Response
      */
-
-
     public function update(Request $request, $id)
     {
         // Cek apakah user memilih set baru atau set yang sudah ada
@@ -272,7 +267,6 @@ class CssdItemsetController extends Controller
 
         return redirect()->route('cssd-item-set.index')->with('success', 'Set Item Berhasil Diupdate');
     }
-
 
     /**
      * Remove the specified resource from storage.

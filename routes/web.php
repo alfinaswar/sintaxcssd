@@ -95,7 +95,6 @@ Route::group(['prefix' => 'master'], function () {
     Route::resource('master-unit', MasterUnitController::class);
     Route::resource('master-merk', MasterMerkController::class);
 
-
     Route::prefix('master-pengguna')->group(function () {
         Route::get('/', [MasterPenggunaController::class, 'index'])->name('master.master-pengguna.index');
         Route::get('/create', [MasterPenggunaController::class, 'create'])->name('master.master-pengguna.create');
@@ -116,7 +115,6 @@ Route::group(['prefix' => 'master'], function () {
         Route::get('/show/{id}', [ManualBookController::class, 'show'])->name('manualbook.show');
         Route::delete('destroy/{id}', [ManualBookController::class, 'destroy'])->name('manualbook.destroy');
     });
-
 });
 Route::group(['prefix' => 'cssd'], function () {
     Route::resource('cssd-master-merk', CssdMerkController::class);
@@ -141,7 +139,6 @@ Route::group(['prefix' => 'cssd'], function () {
         Route::put('/update/{id}', [MasterItemGroupController::class, 'update'])->name('master-cssd.item-group.update');
         Route::post('/store', [MasterItemGroupController::class, 'store'])->name('master-cssd.item-group.store');
         Route::delete('/destroy/{id}', [MasterItemGroupController::class, 'destroy'])->name('master-cssd.item-group.destroy');
-
     });
     Route::prefix('master-nama-set')->group(function () {
         Route::get('/', [MasterNamaSetController::class, 'index'])->name('master-cssd.master-set-item.index');
@@ -189,13 +186,14 @@ Route::group(['prefix' => 'cssd'], function () {
         Route::put('/update/{id}', [CssdItemsetController::class, 'update'])->name('cssd-item-set.update');
         Route::post('/store', [CssdItemsetController::class, 'store'])->name('cssd-item-set.store');
         Route::delete('/destroy/{id}', [CssdItemsetController::class, 'destroy'])->name('cssd-item-set.destroy');
-
     });
 });
 
 Route::prefix('inventaris')->group(function () {
     Route::get('/', [DataInventarisController::class, 'index'])->name('inventaris.index');
     Route::get('/create', [DataInventarisController::class, 'create'])->name('inventaris.create');
+    Route::get('/update-kso-ana', [DataInventarisController::class, 'KsoAna'])->name('inventaris.KsoAna');
+    Route::post('/simpan-update-kso-ana', [DataInventarisController::class, 'updateKsoAna'])->name('kso.update-alat');
     Route::post('/store', [DataInventarisController::class, 'store'])->name('inventaris.store');
     Route::post('/storeNoro', [DataInventarisController::class, 'storeNoro'])->name('inventaris.storeNoro');
     Route::get('/get-item', [DataInventarisController::class, 'getItem'])->name('inventaris.get-item');
@@ -218,7 +216,6 @@ Route::prefix('flipbook')->group(function () {
     Route::post('/store', [FlipbookController::class, 'store'])->name('flipbook.store');
     Route::get('/destroy', [FlipbookController::class, 'destroy'])->name('flipbook.destroy');
     Route::get('/show/{id}', [FlipbookController::class, 'show'])->name('flipbook.show');
-
 });
 Route::prefix('penghapusan-aset')->group(function () {
     Route::get('/', [PenghapusanAsetController::class, 'index'])->name('pa.index');
@@ -233,8 +230,6 @@ Route::prefix('penghapusan-aset')->group(function () {
     Route::get('/cetak-pengajuan/{id}', [PenghapusanAsetController::class, 'Print'])->name('pa.cetak');
     Route::get('/edit/{id}', [PenghapusanAsetController::class, 'edit'])->name('pa.edit');
     Route::put('/update/{id}', [PenghapusanAsetController::class, 'update'])->name('pa.update');
-
-
 });
 Route::prefix('maintanance')->group(function () {
     Route::get('/', [MaintananceController::class, 'index'])->name('maintanance.index');
@@ -310,7 +305,7 @@ Route::group(['prefix' => 'laporan'], function () {
         Route::get('/file-import', [FormulirPembersihanController::class, 'Print'])->name('laporan.monitoring.import');
     });
 });
-//CSSD
+// CSSD
 
 Route::resource('formulir-pembersihan', FormulirPembersihanController::class);
 Route::get('/history/{kode_item}', [MasalahController::class, 'history'])->name('masalah.history');
