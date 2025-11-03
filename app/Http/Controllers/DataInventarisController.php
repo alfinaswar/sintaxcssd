@@ -808,14 +808,14 @@ class DataInventarisController extends Controller
 
         $assetID = $request->kode_item;
         $manualbookName = isset($manualbook) ? $manualbook->hashName() : null;
-        DataInventaris::where('nama', 'like', '%' . $assetID . '%')
+        $updatedCount = DataInventaris::where('nama', 'like', '%' . $assetID . '%')
             ->where('nama_rs', 'K')
             ->update([
                 'manualbook' => $manualbookName,
                 'UpdateName' => 'KSO ANA'
             ]);
 
-        return redirect()->back()->with('success', 'Manualbook berhasil diupdate');
+        return redirect()->back()->with('success', "{$updatedCount} Manualbook berhasil diupdate");
     }
 
     public function update(Request $request, $id)
