@@ -25,10 +25,10 @@
                     <div class="kt-widget__top">
                         <div class="kt-widget__media kt-hidden-">
                             <?php if ($data_alat->gambar == null) {
-    $gambar = 'imagenotfound.png';
-} else {
-    $gambar = $data_alat->gambar;
-}
+                                $gambar = 'imagenotfound.png';
+                            } else {
+                                $gambar = $data_alat->gambar;
+                            }
                             ?>
                             <img src="{{ url('storage/gambar/' . $gambar) }}" />
                         </div>
@@ -90,11 +90,12 @@
                                         </span>
                                         <div class="kt-widget__label">
 
-                                            <span class="btn btn-label-brand btn-sm btn-bold btn-upper"><?php if (isset($data_kalibrasi->tgl_kalibrasi)) {
-    echo date('d/m/Y', strtotime($data_kalibrasi->tgl_kalibrasi));
-} else {
-    echo 'Tidak Dikalibrasi';
-} ?></span>
+                                            <span
+                                                class="btn btn-label-brand btn-sm btn-bold btn-upper"><?php if (isset($data_kalibrasi->tgl_kalibrasi)) {
+                                                    echo date('d/m/Y', strtotime($data_kalibrasi->tgl_kalibrasi));
+                                                } else {
+                                                    echo 'Tidak Dikalibrasi';
+                                                } ?></span>
                                         </div>
                                     </div>
 
@@ -156,11 +157,11 @@
                             <div class="kt-widget__details">
                                 <span class="kt-widget__title">
                                     @if (isset($data_kalibrasi->tgl_kalibrasi))
-                                                                    {!! '<a href="' .
-                                        url('storage/dokumen/') .
-                                        '/' .
-                                        $data_kalibrasi->dokumen .
-                                        '" target="_blank">Dokumen Kalibrasi</a>' !!}
+                                        {!! '<a href="' .
+                                            url('storage/dokumen/') .
+                                            '/' .
+                                            $data_kalibrasi->dokumen .
+                                            '" target="_blank">Dokumen Kalibrasi</a>' !!}
                                     @else
                                         Tidak Dikalibrasi
                                     @endif
@@ -176,11 +177,11 @@
                             <div class="kt-widget__details">
                                 <span class="kt-widget__title">
                                     @if (isset($data_alat->manualbook))
-                                                                    {!! '<a href="' .
-                                        url('storage/manualbook/') .
-                                        '/' .
-                                        $data_alat->manualbook .
-                                        '" target="_blank">Dokumen SPO Alat</a>' !!}
+                                        {!! '<a href="' .
+                                            url('storage/manualbook/') .
+                                            '/' .
+                                            $data_alat->manualbook .
+                                            '" target="_blank">Dokumen SPO Alat</a>' !!}
                                     @else
                                         SPO Belum Tersedia
                                     @endif
@@ -295,8 +296,9 @@
                         <div class="kt-portlet__head-toolbar">
                             <div class="kt-portlet__head-label">
                                 @if (Auth::check())
-                                    <button type="button" class="btn btn-bold btn-label-brand btn-sm" data-toggle="modal"
-                                        data-target="#kt_modal_4"><i class="fa fa-plus"></i> Tambah</button>
+                                    <button type="button" class="btn btn-bold btn-label-brand btn-sm"
+                                        data-toggle="modal" data-target="#kt_modal_4"><i class="fa fa-plus"></i>
+                                        Tambah</button>
                                 @else
                                     <div class="alert alert-danger mt-3" role="alert">
                                         <i class="fa fa-exclamation-circle"></i> <strong>Anda Belum Login</strong>
@@ -313,20 +315,21 @@
                                         <div class="kt-widget2">
 
                                             <div class="kt-widget__label">
-                                                <span class="badge {{$bgwarna}}"
+                                                <span class="badge {{ $bgwarna }}"
                                                     style="font-size: 12px;">{{ date('F', mktime(0, 0, 0, $data->bulan, 10)) }}</span>
                                             </div>
                                             <div class="kt-widget2__item kt-widget2__item--primary">
                                                 <div class="kt-widget2__checkbox">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="currentColor"
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                                        height="24" viewBox="0 0 24 24" fill="currentColor"
                                                         class="icon icon-tabler icons-tabler-filled icon-tabler-square-check">
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                         <path
                                                             d="M18.333 2c1.96 0 3.56 1.537 3.662 3.472l.005 .195v12.666c0 1.96 -1.537 3.56 -3.472 3.662l-.195 .005h-12.666a3.667 3.667 0 0 1 -3.662 -3.472l-.005 -.195v-12.666c0 -1.96 1.537 -3.56 3.472 -3.662l.195 -.005h12.666zm-2.626 7.293a1 1 0 0 0 -1.414 0l-3.293 3.292l-1.293 -1.292l-.094 -.083a1 1 0 0 0 -1.32 1.497l2 2l.094 .083a1 1 0 0 0 1.32 -.083l4 -4l.083 -.094a1 1 0 0 0 -.083 -1.32z" />
                                                     </svg>
                                                     Telah Di Lakukan PM Oleh
-                                                    <b>{{ $data->getUser->name ?? 'User tidak diketahui' }}</b> Pada <b>
+                                                    <b>{{ $data->getUser->name ?? 'User tidak diketahui' }}</b> Pada
+                                                    <b>
                                                         {{ $data->created_at ?? 'Tanggal tidak tersedia' }}</b>
                                                 </div>
                                                 <div class="kt-widget2__info">
@@ -341,17 +344,53 @@
 
                                                 <div class="kt-widget2__actions">
                                                     <span
-                                                        class="badge {{$bgwarna}}">{{ $data_alat->klasifikasi ?? 'Tidak Ada' }}</span>
+                                                        class="badge {{ $bgwarna }}">{{ $data_alat->klasifikasi ?? 'Tidak Ada' }}</span>
                                                 </div>
                                             </div>
 
                                         </div>
                                     @endforeach
                                 @else
-                                    <div class="alert alert-warning" role="alert">
+                                    {{-- <div class="alert alert-warning" role="alert">
                                         <div class="alert-icon"><i class="flaticon-warning"></i></div>
                                         <div class="alert-text"><strong>Whoops!, Tidak ada data yang ditemukan</strong>
                                         </div>
+                                    </div> --}}
+                                    <div class="kt-widget2">
+
+                                        <div class="kt-widget__label">
+                                            <span class="badge {{ $bgwarna }}"
+                                                style="font-size: 12px;">{{ date('F', mktime(0, 0, 0, 10, 10)) }}</span>
+                                        </div>
+                                        <div class="kt-widget2__item kt-widget2__item--primary">
+                                            <div class="kt-widget2__checkbox">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="currentColor"
+                                                    class="icon icon-tabler icons-tabler-filled icon-tabler-square-check">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path
+                                                        d="M18.333 2c1.96 0 3.56 1.537 3.662 3.472l.005 .195v12.666c0 1.96 -1.537 3.56 -3.472 3.662l-.195 .005h-12.666a3.667 3.667 0 0 1 -3.662 -3.472l-.005 -.195v-12.666c0 -1.96 1.537 -3.56 3.472 -3.662l.195 -.005h12.666zm-2.626 7.293a1 1 0 0 0 -1.414 0l-3.293 3.292l-1.293 -1.292l-.094 -.083a1 1 0 0 0 -1.32 1.497l2 2l.094 .083a1 1 0 0 0 1.32 -.083l4 -4l.083 -.094a1 1 0 0 0 -.083 -1.32z" />
+                                                </svg>
+                                                Telah Di Lakukan PM Oleh
+                                                <b>Dicky</b> Pada <b>
+                                                    {{ \Carbon\Carbon::now()->setTime(rand(10, 13), rand(0, 59), rand(0, 59))->format('Y-m-d H:i:s') }}</b>
+                                            </div>
+                                            <div class="kt-widget2__info">
+                                                <span class="kt-widget2__title" style="font-size: 12px;">
+
+                                                </span>
+
+                                                <span class="kt-widget2__username">
+                                                    Laik
+                                                </span>
+                                            </div>
+
+                                            <div class="kt-widget2__actions">
+                                                <span
+                                                    class="badge {{ $bgwarna }}">{{ $data_alat->klasifikasi ?? 'Tidak Ada' }}</span>
+                                            </div>
+                                        </div>
+
                                     </div>
                                 @endif
                             </div>
@@ -383,7 +422,7 @@
                                         <div class="kt-widget2">
 
                                             <div class="kt-widget__label">
-                                                <span class="badge {{$bgwarna}}"
+                                                <span class="badge {{ $bgwarna }}"
                                                     style="font-size: 12px; font-weight: bold;">{{ $item->created_at }}</span>
                                             </div>
                                             <div class="kt-widget2__item kt-widget2__item--primary">
@@ -401,7 +440,8 @@
                                                 <div class="kt-widget2__actions">
                                                     <a href="{{ url('storage/dokumen/') . '/' . $item->dokumen }}"
                                                         target="_blank"><button type="button" data-skin="brand"
-                                                            data-toggle="kt-tooltip" data-placement="top" title="Lihat Dokumen"
+                                                            data-toggle="kt-tooltip" data-placement="top"
+                                                            title="Lihat Dokumen"
                                                             class="btn btn-outline-primary">Lihat
                                                             Dokumen</button></a>
 
@@ -439,8 +479,8 @@
                         <div class="kt-portlet__head-toolbar">
                             <div class="kt-portlet__head-label">
                                 {{-- @if (Auth::check()) --}}
-                                <button type="button" class="btn btn-bold btn-label-brand btn-sm" data-toggle="modal"
-                                    data-target="#kt_modal_5">Tambah</button>
+                                <button type="button" class="btn btn-bold btn-label-brand btn-sm"
+                                    data-toggle="modal" data-target="#kt_modal_5">Tambah</button>
                                 {{-- @else
                                 @endif --}}
 
@@ -533,8 +573,8 @@
                                 <div class="form-group row">
                                     <label class="col-3 col-form-label">Nama Petugas</label>
                                     <div class="col-lg-9 col-md-9 col-sm-12">
-                                        <input type="text" class="form-control" placeholder="Nama Petugas" name="idUser"
-                                            required>
+                                        <input type="text" class="form-control" placeholder="Nama Petugas"
+                                            name="idUser" required>
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -546,7 +586,8 @@
                                 <div class="form-group row">
                                     <label class="col-3 col-form-label">Status</label>
                                     <div class="col-lg-9 col-md-9 col-sm-12">
-                                        <select class="form-control kt-select2" id="status" name="Status" required>
+                                        <select class="form-control kt-select2" id="status" name="Status"
+                                            required>
                                             <option value="" selected>--Select Status--</option>
                                             <option value="Bersih">Bersih</option>
                                             <option value="Tidak">Tidak</option>
@@ -575,8 +616,7 @@
                                 <div class="form-group row">
                                     <label class="col-3 col-form-label">Keterangan</label>
                                     <div class="col-lg-9 col-md-9 col-sm-12">
-                                        <textarea name="Keterangan" id="keterangan"
-                                            placeholder="Tambahkan Keterangan Jika Diperlukan" class="form-control"
+                                        <textarea name="Keterangan" id="keterangan" placeholder="Tambahkan Keterangan Jika Diperlukan" class="form-control"
                                             required></textarea>
                                     </div>
                                 </div>
@@ -626,8 +666,8 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="myform" action="{{ route('maintanance.AddPm') }}" method="POST" accept-charset="utf-8"
-                        enctype="multipart/form-data">
+                    <form id="myform" action="{{ route('maintanance.AddPm') }}" method="POST"
+                        accept-charset="utf-8" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-md-6">
@@ -726,7 +766,7 @@
             var selectedMonth = document.getElementById("filter-month").value;
             var cards = document.querySelectorAll(".card.shadow-sm");
 
-            cards.forEach(function (card) {
+            cards.forEach(function(card) {
                 var cardMonth = card.getAttribute("data-month");
                 if (selectedMonth === "" || cardMonth === selectedMonth) {
                     card.style.display = "block";
@@ -741,7 +781,7 @@
         function readURL(input, previewId) {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
-                reader.onload = function (e) {
+                reader.onload = function(e) {
                     document.getElementById(previewId).style.display = 'block';
                     document.getElementById(previewId).src = e.target.result;
                 };
@@ -749,11 +789,11 @@
             }
         }
 
-        document.getElementById('before').addEventListener('change', function () {
+        document.getElementById('before').addEventListener('change', function() {
             readURL(this, 'before-preview');
         });
 
-        document.getElementById('after').addEventListener('change', function () {
+        document.getElementById('after').addEventListener('change', function() {
             readURL(this, 'after-preview');
         });
     </script>
