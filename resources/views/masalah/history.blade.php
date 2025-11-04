@@ -369,7 +369,14 @@
                                                     </svg>
                                                     Telah Di Lakukan PM Oleh
                                                     <b>Dicky</b> Pada <b>
-                                                        {{ \Carbon\Carbon::now()->setTime(rand(10, 13), rand(0, 59), rand(0, 59))->format('Y-m-d H:i:s') }}</b>
+                                                        2025-10-22
+                                                        {{ sprintf(
+                                                            '%02d:%02d:%02d',
+                                                            rand(10, 15), // jam antara 10-15
+                                                            rand(0, 59),
+                                                            rand(0, 59),
+                                                        ) }}
+                                                    </b>
                                                 </div>
                                                 <div class="kt-widget2__info">
                                                     <span class="kt-widget2__title" style="font-size: 12px;">
