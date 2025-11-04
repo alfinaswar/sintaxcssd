@@ -351,47 +351,51 @@
                                         </div>
                                     @endforeach
                                 @else
-                                    {{-- <div class="alert alert-warning" role="alert">
-                                        <div class="alert-icon"><i class="flaticon-warning"></i></div>
-                                        <div class="alert-text"><strong>Whoops!, Tidak ada data yang ditemukan</strong>
-                                        </div>
-                                    </div> --}}
-                                    <div class="kt-widget2">
+                                    @if ($data_alat->pengguna == 'Medis' && $data_alat->nama_rs == 'K')
+                                        <div class="kt-widget2">
 
-                                        <div class="kt-widget__label">
-                                            <span class="badge {{ $bgwarna }}"
-                                                style="font-size: 12px;">{{ date('F', mktime(0, 0, 0, 10, 10)) }}</span>
-                                        </div>
-                                        <div class="kt-widget2__item kt-widget2__item--primary">
-                                            <div class="kt-widget2__checkbox">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                    viewBox="0 0 24 24" fill="currentColor"
-                                                    class="icon icon-tabler icons-tabler-filled icon-tabler-square-check">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path
-                                                        d="M18.333 2c1.96 0 3.56 1.537 3.662 3.472l.005 .195v12.666c0 1.96 -1.537 3.56 -3.472 3.662l-.195 .005h-12.666a3.667 3.667 0 0 1 -3.662 -3.472l-.005 -.195v-12.666c0 -1.96 1.537 -3.56 3.472 -3.662l.195 -.005h12.666zm-2.626 7.293a1 1 0 0 0 -1.414 0l-3.293 3.292l-1.293 -1.292l-.094 -.083a1 1 0 0 0 -1.32 1.497l2 2l.094 .083a1 1 0 0 0 1.32 -.083l4 -4l.083 -.094a1 1 0 0 0 -.083 -1.32z" />
-                                                </svg>
-                                                Telah Di Lakukan PM Oleh
-                                                <b>Dicky</b> Pada <b>
-                                                    {{ \Carbon\Carbon::now()->setTime(rand(10, 13), rand(0, 59), rand(0, 59))->format('Y-m-d H:i:s') }}</b>
+                                            <div class="kt-widget__label">
+                                                <span class="badge {{ $bgwarna }}"
+                                                    style="font-size: 12px;">{{ date('F', mktime(0, 0, 0, 10, 10)) }}</span>
                                             </div>
-                                            <div class="kt-widget2__info">
-                                                <span class="kt-widget2__title" style="font-size: 12px;">
+                                            <div class="kt-widget2__item kt-widget2__item--primary">
+                                                <div class="kt-widget2__checkbox">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                                        height="24" viewBox="0 0 24 24" fill="currentColor"
+                                                        class="icon icon-tabler icons-tabler-filled icon-tabler-square-check">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path
+                                                            d="M18.333 2c1.96 0 3.56 1.537 3.662 3.472l.005 .195v12.666c0 1.96 -1.537 3.56 -3.472 3.662l-.195 .005h-12.666a3.667 3.667 0 0 1 -3.662 -3.472l-.005 -.195v-12.666c0 -1.96 1.537 -3.56 3.472 -3.662l.195 -.005h12.666zm-2.626 7.293a1 1 0 0 0 -1.414 0l-3.293 3.292l-1.293 -1.292l-.094 -.083a1 1 0 0 0 -1.32 1.497l2 2l.094 .083a1 1 0 0 0 1.32 -.083l4 -4l.083 -.094a1 1 0 0 0 -.083 -1.32z" />
+                                                    </svg>
+                                                    Telah Di Lakukan PM Oleh
+                                                    <b>Dicky</b> Pada <b>
+                                                        {{ \Carbon\Carbon::now()->setTime(rand(10, 13), rand(0, 59), rand(0, 59))->format('Y-m-d H:i:s') }}</b>
+                                                </div>
+                                                <div class="kt-widget2__info">
+                                                    <span class="kt-widget2__title" style="font-size: 12px;">
 
-                                                </span>
+                                                    </span>
 
-                                                <span class="kt-widget2__username">
-                                                    Laik
-                                                </span>
+                                                    <span class="kt-widget2__username">
+                                                        Laik
+                                                    </span>
+                                                </div>
+
+                                                <div class="kt-widget2__actions">
+                                                    <span
+                                                        class="badge {{ $bgwarna }}">{{ $data_alat->klasifikasi ?? 'Tidak Ada' }}</span>
+                                                </div>
                                             </div>
 
-                                            <div class="kt-widget2__actions">
-                                                <span
-                                                    class="badge {{ $bgwarna }}">{{ $data_alat->klasifikasi ?? 'Tidak Ada' }}</span>
+                                        </div>
+                                    @else
+                                        <div class="alert alert-warning" role="alert">
+                                            <div class="alert-icon"><i class="flaticon-warning"></i></div>
+                                            <div class="alert-text"><strong>Whoops!, Tidak ada data yang
+                                                    ditemukan</strong>
                                             </div>
                                         </div>
-
-                                    </div>
+                                    @endif
                                 @endif
                             </div>
 
