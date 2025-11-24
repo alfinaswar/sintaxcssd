@@ -103,6 +103,35 @@ class CssdPengajuanItemController extends Controller
      */
     public function store(Request $request)
     {
+
+        $request->validate([
+            'Tanggal' => 'required|date',
+            'Nama' => 'required|array|min:1',
+            'Nama.*' => 'required|string',
+            'KodeInstrumen' => 'required|array|min:1',
+            'KodeInstrumen.*' => 'required|string',
+            'Merk' => 'required|array|min:1',
+            'Merk.*' => 'required|integer',
+            'TypeKategori' => 'required|array|min:1',
+            'TypeKategori.*' => 'required|integer',
+            'Supplier' => 'required|array|min:1',
+            'Supplier.*' => 'nullable|integer',
+        ]);
+
+        // Kumpulkan semua kode instrumen yang sudah terdaftar di MasterItemGroup sekaligus
+        $duplicateInstrumentCodes = [];
+        foreach ($request->KodeInstrumen as $key => $kodeInstrumen) {
+            $exists = MasterItemGroup::where('Kode', $kodeInstrumen)->exists();
+            if ($exists) {
+                $duplicateInstrumentCodes[$key] = 'Kode instrumen ' . $kodeInstrumen . ' sudah terdaftar di master item group.';
+            }
+        }
+        if (!empty($duplicateInstrumentCodes)) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['KodeInstrumen' => $duplicateInstrumentCodes]);
+        }
+
         $data = $request->all();
 
         $data['Keterangan'] = $request->Catatan ?? null;
