@@ -192,7 +192,12 @@ class CssdPengajuanItemController extends Controller
             'Revisi' => $request->Revisi ?? null,
             'Status' => 'Y',
         ]);
+
         foreach ($pengajuan->getDetail as $key => $value) {
+            $exists = MasterItemGroup::where('Kode', $value->KodeInstrumen)->exists();
+            if ($exists) {
+                continue;
+            }
             MasterItemGroup::create([
                 'Kode' => $value->KodeInstrumen,
                 'Nama' => $value->NamaItem,
