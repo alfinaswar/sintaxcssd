@@ -47,7 +47,13 @@ class CssdPengajuanItemController extends Controller
                     return $btn;
                 })
                 ->editColumn('Kode', function ($row) {
-                    if (auth()->user() && auth()->user()->role == 'admin') {
+                    if (
+                        auth()->user() &&
+                        (
+                            auth()->user()->role == 'admin' ||
+                            auth()->user()->hasRole('superadmin_cssd')
+                        )
+                    ) {
                         return '<a href="' . route('pengajuan-nama-item-cssd.show', $row->id) . '" class="text-primary">' . e($row->Kode) . '</a>';
                     } else {
                         return e($row->Kode);
