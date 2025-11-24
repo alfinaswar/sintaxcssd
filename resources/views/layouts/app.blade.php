@@ -206,7 +206,7 @@
                                                 class="fa fa-boxes"></i></span><span
                                             class="kt-menu__link-text">Inventaris</span></a></li>
                             @endcan
-
+@can('manualbook')
     <li class="kt-menu__item @if (request()->is('manual-book'))
         {{ 'kt-menu__item--active' }}
     @elseif (request()->is('manual-book/*'))
@@ -214,6 +214,8 @@
                                     @endif" aria-haspopup="true"><a href="{{ route('manualbook.index') }}"
             class="kt-menu__link "><span class="kt-menu__link-icon"><i class="fa fa-boxes"></i></span><span
                 class="kt-menu__link-text">Manual Book</span></a></li>
+@endcan
+
 
                             @can('flipbook')
                                 <li class="kt-menu__item @if (request()->is('flipbook'))
@@ -525,16 +527,16 @@
                                 class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
                                 class="kt-menu__link-text">Master Supplier</span></a></li>
                                 <li class="kt-menu__item  @if (request()->segment(2) == 'cssd-master-unit')
-                                    {{ 'kt-menu__item--active' }}
-                                @endif" aria-haspopup="true"><a href="{{ route('cssd-master-unit.index') }}"
-                                        class="kt-menu__link "><i class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
-                                            class="kt-menu__link-text">Master Unit</span></a></li>
+                                    {{ 'kt-menu__item--active' }} @endif"
+        aria-haspopup="true"><a href="{{ route('cssd-master-unit.index') }}" class="kt-menu__link "><i
+            class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+            class="kt-menu__link-text">Master Unit</span></a></li>
 
-                </ul>
-            </div>
-        </li>
-    @endcan
-    {{-- Tambahkan menu CSSD lain di sini --}}
+    </ul>
+    </div>
+    </li>
+@endcan
+{{-- Tambahkan menu CSSD lain di sini --}}
 </ul>
 </div>
 </div>
@@ -577,7 +579,8 @@
                     <div
                         class="dropdown-menu dropdown-menu-fit dropdown-menu-right dropdown-menu-anim dropdown-menu-top-unround">
                         <ul class="kt-nav kt-margin-t-10 kt-margin-b-10">
-                            <li class="kt-nav__item {{ request()->is('User/*') ? 'kt-menu__item--active' : '' }}">
+                            <li
+                                class="kt-nav__item {{ request()->is('User/*') ? 'kt-menu__item--active' : '' }}">
                                 <a href="{{ route('change-password') }}" class="kt-nav__link">
                                     <span class="kt-nav__link-icon"><svg xmlns="http://www.w3.org/2000/svg"
                                             xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
@@ -824,7 +827,7 @@
     };
 </script>
 <script>
-    document.getElementById('menuSelector').addEventListener('change', function () {
+    document.getElementById('menuSelector').addEventListener('change', function() {
         let value = this.value;
 
         document.querySelectorAll('.menu-group').forEach(el => el.classList.add('d-none'));
