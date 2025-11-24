@@ -24,7 +24,13 @@ class CssdPengajuanItemController extends Controller
     {
         if ($request->ajax()) {
 
-            if (auth()->user() && auth()->user()->role == 'admin') {
+            if (
+                auth()->user() &&
+                (
+                    auth()->user()->role == 'admin'
+                    || auth()->user()->hasRole('superadmin_cssd')
+                )
+            ) {
                 $data = cssdPengajuanItem::with('getDiajukan', 'getRs')->orderBy('id', 'desc')->get();
             } else {
                 $data = cssdPengajuanItem::with('getDiajukan', 'getRs')
