@@ -184,11 +184,13 @@
     <div class="row mt-4">
         <div class="col-xl-12">
             <div class="card card-custom">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">Jadwal Imsakiyah - {{ $jadwal_imsak['provinsi'] ?? '-' }},
-                        {{ $jadwal_imsak['kabkota'] ?? '-' }}</h5>
-                    <small>Tahun Hijriyah: {{ $jadwal_imsak['hijriah'] ?? '-' }}, Masehi:
-                        {{ $jadwal_imsak['masehi'] ?? '-' }}</small>
+                <div class="card-header bg-light" id="jadwal-header">
+                    <h5 class="mb-0">
+                        Jadwal Imsakiyah - <span id="jadwal-provinsi">-</span>, <span id="jadwal-kabkota">-</span>
+                    </h5>
+                    <small>
+                        Tahun Hijriyah: <span id="jadwal-hijriah">-</span>, Masehi: <span id="jadwal-masehi">-</span>
+                    </small>
                 </div>
                 <div class="card-body table-responsive">
                     <table class="table table-bordered table-hover table-sm mb-0">
@@ -205,30 +207,66 @@
                                 <th class="text-center">Isya</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @if (!empty($jadwal_imsak['data']))
-                                <tr>
-                                    <td class="text-center">{{ $jadwal_imsak['data']['tanggal'] ?? '-' }}</td>
-                                    <td class="text-center">{{ $jadwal_imsak['data']['imsak'] ?? '-' }}</td>
-                                    <td class="text-center">{{ $jadwal_imsak['data']['subuh'] ?? '-' }}</td>
-                                    <td class="text-center">{{ $jadwal_imsak['data']['terbit'] ?? '-' }}</td>
-                                    <td class="text-center">{{ $jadwal_imsak['data']['dhuha'] ?? '-' }}</td>
-                                    <td class="text-center">{{ $jadwal_imsak['data']['dzuhur'] ?? '-' }}</td>
-                                    <td class="text-center">{{ $jadwal_imsak['data']['ashar'] ?? '-' }}</td>
-                                    <td class="text-center">{{ $jadwal_imsak['data']['maghrib'] ?? '-' }}</td>
-                                    <td class="text-center">{{ $jadwal_imsak['data']['isya'] ?? '-' }}</td>
-                                </tr>
-                            @else
-                                <tr>
-                                    <td colspan="9" class="text-center">Jadwal tidak tersedia.</td>
-                                </tr>
-                            @endif
+                        <tbody id="jadwal-imsak-tbody">
+                            <tr>
+                                <td colspan="9" class="text-center">Mengambil data jadwal...</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        function fillJadwalImsak(data) {
+            // Header
+            document.getElementById('jadwal-provinsi').innerText = data.provinsi || '-';
+            document.getElementById('jadwal-kabkota').innerText = data.kabkota || '-';
+            document.getElementById('jadwal-hijriah').innerText = data.hijriah || '-';
+            document.getElementById('jadwal-masehi').innerText = data.masehi || '-';
+
+            // Table body
+            let tbody = document.getElementById('jadwal-imsak-tbody');
+            if (data.data) {
+                let d = data.data;
+                tbody.innerHTML = `<tr>
+                    <td class="text-center">${d.tanggal ?? '-'}</td>
+                    <td class="text-center">${d.imsak ?? '-'}</td>
+                    <td class="text-center">${d.subuh ?? '-'}</td>
+                    <td class="text-center">${d.terbit ?? '-'}</td>
+                    <td class="text-center">${d.dhuha ?? '-'}</td>
+                    <td class="text-center">${d.dzuhur ?? '-'}</td>
+                    <td class="text-center">${d.ashar ?? '-'}</td>
+                    <td class="text-center">${d.maghrib ?? '-'}</td>
+                    <td class="text-center">${d.isya ?? '-'}</td>
+                </tr>`;
+            } else {
+                tbody.innerHTML = `<tr>
+                    <td colspan="9" class="text-center">Jadwal tidak tersedia.</td>
+                </tr>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('https://abproc.awalbros.com/getJadwalImsak')
+                .then(response => response.json())
+                .then(data => {
+                    // Only update if success
+                    if (data && data.status && data.status === 'success') {
+                        fillJadwalImsak(data);
+                    } else {
+                        document.getElementById('jadwal-imsak-tbody').innerHTML = `<tr>
+                            <td colspan="9" class="text-center">Jadwal tidak tersedia.</td>
+                        </tr>`;
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('jadwal-imsak-tbody').innerHTML = `<tr>
+                        <td colspan="9" class="text-center">Gagal mengambil data jadwal.</td>
+                    </tr>`;
+                });
+        });
+    </script>
 @endsection
 @push('js')
     <script>
