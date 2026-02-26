@@ -180,9 +180,7 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row mt-4">
-        <div class="col-xl-12">
+        <div class="col-md-6">
             <div class="card card-custom">
                 <div class="card-header bg-light" id="jadwal-header">
                     <h5 class="mb-0">
@@ -196,7 +194,7 @@
                     <table class="table table-bordered table-hover table-sm mb-0">
                         <thead>
                             <tr class="table-primary">
-                                <th class="text-center">Tanggal</th>
+                                <th class="text-center">Puasa Ke</th>
                                 <th class="text-center">Imsak</th>
                                 <th class="text-center">Subuh</th>
                                 <th class="text-center">Terbit</th>
@@ -217,6 +215,7 @@
             </div>
         </div>
     </div>
+
     <script>
         function fillJadwalImsak(data) {
             // Header
