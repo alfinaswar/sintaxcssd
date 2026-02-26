@@ -184,30 +184,40 @@
             <div class="card card-custom">
                 <div class="card-header bg-light" id="jadwal-header">
                     <h5 class="mb-0">
-                        Jadwal Imsakiyah - <span id="jadwal-provinsi">-</span>, <span id="jadwal-kabkota">-</span>
+                        <span role="img" aria-label="Jadwal">🕌</span> Jadwal Imsakiyah - <span
+                            id="jadwal-provinsi">-</span>, <span id="jadwal-kabkota">-</span>
                     </h5>
                     <small>
-                        Tahun Hijriyah: <span id="jadwal-hijriah">-</span>, Masehi: <span id="jadwal-masehi">-</span>
+                        <span role="img" aria-label="Calendar">📅</span> Tahun Hijriyah: <span
+                            id="jadwal-hijriah">-</span>, Masehi: <span id="jadwal-masehi">-</span>
                     </small>
+                    <div class="mt-2">
+                        <span class="badge badge-success p-2">
+                            <span role="img" aria-label="Puasa">🌙</span> Selamat menunaikan ibadah puasa bagi yang
+                            menjalankan <span role="img" aria-label="Senyum">😊</span>
+                        </span>
+                    </div>
                 </div>
                 <div class="card-body table-responsive">
                     <table class="table table-bordered table-hover table-sm mb-0">
                         <thead>
                             <tr class="table-primary">
-                                <th class="text-center">Puasa Ke</th>
-                                <th class="text-center">Imsak</th>
-                                <th class="text-center">Subuh</th>
-                                <th class="text-center">Terbit</th>
-                                <th class="text-center">Dhuha</th>
-                                <th class="text-center">Dzuhur</th>
-                                <th class="text-center">Ashar</th>
-                                <th class="text-center">Maghrib</th>
-                                <th class="text-center">Isya</th>
+                                <th class="text-center">Puasa Ke <span role="img" aria-label="Angka">🔢</span></th>
+                                <th class="text-center">Imsak <span role="img" aria-label="Alarm">⏰</span></th>
+                                <th class="text-center">Subuh <span role="img" aria-label="Fajar">🌄</span></th>
+                                <th class="text-center">Terbit <span role="img" aria-label="Sunrise">🌅</span></th>
+                                <th class="text-center">Dhuha <span role="img" aria-label="Sun">☀️</span></th>
+                                <th class="text-center">Dzuhur <span role="img" aria-label="Sun Overhead">🌞</span>
+                                </th>
+                                <th class="text-center">Ashar <span role="img" aria-label="Afternoon">🏜️</span></th>
+                                <th class="text-center">Maghrib <span role="img" aria-label="Sunset">🌇</span></th>
+                                <th class="text-center">Isya <span role="img" aria-label="Night">🌃</span></th>
                             </tr>
                         </thead>
                         <tbody id="jadwal-imsak-tbody">
                             <tr>
-                                <td colspan="9" class="text-center">Mengambil data jadwal...</td>
+                                <td colspan="9" class="text-center"><span role="img"
+                                        aria-label="Loading">⏳</span> Mengambil data jadwal...</td>
                             </tr>
                         </tbody>
                     </table>
