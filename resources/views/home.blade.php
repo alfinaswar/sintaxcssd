@@ -248,7 +248,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            fetch('https://abproc.awalbros.com/getJadwalImsak')
+            fetch('https://abproc.awalbros.com/getJadwalImsakSinta')
                 .then(response => response.json())
                 .then(data => {
                     // Only update if success
