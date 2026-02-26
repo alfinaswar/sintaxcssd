@@ -38,33 +38,8 @@ class HomeController extends Controller
             $inv_medis = DataInventaris::where('pengguna', 'Medis')->where('nama_rs', auth()->user()->kodeRS)->count();
             $total_inv = DataInventaris::where('nama_rs', auth()->user()->kodeRS)->count();
         }
-        // masing masing rs
 
-        // total semua rs
-
-        // Tambahkan jadwal imsak
-        $jadwal_imsak = null;
-
-        try {
-            $url = 'https://equran.id/api/v2/imsakiyah';
-
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-            ])->post($url, [
-                        'provinsi' => 'riau',
-                        'kabkota' => 'kota pekanbaru',
-                    ]);
-
-            $data = $response->json();
-            $jadwal_imsak = $data['data']['jadwal'] ?? null;
-            dd($data);
-        } catch (\Throwable $e) {
-            dd($e);
-            $jadwal_imsak = null;
-        }
-        // dd($jadwal_imsak);
-
-        return view('home', compact('inv_umum', 'pengguna', 'inv_medis', 'total_inv', 'jadwal_imsak'));
+        return view('home', compact('inv_umum', 'pengguna', 'inv_medis', 'total_inv'));
     }
     private function countPengguna()
     {

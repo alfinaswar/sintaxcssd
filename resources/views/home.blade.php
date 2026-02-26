@@ -151,85 +151,84 @@
                 </div>
             </div>
         </div>
-        <div class="kt-portlet kt-portlet--height-fluid">
-            <div class="kt-widget14">
-                <div class="kt-widget14__header">
-                    <h3 class="kt-widget14__title">
-                        Persentase kategori Inventaris
-                    </h3>
-                    <span class="kt-widget14__desc">
-                        Perbandingan Medis dan Non Medis
-                    </span>
-                </div>
-                <div class="kt-widget14__content">
-                    <div class="kt-widget14__chart">
-                        <canvas id="pieChart" style="height: 250px; width: 250px;"></canvas>
+        <div class="col-md-6">
+            <div class="kt-portlet kt-portlet--height-fluid">
+                <div class="kt-widget14">
+                    <div class="kt-widget14__header">
+                        <h3 class="kt-widget14__title">
+                            Persentase kategori Inventaris
+                        </h3>
+                        <span class="kt-widget14__desc">
+                            Perbandingan Medis dan Non Medis
+                        </span>
                     </div>
-                    <div class="kt-widget14__legends">
-                        <div class="kt-widget14__legend">
-                            <span class="kt-widget14__bullet kt-bg-success"></span>
-                            <span class="kt-widget14__stats">Medis</span>
+                    <div class="kt-widget14__content">
+                        <div class="kt-widget14__chart">
+                            <canvas id="pieChart" style="height: 250px; width: 250px;"></canvas>
                         </div>
-                        <div class="kt-widget14__legend">
-                            <span class="kt-widget14__bullet kt-bg-warning"></span>
-                            <span class="kt-widget14__stats">Non Medis</span>
+                        <div class="kt-widget14__legends">
+                            <div class="kt-widget14__legend">
+                                <span class="kt-widget14__bullet kt-bg-success"></span>
+                                <span class="kt-widget14__stats">Medis</span>
+                            </div>
+                            <div class="kt-widget14__legend">
+                                <span class="kt-widget14__bullet kt-bg-warning"></span>
+                                <span class="kt-widget14__stats">Non Medis</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    @if (!empty($jadwal_imsak))
-        <div class="row mt-4">
-            <div class="col-xl-12">
-                <div class="card card-custom">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">Jadwal Imsakiyah - {{ $jadwal_imsak['provinsi'] ?? '-' }},
-                            {{ $jadwal_imsak['kabkota'] ?? '-' }}</h5>
-                        <small>Tahun Hijriyah: {{ $jadwal_imsak['hijriah'] ?? '-' }}, Masehi:
-                            {{ $jadwal_imsak['masehi'] ?? '-' }}</small>
-                    </div>
-                    <div class="card-body table-responsive">
-                        <table class="table table-bordered table-hover table-sm mb-0">
-                            <thead>
-                                <tr class="table-primary">
-                                    <th class="text-center">Tanggal</th>
-                                    <th class="text-center">Imsak</th>
-                                    <th class="text-center">Subuh</th>
-                                    <th class="text-center">Terbit</th>
-                                    <th class="text-center">Dhuha</th>
-                                    <th class="text-center">Dzuhur</th>
-                                    <th class="text-center">Ashar</th>
-                                    <th class="text-center">Maghrib</th>
-                                    <th class="text-center">Isya</th>
+    <div class="row mt-4">
+        <div class="col-xl-12">
+            <div class="card card-custom">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Jadwal Imsakiyah - {{ $jadwal_imsak['provinsi'] ?? '-' }},
+                        {{ $jadwal_imsak['kabkota'] ?? '-' }}</h5>
+                    <small>Tahun Hijriyah: {{ $jadwal_imsak['hijriah'] ?? '-' }}, Masehi:
+                        {{ $jadwal_imsak['masehi'] ?? '-' }}</small>
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered table-hover table-sm mb-0">
+                        <thead>
+                            <tr class="table-primary">
+                                <th class="text-center">Tanggal</th>
+                                <th class="text-center">Imsak</th>
+                                <th class="text-center">Subuh</th>
+                                <th class="text-center">Terbit</th>
+                                <th class="text-center">Dhuha</th>
+                                <th class="text-center">Dzuhur</th>
+                                <th class="text-center">Ashar</th>
+                                <th class="text-center">Maghrib</th>
+                                <th class="text-center">Isya</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!empty($jadwal_imsak['data']))
+                                <tr>
+                                    <td class="text-center">{{ $jadwal_imsak['data']['tanggal'] ?? '-' }}</td>
+                                    <td class="text-center">{{ $jadwal_imsak['data']['imsak'] ?? '-' }}</td>
+                                    <td class="text-center">{{ $jadwal_imsak['data']['subuh'] ?? '-' }}</td>
+                                    <td class="text-center">{{ $jadwal_imsak['data']['terbit'] ?? '-' }}</td>
+                                    <td class="text-center">{{ $jadwal_imsak['data']['dhuha'] ?? '-' }}</td>
+                                    <td class="text-center">{{ $jadwal_imsak['data']['dzuhur'] ?? '-' }}</td>
+                                    <td class="text-center">{{ $jadwal_imsak['data']['ashar'] ?? '-' }}</td>
+                                    <td class="text-center">{{ $jadwal_imsak['data']['maghrib'] ?? '-' }}</td>
+                                    <td class="text-center">{{ $jadwal_imsak['data']['isya'] ?? '-' }}</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($jadwal_imsak['imsakiyah'] ?? [] as $row)
-                                    <tr>
-                                        <td class="text-center">{{ $row['tanggal'] ?? '-' }}</td>
-                                        <td class="text-center">{{ $row['imsak'] ?? '-' }}</td>
-                                        <td class="text-center">{{ $row['subuh'] ?? '-' }}</td>
-                                        <td class="text-center">{{ $row['terbit'] ?? '-' }}</td>
-                                        <td class="text-center">{{ $row['dhuha'] ?? '-' }}</td>
-                                        <td class="text-center">{{ $row['dzuhur'] ?? '-' }}</td>
-                                        <td class="text-center">{{ $row['ashar'] ?? '-' }}</td>
-                                        <td class="text-center">{{ $row['maghrib'] ?? '-' }}</td>
-                                        <td class="text-center">{{ $row['isya'] ?? '-' }}</td>
-                                    </tr>
-                                @endforeach
-                                @if (empty($jadwal_imsak['imsakiyah']))
-                                    <tr>
-                                        <td colspan="9" class="text-center">Jadwal tidak tersedia.</td>
-                                    </tr>
-                                @endif
-                            </tbody>
-                        </table>
-                    </div>
+                            @else
+                                <tr>
+                                    <td colspan="9" class="text-center">Jadwal tidak tersedia.</td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-    @endif
+    </div>
 @endsection
 @push('js')
     <script>
