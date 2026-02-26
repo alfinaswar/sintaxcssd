@@ -178,9 +178,15 @@
                                     class="form-control select2 {{ $errors->has('TahunPerolehan') ? 'is-invalid' : '' }}"
                                     name="TahunPerolehan" id="tahun_perolehan" required>
                                     <option value="">Pilih Tahun</option>
-                                    @for ($year = 2025; $year >= 2010; $year--)
+                                    @php
+                                        $currentYear = date('Y');
+                                        $startYear = $currentYear - 10;
+                                        $endYear = $currentYear + 5;
+                                        $selectedYear = old('TahunPerolehan', $data->TahunPerolehan ?? $currentYear);
+                                    @endphp
+                                    @for ($year = $endYear; $year >= $startYear; $year--)
                                         <option value="{{ $year }}"
-                                            {{ old('TahunPerolehan', $data->TahunPerolehan) == $year ? 'selected' : '' }}>
+                                            @if ($selectedYear == $year) selected @endif>
                                             {{ $year }}
                                         </option>
                                     @endfor

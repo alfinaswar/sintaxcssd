@@ -144,7 +144,8 @@
                     </div>
                     <div class="media-body">
                         <h6 class="mt-1 mb-2">Selamat datang di akun Anda, {{ auth()->user()->name }} !</h6>
-                        <p class="mb-0">Semoga hari Anda menyenangkan dan penuh semangat dalam menjalankan aktivitas. Terima
+                        <p class="mb-0">Semoga hari Anda menyenangkan dan penuh semangat dalam menjalankan aktivitas.
+                            Terima
                             kasih telah menjadi bagian dari sistem inventaris kami.</p>
                     </div>
                 </div>
@@ -178,10 +179,61 @@
             </div>
         </div>
     </div>
+    @if (!empty($jadwal_imsak))
+        <div class="row mt-4">
+            <div class="col-xl-12">
+                <div class="card card-custom">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Jadwal Imsakiyah - {{ $jadwal_imsak['provinsi'] ?? '-' }},
+                            {{ $jadwal_imsak['kabkota'] ?? '-' }}</h5>
+                        <small>Tahun Hijriyah: {{ $jadwal_imsak['hijriah'] ?? '-' }}, Masehi:
+                            {{ $jadwal_imsak['masehi'] ?? '-' }}</small>
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-bordered table-hover table-sm mb-0">
+                            <thead>
+                                <tr class="table-primary">
+                                    <th class="text-center">Tanggal</th>
+                                    <th class="text-center">Imsak</th>
+                                    <th class="text-center">Subuh</th>
+                                    <th class="text-center">Terbit</th>
+                                    <th class="text-center">Dhuha</th>
+                                    <th class="text-center">Dzuhur</th>
+                                    <th class="text-center">Ashar</th>
+                                    <th class="text-center">Maghrib</th>
+                                    <th class="text-center">Isya</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($jadwal_imsak['imsakiyah'] ?? [] as $row)
+                                    <tr>
+                                        <td class="text-center">{{ $row['tanggal'] ?? '-' }}</td>
+                                        <td class="text-center">{{ $row['imsak'] ?? '-' }}</td>
+                                        <td class="text-center">{{ $row['subuh'] ?? '-' }}</td>
+                                        <td class="text-center">{{ $row['terbit'] ?? '-' }}</td>
+                                        <td class="text-center">{{ $row['dhuha'] ?? '-' }}</td>
+                                        <td class="text-center">{{ $row['dzuhur'] ?? '-' }}</td>
+                                        <td class="text-center">{{ $row['ashar'] ?? '-' }}</td>
+                                        <td class="text-center">{{ $row['maghrib'] ?? '-' }}</td>
+                                        <td class="text-center">{{ $row['isya'] ?? '-' }}</td>
+                                    </tr>
+                                @endforeach
+                                @if (empty($jadwal_imsak['imsakiyah']))
+                                    <tr>
+                                        <td colspan="9" class="text-center">Jadwal tidak tersedia.</td>
+                                    </tr>
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 @endsection
 @push('js')
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             var ctx = document.getElementById('pieChart').getContext('2d');
             var pieChart = new Chart(ctx, {
                 type: 'pie',

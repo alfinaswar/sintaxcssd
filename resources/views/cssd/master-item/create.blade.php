@@ -32,13 +32,13 @@
         }
     </style>
     @push('js')
-    <script>
-        @if ($errors->any())
-            @foreach ($errors->all() as $error)
-                toastr.error(`{{ $error }}`, "Gagal");
-            @endforeach
-        @endif
-    </script>
+        <script>
+            @if ($errors->any())
+                @foreach ($errors->all() as $error)
+                    toastr.error(`{{ $error }}`, "Gagal");
+                @endforeach
+            @endif
+        </script>
     @endpush
     <div class="kt-portlet">
         <div class="kt-portlet__head">
@@ -64,9 +64,8 @@
                 </div>
             </div>
         </div> --}}
-        <form class="kt-form kt-form--label-right" id="simpanFrom"
-            action="{{ route('master-cssd.cssd-master-item.store') }}" method="POST" accept-charset="utf-8"
-            enctype="multipart/form-data">
+        <form class="kt-form kt-form--label-right" id="simpanFrom" action="{{ route('master-cssd.cssd-master-item.store') }}"
+            method="POST" accept-charset="utf-8" enctype="multipart/form-data">
             @csrf
             <div class="kt-portlet__body">
                 <div class="row">
@@ -75,8 +74,8 @@
                             <label for="nama" class="col-2 col-form-label">Kode Grafir</label>
                             <div class="col-8">
                                 <input class="form-control {{ $errors->has('KodeGrafir') ? 'is-invalid' : '' }}"
-                                    name="KodeGrafir" value="{{ old('KodeGrafir') }}" placeholder="Kode Grafir" type="text"
-                                    id="serial_number">
+                                    name="KodeGrafir" value="{{ old('KodeGrafir') }}" placeholder="Kode Grafir"
+                                    type="text" id="serial_number">
                                 <small class="form-text text-danger">Hanya diisi jika sudah terlanjur tergrafir.</small>
                                 @if ($errors->has('Nama'))
                                     <div class="invalid-feedback">
@@ -92,7 +91,8 @@
                                     name="Nama" id="Nama">
                                     <option value="">Pilih Nama</option>
                                     @foreach ($masteritem as $NamaItem)
-                                        <option value="{{ $NamaItem->id ?? '' }}" {{ old('Nama') == ($NamaItem->id ?? '') ? 'selected' : '' }}
+                                        <option value="{{ $NamaItem->id ?? '' }}"
+                                            {{ old('Nama') == ($NamaItem->id ?? '') ? 'selected' : '' }}
                                             data-merk="{{ $NamaItem->getMerkGroup->Merk ?? '' }}">
                                             {{ $NamaItem->Nama ?? '' }} - {{ $NamaItem->Kode ?? '' }} -
                                             {{ $NamaItem->getMerkGroup->Merk ?? '' }}
@@ -127,7 +127,8 @@
                                     style="pointer-events: none; background-color: #e9ecef; color: #495057;">
                                     <option value="">Pilih Merk</option>
                                     @foreach ($merks as $merkItem)
-                                        <option value="{{ $merkItem->id }}" {{ old('Merk') == $merkItem->id ? 'selected' : '' }}>
+                                        <option value="{{ $merkItem->id }}"
+                                            {{ old('Merk') == $merkItem->id ? 'selected' : '' }}>
                                             {{ $merkItem->Merk }}
                                         </option>
                                     @endforeach
@@ -168,8 +169,8 @@
                             <label for="tipe_baru" class="col-2 col-form-label">* Tipe Baru</label>
                             <div class="col-8">
                                 <input class="form-control {{ $errors->has('tipe_baru') ? 'is-invalid' : '' }}"
-                                    name="tipe_baru" value="{{ old('tipe_baru') }}" placeholder="Nama Tipe Baru" type="text"
-                                    id="tipe_baru">
+                                    name="tipe_baru" value="{{ old('tipe_baru') }}" placeholder="Nama Tipe Baru"
+                                    type="text" id="tipe_baru">
                                 @if ($errors->has('tipe_baru'))
                                     <div class="invalid-feedback">
                                         {{ $errors->first('tipe_baru') }}
@@ -199,8 +200,14 @@
                                     class="form-control select2 {{ $errors->has('TahunPerolehan') ? 'is-invalid' : '' }}"
                                     name="TahunPerolehan" id="tahun_perolehan" required>
                                     <option value="">Pilih Tahun</option>
-                                    @for ($year = 2025; $year >= 2010; $year--)
-                                        <option value="{{ $year }}" {{ old('TahunPerolehan') == $year ? 'selected' : '' }}>
+                                    @php
+                                        $currentYear = date('Y');
+                                        $startYear = $currentYear - 10;
+                                        $endYear = $currentYear + 5;
+                                    @endphp
+                                    @for ($year = $endYear; $year >= $startYear; $year--)
+                                        <option value="{{ $year }}"
+                                            @if (old('TahunPerolehan', $currentYear) == $year) selected @endif>
                                             {{ $year }}
                                         </option>
                                     @endfor
@@ -242,7 +249,8 @@
                                     name="Satuan" id="Satuan">
                                     <option value="">Pilih Satuan</option>
                                     @foreach ($Satuan as $t)
-                                        <option value="{{ $t->id }}" {{ old('Satuan') == $t->id ? 'selected' : '' }}>
+                                        <option value="{{ $t->id }}"
+                                            {{ old('Satuan') == $t->id ? 'selected' : '' }}>
                                             {{ $t->Satuan }}
                                         </option>
                                     @endforeach
@@ -278,11 +286,13 @@
                                     name="Supplier" id="Supplier">
                                     <option value="">Pilih Supplier</option>
                                     @foreach ($Supplier as $t)
-                                        <option value="{{ $t->id }}" {{ old('Supplier') == $t->id ? 'selected' : '' }}>
+                                        <option value="{{ $t->id }}"
+                                            {{ old('Supplier') == $t->id ? 'selected' : '' }}>
                                             {{ $t->Nama }}
                                         </option>
                                     @endforeach
-                                    <option value="SupplierBaru" {{ old('Supplier') == 'SupplierBaru' ? 'selected' : '' }}> +
+                                    <option value="SupplierBaru"
+                                        {{ old('Supplier') == 'SupplierBaru' ? 'selected' : '' }}> +
                                         Tambah Supplier
                                     </option>
                                 </select>
@@ -296,8 +306,9 @@
                         <div class="form-group row" id="supplier_baru_group" style="display: none;">
                             <label for="supplier_baru" class="col-2 col-form-label">* Supplier Baru</label>
                             <div class="col-8">
-                                <input class="form-control {{ $errors->has('supplier_baru') ? 'is-invalid' : '' }}" name="supplier_baru"
-                                    value="{{ old('supplier_baru') }}" placeholder="Nama Supplier Baru" type="text" id="supplier_baru">
+                                <input class="form-control {{ $errors->has('supplier_baru') ? 'is-invalid' : '' }}"
+                                    name="supplier_baru" value="{{ old('supplier_baru') }}"
+                                    placeholder="Nama Supplier Baru" type="text" id="supplier_baru">
                                 @if ($errors->has('supplier_baru'))
                                     <div class="invalid-feedback">
                                         {{ $errors->first('supplier_baru') }}
@@ -348,8 +359,8 @@
                                     <p style="margin: 0 0 10px 0;">Seret dan lepas gambar di sini atau klik untuk memilih
                                         file</p>
                                     <input class="form-upload {{ $errors->has('Gambar') ? 'is-invalid' : '' }}"
-                                        name="Gambar" type="file" id="gambar" style="display: none;" accept="image/*"
-                                        onchange="previewImage(this)">
+                                        name="Gambar" type="file" id="gambar" style="display: none;"
+                                        accept="image/*" onchange="previewImage(this)">
                                     <div id="preview" style="margin-top: 10px;"></div>
                                 </div>
                                 @if ($errors->has('Gambar'))
@@ -378,27 +389,27 @@
 @endsection
 @push('js')
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             var dropArea = document.getElementById('drop-area');
             var fileInput = document.getElementById('gambar');
 
-            dropArea.addEventListener('click', function () {
+            dropArea.addEventListener('click', function() {
                 fileInput.click();
             });
 
-            dropArea.addEventListener('dragover', function (e) {
+            dropArea.addEventListener('dragover', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 dropArea.classList.add('dragover');
             });
 
-            dropArea.addEventListener('dragleave', function (e) {
+            dropArea.addEventListener('dragleave', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 dropArea.classList.remove('dragover');
             });
 
-            dropArea.addEventListener('drop', function (e) {
+            dropArea.addEventListener('drop', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 dropArea.classList.remove('dragover');
@@ -414,7 +425,7 @@
             preview.innerHTML = '';
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
-                reader.onload = function (e) {
+                reader.onload = function(e) {
                     preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview Gambar">';
                 }
                 reader.readAsDataURL(input.files[0]);
@@ -426,7 +437,7 @@
             var preview = document.getElementById('preview');
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
-                reader.onload = function (e) {
+                reader.onload = function(e) {
                     preview.innerHTML = '<img src="' + e.target.result +
                         '" style="max-width: 100%; max-height: 100px;">';
                 }
@@ -461,7 +472,7 @@
             $("#simpanFrom").submit();
         }
 
-        jQuery(document).ready(function () {
+        jQuery(document).ready(function() {
             $('.progress').hide();
 
             // Initialize Select2
@@ -471,7 +482,7 @@
             });
 
 
-            $('#Tipe').on('change', function () {
+            $('#Tipe').on('change', function() {
                 var selectedValue = $(this).val();
                 if (selectedValue === 'TipeBaru') {
                     $('#tipe_baru_group').show();
@@ -482,7 +493,7 @@
                     $('#tipe_baru').val('');
                 }
             });
-            $('#Satuan').on('change', function () {
+            $('#Satuan').on('change', function() {
                 var selectedValue = $(this).val();
                 if (selectedValue === 'SatuanBaru') {
                     $('#satuan_baru_group').show();
@@ -493,7 +504,7 @@
                     $('#satuan_baru').val('');
                 }
             });
-             $('#Supplier').on('change', function () {
+            $('#Supplier').on('change', function() {
                 var selectedValue = $(this).val();
                 if (selectedValue === 'SupplierBaru') {
                     $('#supplier_baru_group').show();
@@ -505,11 +516,11 @@
                 }
             });
             // Ketika Nama dipilih, otomatis set Merk sesuai data-merk pada option Nama
-            $('#Nama').on('change', function () {
+            $('#Nama').on('change', function() {
                 var merk = $('#Nama option:selected').data('merk');
                 if (merk) {
                     var found = false;
-                    $('#merk option').each(function () {
+                    $('#merk option').each(function() {
                         if ($(this).text().trim() === merk) {
                             $(this).prop('selected', true);
                             found = true;
