@@ -184,7 +184,7 @@
             <div class="card card-custom">
                 <div class="card-header bg-light" id="jadwal-header">
                     <h5 class="mb-0">
-                        <span role="img" aria-label="Jadwal">🕌</span> Jadwal Imsakiyah - <span
+                        <span role="img" aria-label="Jadwal">🕌</span> Jadwal Imsakiyah Hari Ini - <span
                             id="jadwal-provinsi">-</span>, <span id="jadwal-kabkota">-</span>
                     </h5>
                     <small>
