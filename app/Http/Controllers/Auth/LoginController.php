@@ -23,7 +23,7 @@ class LoginController extends Controller
     protected function attemptLogin(Request $request)
     {
         $user = User::where($this->username(), $request->username)->first();
-
+        dd($user);
         // if ($user && $user->Status === 'N') {
         //     session()->flash('error', 'Akun sudah tidak aktif.');
         //     return false;
