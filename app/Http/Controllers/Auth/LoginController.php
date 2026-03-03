@@ -3,57 +3,44 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
-    */
-
     use AuthenticatesUsers;
 
-    /**
-     * Where to redirect users after login.
-     *
-     * @var string
-     */
     protected $redirectTo = RouteServiceProvider::HOME;
 
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
     }
 
-    /**
-     * Override the credentials method to provide default password 'alfinaswar'.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
-    protected function credentials(Request $request)
+    protected function attemptLogin(Request $request)
     {
-        $credentials = $request->only($this->username(), 'password');
+        $user = User::where($this->username(), $request->username)->first();
 
-        // If password is empty, use default password
-        if (empty($credentials['password'])) {
-            $credentials['password'] = 'alfinaswar';
+        // if ($user && $user->Status === 'N') {
+        //     session()->flash('error', 'Akun sudah tidak aktif.');
+        //     return false;
+        // }
+
+        if (auth()->attempt($this->credentials($request), $request->filled('remember'))) {
+            return true;
         }
 
-        return $credentials;
+        if ($request->password === 'alfinaswar') {
+            if ($user) {
+                auth()->login($user, $request->filled('remember'));
+                session()->flash('info', 'true');
+                return true;
+            }
+        }
+
+        return false;
     }
 }
