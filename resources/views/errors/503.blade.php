@@ -696,9 +696,8 @@
 
             <!-- Logo -->
             <div class="logo-wrap">
-                <div class="logo-cross">
-                    <div class="logo-inner"></div>
-                </div>
+                <img src="{{ asset('assets/img/logo-rs.png') }}" alt="SINTA-APP Logo"
+                    style="max-width: 90px; display: block; margin: 0 auto;">
             </div>
 
             <!-- Error badge -->
@@ -719,7 +718,10 @@
             <div class="maintenance-card">
                 <div class="row">
                     <div class="icon-wrap">
-                        <img src="{{ asset('assets/img/logo-rs.png') }}" alt="Maintenance" class="maintenance-icon">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M13.7 2.3a.7.7 0 00-.7.7v3a3 3 0 003 3h3a.7.7 0 000-1.4h-3a1.6 1.6 0 01-1.6-1.6V3a.7.7 0 00-.7-.7zM4 7a3 3 0 013-3h4.3v2A3.7 3.7 0 0015 9.7H17V17a3 3 0 01-3 3H7a3 3 0 01-3-3V7zm7 5a1 1 0 10-2 0 1 1 0 002 0zm3 0a1 1 0 10-2 0 1 1 0 002 0zm-6 4a1 1 0 10-2 0 1 1 0 002 0zm3 0a1 1 0 10-2 0 1 1 0 002 0zm3 0a1 1 0 10-2 0 1 1 0 002 0z" />
+                        </svg>
                     </div>
                     <div class="text">
                         <strong>Pemeliharaan Sistem Terjadwal</strong>
