@@ -693,13 +693,6 @@
 
         <!-- LEFT: Error Card -->
         <div class="panel-left">
-
-            <!-- Logo -->
-            <div class="logo-wrap">
-                <img src="{{ asset('assets/img/logo-rs.png') }}" alt="SINTA-APP Logo"
-                    style="max-width: 90px; display: block; margin: 0 auto;">
-            </div>
-
             <!-- Error badge -->
             <div class="error-badge">
                 <span class="dot"></span>
@@ -732,7 +725,7 @@
             </div>
 
             <!-- Progress -->
-            <div class="progress-wrap">
+            {{-- <div class="progress-wrap">
                 <div class="progress-label">
                     <span>Progress Maintenance</span>
                     <span id="pct">68%</span>
@@ -740,7 +733,7 @@
                 <div class="progress-bar">
                     <div class="progress-fill"></div>
                 </div>
-            </div>
+            </div> --}}
 
             <!-- Back button -->
             <button class="btn-back" onclick="window.location.reload()">
