@@ -238,6 +238,8 @@ Route::prefix('preventif-maintanance')->group(function () {
     Route::post('/AddPm', [MaintananceController::class, 'AddPm'])->name('maintanance.AddPm');
     Route::get('/get-item', [MaintananceController::class, 'getItem'])->name('maintanance.get-item');
     Route::get('/destroy', [MaintananceController::class, 'destroy'])->name('maintanance.destroy');
+    Route::get('/maintanance/{id}/edit-ajax', [MaintananceController::class, 'edit'])->name('maintanance.edit.ajax');
+    Route::put('/maintanance/{id}', [MaintananceController::class, 'update'])->name('maintanance.update');
 
     Route::get('/export', [MaintananceController::class, 'export'])->name('maintanance.export');
 });

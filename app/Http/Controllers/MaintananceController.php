@@ -26,7 +26,6 @@ class MaintananceController extends Controller
         if ($request->ajax()) {
             $user = auth()->user();
 
-            // 1. OPTIMASI UTAMA: Gunakan Query Builder, HAPUS ->get()
             $query = Maintanance::with('getInventaris');
 
             if ($user->role !== "admin") {
@@ -34,10 +33,31 @@ class MaintananceController extends Controller
             }
 
             return DataTables::of($query)
+                // ✅ TAMBAHKAN INI: Handle global search ke relasi
+                ->filter(function ($query) use ($request) {
+                    if ($request->has('search') && !empty($request->search['value'])) {
+                        $keyword = $request->search['value'];
+                        $query->where(function ($q) use ($keyword) {
+                            $q->where('kode_item', 'like', "%{$keyword}%")
+                                ->orWhere('keterangan', 'like', "%{$keyword}%")
+                                ->orWhere('status', 'like', "%{$keyword}%")
+                                ->orWhereHas('getInventaris', function ($sub) use ($keyword) {
+                                    $sub->where(function ($ss) use ($keyword) {
+                                        $ss->where('nama', 'like', "%{$keyword}%")
+                                            ->orWhere('no_inventaris', $keyword)
+                                            ->orWhere('no_sn', 'like', "%{$keyword}%");
+                                    });
+                                });
+
+                        });
+                    }
+                }, true)
+
+
+
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    $btnEdit = '<a href="javascript:void(0)" onclick="editMaintanance(' . $row->id . ')" class="btn btn-outline-warning btn-icon" data-toggle="kt-tooltip" data-placement="top" title="Edit Data"><i class="fa fa-edit"></i></a> ';
-
+                    $btnEdit = '<a href="javascript:void(0)" onclick="openEditModal(' . $row->id . ')" class="btn btn-outline-warning btn-icon" data-toggle="kt-tooltip" data-placement="top" title="Edit Data"><i class="fa fa-edit"></i></a> ';
 
                     $btnDelete = '<form action="' . route('maintanance.destroy', $row->id) . '" method="POST" style="display:inline;" onsubmit="return confirm(\'Apakah Anda yakin ingin menghapus data ini?\')">'
                         . csrf_field() . method_field('DELETE')
@@ -47,7 +67,6 @@ class MaintananceController extends Controller
                     return $btnEdit . $btnDelete;
                 })
                 ->addColumn('bulan', function ($row) {
-                    // Tampilkan Bulan dan Tahun
                     $months = [
                         1 => 'Januari',
                         2 => 'Februari',
@@ -64,29 +83,19 @@ class MaintananceController extends Controller
                     ];
                     $bulan = $months[$row->bulan] ?? '-';
                     $tahun = $row->created_at ? date('Y', strtotime($row->created_at)) : '-';
-
                     return $bulan . ' ' . $tahun;
                 })
-
                 ->editColumn('kode_item', function ($row) {
                     if ($row->getInventaris) {
                         return $row->getInventaris->no_inventaris . ' - ' . $row->getInventaris->nama;
                     }
                     return $row->kode_item ?? '-';
                 })
-                // 3. OPTIMASI SEARCH: Agar pencarian "Nama Barang" berfungsi di DataTables
-                ->filterColumn('kode_item', function ($query, $keyword) {
-                    $query->where('kode_item', 'like', "%{$keyword}%")
-                        ->orWhereHas('getInventaris', function ($q) use ($keyword) {
-                            $q->where('nama', 'like', "%{$keyword}%")
-                                ->orWhere('no_inventaris', 'like', "%{$keyword}%");
-                        });
-                })
+                // ✅ HAPUS filterColumn untuk kode_item (sudah handle di filter global)
                 ->addColumn('status', function ($row) {
-                    // 4. BUG FIX: Gunakan '==' (perbandingan) bukan '=' (assignment)
                     return $row->status == 1 ? "Sudah Maintenance" : "Belum Maintenance";
                 })
-                ->rawColumns(['action']) // Hanya action yang berisi HTML mentah
+                ->rawColumns(['action'])
                 ->make(true);
         }
 
@@ -207,7 +216,14 @@ class MaintananceController extends Controller
      */
     public function edit($id)
     {
-        //
+        if (request()->ajax()) {
+            $data = Maintanance::with('getInventaris')->findOrFail($id);
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ]);
+        }
+        return redirect()->route('maintanance.index');
     }
 
     /**
@@ -219,7 +235,28 @@ class MaintananceController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'bulan' => 'required|integer|min:1|max:12',
+            'status' => 'required|in:1,2',
+            'keterangan' => 'nullable|string|max:500'
+        ]);
+
+        $maintanance = Maintanance::findOrFail($id);
+        if (auth()->user()->role !== 'admin' && $maintanance->kodeRS !== auth()->user()->kodeRS) {
+            return response()->json(['success' => false, 'message' => 'Akses ditolak'], 403);
+        }
+
+        $maintanance->update([
+            'bulan' => $request->bulan,
+            'status' => $request->status,
+            'keterangan' => $request->keterangan,
+        ]);
+
+        if ($request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Data berhasil diupdate']);
+        }
+
+        return redirect()->route('maintanance.index')->with('success', 'Data berhasil diupdate');
     }
 
     /**
