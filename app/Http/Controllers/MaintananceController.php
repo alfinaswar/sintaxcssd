@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\MaintananceExport;
 use App\Models\MasterRs;
 use App\Models\Maintanance;
 use Illuminate\Http\Request;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\DataInventaris;
 use App\Models\MasalahModel;
 use App\Models\KalibrasiModel;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MaintananceController extends Controller
 {
@@ -22,47 +24,72 @@ class MaintananceController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            if (auth()->user()->role == "admin") {
-                $data = Maintanance::
-                    join('data_inventaris', 'data_inventaris.kode_item', '=', 'maintanance.kode_item')
-                    ->join('master_rs', 'master_rs.kodeRS', '=', 'maintanance.nama_rs')
-                    ->select('data_inventaris.nama as nama', 'maintanance.bulan as bulan', 'maintanance.status as status', 'maintanance.keterangan as keterangan', 'master_rs.nama as namars')
-                    ->get();
-            } else {
-                $data = Maintanance::
-                    join('data_inventaris', 'data_inventaris.kode_item', '=', 'maintanance.kode_item')
-                    ->join('master_rs', 'master_rs.kodeRS', '=', 'maintanance.nama_rs')
-                    ->select('data_inventaris.nama as nama', 'maintanance.bulan as bulan', 'maintanance.status as status', 'maintanance.keterangan as keterangan', 'master_rs.nama as namars')
-                    ->where('kodeRS', auth()->user()->kodeRS)
-                    ->get();
+            $user = auth()->user();
 
+            // 1. OPTIMASI UTAMA: Gunakan Query Builder, HAPUS ->get()
+            $query = Maintanance::with('getInventaris');
+
+            if ($user->role !== "admin") {
+                $query->where('kodeRS', $user->kodeRS);
             }
-            return DataTables::of($data)
+
+            return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    $show = '<a href="' . route('maintanance.destroy', $row->id) . '" target="_blank"><button type="button" data-skin="brand" data-toggle="kt-tooltip" data-placement="top" title="Brand skin" class="btn btn-outline-primary btn-icon" ><i class="fa fa-trash"></i></button></a>';
-                    $btnlihat = '';
-                    $btnupdate = '';
+                    $btnEdit = '<a href="javascript:void(0)" onclick="editMaintanance(' . $row->id . ')" class="btn btn-outline-warning btn-icon" data-toggle="kt-tooltip" data-placement="top" title="Edit Data"><i class="fa fa-edit"></i></a> ';
 
-                    // $print = '<a href="' . route('kalibrasi.store', $row->kode_item) . '" target="_blank"><button type="button" data-skin="brand" data-toggle="kt-tooltip" data-placement="top" title="Brand skin" class="btn btn-outline-primary btn-icon" ><i class="fa fa-print"></i></button></a>';
-                    $btn = $show;
-                    return $btn = $show;
+
+                    $btnDelete = '<form action="' . route('maintanance.destroy', $row->id) . '" method="POST" style="display:inline;" onsubmit="return confirm(\'Apakah Anda yakin ingin menghapus data ini?\')">'
+                        . csrf_field() . method_field('DELETE')
+                        . '<button type="submit" data-skin="brand" data-toggle="kt-tooltip" data-placement="top" title="Hapus Data" class="btn btn-outline-danger btn-icon"><i class="fa fa-trash"></i></button>'
+                        . '</form>';
+
+                    return $btnEdit . $btnDelete;
                 })
                 ->addColumn('bulan', function ($row) {
-                    $show = Carbon::create()->month($row->bulan)->format('F');
-                    return $show;
+                    // Tampilkan Bulan dan Tahun
+                    $months = [
+                        1 => 'Januari',
+                        2 => 'Februari',
+                        3 => 'Maret',
+                        4 => 'April',
+                        5 => 'Mei',
+                        6 => 'Juni',
+                        7 => 'Juli',
+                        8 => 'Agustus',
+                        9 => 'September',
+                        10 => 'Oktober',
+                        11 => 'November',
+                        12 => 'Desember'
+                    ];
+                    $bulan = $months[$row->bulan] ?? '-';
+                    $tahun = $row->created_at ? date('Y', strtotime($row->created_at)) : '-';
+
+                    return $bulan . ' ' . $tahun;
+                })
+
+                ->editColumn('kode_item', function ($row) {
+                    if ($row->getInventaris) {
+                        return $row->getInventaris->no_inventaris . ' - ' . $row->getInventaris->nama;
+                    }
+                    return $row->kode_item ?? '-';
+                })
+                // 3. OPTIMASI SEARCH: Agar pencarian "Nama Barang" berfungsi di DataTables
+                ->filterColumn('kode_item', function ($query, $keyword) {
+                    $query->where('kode_item', 'like', "%{$keyword}%")
+                        ->orWhereHas('getInventaris', function ($q) use ($keyword) {
+                            $q->where('nama', 'like', "%{$keyword}%")
+                                ->orWhere('no_inventaris', 'like', "%{$keyword}%");
+                        });
                 })
                 ->addColumn('status', function ($row) {
-                    if ($row->status = "1") {
-                        $status = "Sudah Maintenance";
-                    } else {
-                        $status = "Belum Maintenance";
-                    }
-                    return $status;
+                    // 4. BUG FIX: Gunakan '==' (perbandingan) bukan '=' (assignment)
+                    return $row->status == 1 ? "Sudah Maintenance" : "Belum Maintenance";
                 })
-                ->rawColumns(['action', 'bulan', 'status'])
+                ->rawColumns(['action']) // Hanya action yang berisi HTML mentah
                 ->make(true);
         }
+
         $rs = MasterRs::all();
         return view('maintanance.index', compact('rs'));
     }
@@ -76,7 +103,33 @@ class MaintananceController extends Controller
     {
         //
     }
+    public function export(Request $request)
+    {
+        $request->validate([
+            'filter_rs' => 'nullable|string',
+            'bulan_awal' => 'required|integer|min:1|max:12',
+            'bulan_akhir' => 'required|integer|min:1|max:12',
+            'tahun' => 'required|integer'
+        ]);
 
+        $filterRs = auth()->user()->role == 'admin' ? $request->filter_rs : auth()->user()->kodeRS;
+
+        if ($request->bulan_awal > $request->bulan_akhir) {
+            return back()->with('error', 'Bulan awal tidak boleh lebih besar dari bulan akhir');
+        }
+
+        $filename = 'Laporan_Preventif_Maintenance_' . $request->tahun . '_' . date('YmdHis');
+
+        return Excel::download(
+            new MaintananceExport(
+                $filterRs,
+                $request->bulan_awal,
+                $request->bulan_akhir,
+                $request->tahun
+            ),
+            $filename . '.xlsx'
+        );
+    }
     /**
      * Store a newly created resource in storage.
      *

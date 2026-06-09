@@ -18,7 +18,7 @@
                     <div class="kt-portlet__head-actions">
 
 
-                        @if(auth()->user()->role == 'DKH')
+                        @if (auth()->user()->role == 'DKH')
                         @else
                             <a href="{{ route('inventaris.create') }}" class="btn btn-brand btn-elevate btn-icon-sm">
                                 <i class="la la-plus"></i>
@@ -57,7 +57,8 @@
                                 <select name="filter_rs" class="custom-select form-control filterRS" id="filter_rs">
                                     <option value="" selected>--Pilih RS--</option>
                                     @foreach ($rs as $item)
-                                        <option value="{{ $item->kodeRS }}" {{ old('kodeRs') == $item->kodeRS ? 'selected' : '' }}>
+                                        <option value="{{ $item->kodeRS }}"
+                                            {{ old('kodeRs') == $item->kodeRS ? 'selected' : '' }}>
                                             {{ $item->nama }}
                                         </option>
                                     @endforeach
@@ -75,7 +76,8 @@
                                 <select name="filter_rs" class="custom-select form-control filterRS" id="filter_rs">
                                     <option value="" selected>--Pilih RS--</option>
                                     @foreach ($rs->where('kodeRS', auth()->user()->kodeRS) as $item)
-                                        <option value="{{ $item->kodeRS }}" {{ old('kodeRs') == $item->kodeRS ? 'selected' : '' }}>
+                                        <option value="{{ $item->kodeRS }}"
+                                            {{ old('kodeRs') == $item->kodeRS ? 'selected' : '' }}>
                                             {{ $item->nama }}
                                         </option>
                                     @endforeach
@@ -188,7 +190,8 @@
 
 @endsection
 @push('css')
-    <link href="{{ asset('') }}assets/vendors/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('') }}assets/vendors/custom/datatables/datatables.bundle.css" rel="stylesheet"
+        type="text/css" />
 @endpush
 @push('js')
     <script src="{{ asset('') }}assets/vendors/custom/datatables/datatables.bundle.js" type="text/javascript"></script>
@@ -203,7 +206,7 @@
         @endif
     </script>
     <script>
-                            var dataTable = function () {
+        var dataTable = function() {
             var table = $('#kt_table_1');
             table.DataTable({
                 responsive: true,
@@ -216,7 +219,7 @@
                 },
                 ajax: {
                     url: "{{ route('inventaris.index') }}",
-                    data: function (d) {
+                    data: function(d) {
                         d.filter_pengguna = $('#filter_pengguna').val(),
                             d.filter_rs = $('#filter_rs').val(),
                             d.filter_departemen = $('#filter_departemen').val(),
@@ -227,58 +230,58 @@
                     }
                 },
                 columns: [{
-                    data: 'DT_RowIndex',
-                    name: 'DT_RowIndex',
-                    orderable: false,
-                    searchable: false
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
 
-                },
-                {
-                    data: 'kode_item',
-                    name: 'kode_item'
-                },
-                {
-                    data: 'nama',
-                    name: 'nama'
-                },
-                {
-                    data: 'no_inventaris',
-                    name: 'no_inventaris'
-                },
-                {
-                    data: 'no_sn',
-                    name: 'no_sn'
-                },
-                {
-                    data: 'nama_rs',
-                    name: 'nama_rs'
-                },
-                {
-                    data: 'departemen',
-                    name: 'departemen'
-                },
-                {
-                    data: 'unit',
-                    name: 'unit'
-                },
-                {
-                    data: 'pengguna',
-                    name: 'pengguna'
-                },
-                {
-                    data: 'tahun_beli',
-                    name: 'tahun_beli'
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false
-                },
+                    },
+                    {
+                        data: 'kode_item',
+                        name: 'kode_item'
+                    },
+                    {
+                        data: 'real_name',
+                        name: 'real_name'
+                    },
+                    {
+                        data: 'no_inventaris',
+                        name: 'no_inventaris'
+                    },
+                    {
+                        data: 'no_sn',
+                        name: 'no_sn'
+                    },
+                    {
+                        data: 'nama_rs',
+                        name: 'nama_rs'
+                    },
+                    {
+                        data: 'departemen',
+                        name: 'departemen'
+                    },
+                    {
+                        data: 'unit',
+                        name: 'unit'
+                    },
+                    {
+                        data: 'pengguna',
+                        name: 'pengguna'
+                    },
+                    {
+                        data: 'tahun_beli',
+                        name: 'tahun_beli'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    },
                 ]
             })
         };
-        var delete_data = function (e, id) {
+        var delete_data = function(e, id) {
             e.preventDefault()
             var url = "{{ route('inventaris.destroy', 'id') }}"
             url = url.replace('id', id)
@@ -293,7 +296,7 @@
                 cancelButtonText: "<i class='la la-close'></i>Tidak, cancel!",
                 cancelButtonClass: "btn btn-default",
                 reverseButtons: true
-            }).then(function (result) {
+            }).then(function(result) {
                 if (result.value) {
                     $.ajax({
                         type: "DELETE",
@@ -303,7 +306,7 @@
                             "_token": "{{ csrf_token() }}",
                         },
                         dataType: "json",
-                        beforeSend: function () {
+                        beforeSend: function() {
                             KTApp.block('.kt-portlet__body', {
                                 overlayColor: '#000000',
                                 type: 'v2',
@@ -312,7 +315,7 @@
                             });
                             $('.progress').show()
                         },
-                        success: function (res) {
+                        success: function(res) {
                             dataTable()
                             if (res.msg) {
                                 swal.fire(
@@ -322,7 +325,7 @@
                                 )
                             }
                         },
-                        complete: function () {
+                        complete: function() {
                             KTApp.unblock('.kt-portlet__body');
                             $('.progress').hide()
                         }
@@ -330,8 +333,8 @@
                 }
             });
         }
-        var select_unit = function () {
-            $('#filter_rs').on('change', function () {
+        var select_unit = function() {
+            $('#filter_rs').on('change', function() {
                 let rs = $('#filter_rs').val();
                 $('#filter_unit').select2({
                     placeholder: "Select Data",
@@ -340,9 +343,9 @@
                         url: "{{ route('inventaris.getDeptHis') }}?rs=" + rs,
                         dataType: 'json',
                         delay: 250,
-                        processResults: function (data) {
+                        processResults: function(data) {
                             return {
-                                results: $.map(data, function (item, key) {
+                                results: $.map(data, function(item, key) {
                                     return {
                                         text: item,
                                         id: key
@@ -360,9 +363,9 @@
                         url: "{{ route('master.AmbilDepartemen') }}?rs=" + rs,
                         dataType: 'json',
                         delay: 250,
-                        processResults: function (data) {
+                        processResults: function(data) {
                             return {
-                                results: $.map(data, function (item, key) {
+                                results: $.map(data, function(item, key) {
                                     return {
                                         text: item,
                                         id: item
@@ -375,7 +378,7 @@
                 });
             })
         }
-        var select_unit_non = function () {
+        var select_unit_non = function() {
             $('#unit').select2({
                 placeholder: "--Pilih Unit--",
                 minimumInputLength: 1,
@@ -383,9 +386,9 @@
                     url: '{{ route('inventaris.get-unit-his') }}',
                     dataType: 'json',
                     delay: 250,
-                    processResults: function (data) {
+                    processResults: function(data) {
                         return {
-                            results: $.map(data, function (item) {
+                            results: $.map(data, function(item) {
                                 return {
                                     text: item,
                                     id: item
@@ -397,7 +400,7 @@
                 }
             });
         }
-        jQuery(document).ready(function () {
+        jQuery(document).ready(function() {
             dataTable()
             select_unit_non()
             select_unit(),
@@ -406,15 +409,15 @@
 
         });
 
-        $('#filter_pengguna,#filter_rs,#filter_departemen,#filter_unit,#unit,#filter_pembelian').change(function () {
+        $('#filter_pengguna,#filter_rs,#filter_departemen,#filter_unit,#unit,#filter_pembelian').change(function() {
             var table = $('#kt_table_1').DataTable();
             table.draw();
         });
-        $('#filter_pencarian').keyup(function () {
+        $('#filter_pencarian').keyup(function() {
             var table = $('#kt_table_1').DataTable();
             table.draw();
         });
-        $('#btn_cetak').click(function (e) {
+        $('#btn_cetak').click(function(e) {
             e.preventDefault();
             var url = "{{ route('laporan.data-inventaris') }}";
             var params = {
@@ -430,7 +433,7 @@
                 .attr('action', url)
                 .attr('method', 'GET');
 
-            $.each(params, function (key, value) {
+            $.each(params, function(key, value) {
                 form.append($('<input/>')
                     .attr('type', 'hidden')
                     .attr('name', key)

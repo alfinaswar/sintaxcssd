@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ItemRuanganExport;
+use App\Exports\LaporanPembersihanAlat;
 use App\Models\DataInventaris;
 use App\Models\FormulirPembersihan;
 use App\Models\MasterMerk;
@@ -43,6 +45,10 @@ class FormulirPembersihanController extends Controller
         $jenis = $request->jenis;
         $alat = $request->nama;
         $rs = $request->rs;
+
+        $bulan = $request->bulan;
+        $tahun = $request->tahun;
+
         if ($jenis == 'Medis') {
             $header = 'Medis';
         } else {
@@ -50,10 +56,19 @@ class FormulirPembersihanController extends Controller
         }
         if ($request->format == 'excel') {
             $nama_file = 'laporan Monitoring Alat ' . $namaunit . '.xlsx';
-            return Excel::download(new ItemRuanganExport($unit, $jenis, $alat, $merk, $rs), $nama_file);
+            return Excel::download(new LaporanPembersihanAlat($unit, $jenis, $alat, $rs, $bulan, $tahun), $nama_file);
+
+
         } else if ($request->format == 'pdf') {
-            $query = DataInventaris::with('getLaporanMonitoring')->
-                when($unit, function ($query) use ($unit) {
+
+
+            $query = DataInventaris::with([
+                'getLaporanMonitoring' => function ($q) use ($bulan, $tahun) {
+                    $q->whereMonth('created_at', $bulan)
+                        ->whereYear('created_at', $tahun);
+                }
+            ])
+                ->when($unit, function ($query) use ($unit) {
                     return $query->where('unit', $unit);
                 })
                 ->when($alat, function ($query) use ($alat) {
@@ -68,7 +83,8 @@ class FormulirPembersihanController extends Controller
                 ->orderBy('unit', 'asc')
                 ->get();
 
-            dd($query);
+
+            // dd($query);
             $pdf = Pdf::loadView('laporan.monitoring.cetak_pdf', compact('query', 'unit', 'header'));
             return $pdf->stream('Laporan Monitoring Alat ' . $unit . '.pdf');
         }

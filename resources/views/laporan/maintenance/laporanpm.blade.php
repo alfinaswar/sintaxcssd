@@ -24,7 +24,6 @@
 
         <div class="kt-portlet__body">
             <form method="GET" action="{{ route('laporan.maintenance.excel_pm') }}" id="cetak-laporan">
-
                 <div class="row col-12">
                     @if (auth()->user()->role == 'admin')
                         <div class="col-md-3">
@@ -45,11 +44,13 @@
                             </div>
                         </div>
                     @endif
+
+                    <!-- Pilih Bulan Range -->
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label for="bulan" class="col-form-label">Pilih Bulan</label>
-                            <select name="bulan" class="form-control" id="bulan">
-                                <option value="" selected>--Pilih Bulan--</option>
+                            <label class="col-form-label">Pilih Bulan Mulai</label>
+                            <select name="bulan_mulai" class="form-control" id="bulan_mulai">
+                                <option value="" selected>--Bulan Mulai--</option>
                                 <option value="1">Januari</option>
                                 <option value="2">Februari</option>
                                 <option value="3">Maret</option>
@@ -67,6 +68,27 @@
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
+                            <label class="col-form-label">Pilih Bulan Akhir</label>
+                            <select name="bulan_akhir" class="form-control" id="bulan_akhir">
+                                <option value="" selected>--Bulan Akhir--</option>
+                                <option value="1">Januari</option>
+                                <option value="2">Februari</option>
+                                <option value="3">Maret</option>
+                                <option value="4">April</option>
+                                <option value="5">Mei</option>
+                                <option value="6">Juni</option>
+                                <option value="7">Juli</option>
+                                <option value="8">Agustus</option>
+                                <option value="9">September</option>
+                                <option value="10">Oktober</option>
+                                <option value="11">November</option>
+                                <option value="12">Desember</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
                             <label for="tahun" class="col-form-label">Pilih Tahun</label>
                             <select name="tahun" class="form-control" id="tahun">
                                 <option value="" selected>--Pilih Tahun--</option>
@@ -80,6 +102,7 @@
                             </select>
                         </div>
                     </div>
+
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="jenis_alat" class="col-form-label">Jenis Alat</label>
@@ -90,6 +113,26 @@
                             </select>
                         </div>
                     </div>
+                    <!-- Filter Kategori Risk -->
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="kategori_risk" class="col-form-label">Kategori Risk</label>
+                            <select name="kategori_risk" class="form-control" id="kategori_risk">
+                                <option value="">--Pilih Satu--</option>
+                                <option value="None" {{ old('kategori_risk') == 'None' ? 'selected' : '' }}>None</option>
+                                <option value="High Risk" {{ old('kategori_risk') == 'High Risk' ? 'selected' : '' }}>High
+                                    Risk</option>
+                                <option value="Medium Risk" {{ old('kategori_risk') == 'Medium Risk' ? 'selected' : '' }}>
+                                    Medium Risk</option>
+                                <option value="Low to Medium Risk"
+                                    {{ old('kategori_risk') == 'Low to Medium Risk' ? 'selected' : '' }}>Low to Medium Risk
+                                </option>
+                                <option value="Low Risk" {{ old('kategori_risk') == 'Low Risk' ? 'selected' : '' }}>Low Risk
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- End Filter Kategori Risk -->
                     <div class="col-md-3">
                         <div class="form-group">
                             <br><br>
@@ -98,10 +141,11 @@
                         </div>
                     </div>
                 </div>
-
             </form>
-            <div class="modal fade " id="cari-perangkat" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-                aria-hidden="true">
+
+
+            <div class="modal fade " id="cari-perangkat" tabindex="-1" role="dialog"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
 
             </div>
             <!-- Modal Cari Alat -->

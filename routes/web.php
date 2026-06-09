@@ -231,13 +231,15 @@ Route::prefix('penghapusan-aset')->group(function () {
     Route::get('/edit/{id}', [PenghapusanAsetController::class, 'edit'])->name('pa.edit');
     Route::put('/update/{id}', [PenghapusanAsetController::class, 'update'])->name('pa.update');
 });
-Route::prefix('maintanance')->group(function () {
+Route::prefix('preventif-maintanance')->group(function () {
     Route::get('/', [MaintananceController::class, 'index'])->name('maintanance.index');
     Route::get('/pm', [MaintananceController::class, 'pm'])->name('maintanance.pm');
     Route::post('/store', [MaintananceController::class, 'store'])->name('maintanance.store');
     Route::post('/AddPm', [MaintananceController::class, 'AddPm'])->name('maintanance.AddPm');
     Route::get('/get-item', [MaintananceController::class, 'getItem'])->name('maintanance.get-item');
     Route::get('/destroy', [MaintananceController::class, 'destroy'])->name('maintanance.destroy');
+
+    Route::get('/export', [MaintananceController::class, 'export'])->name('maintanance.export');
 });
 
 Route::prefix('gudang')->group(function () {

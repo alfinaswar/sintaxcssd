@@ -43,17 +43,30 @@ class ReportMaintenanceController extends Controller
     }
     public function pm(Request $request)
     {
-        $rs = MasterRs::all();
+        $rs = MasterRs::get();
         return view('laporan.maintenance.laporanpm', compact('rs'));
     }
     public function excel_pm(Request $request)
     {
-        $rs = $request->filter_rs;
-        $bulan = $request->input('bulan') ?? '';
-        $tahun = $request->input('tahun') ?? '';
-        $jenis = $request->input('jenis_alat') ?? '';
+        $bulan_mulai = $request->input('bulan_mulai');
+        $bulan_akhir = $request->input('bulan_akhir');
+        $tahun = $request->input('tahun');
+        $jenis = $request->input('jenis_alat');
+        $kategori_risk = $request->input('kategori_risk');
+        $filter_rs = $request->input('filter_rs'); // Hanya untuk admin
+        if (!$tahun) {
+            return back()->with('error', 'Tahun wajib dipilih!');
+        }
+        $nama_file = 'Laporan-Preventif-' .
+            ($bulan_mulai ? $bulan_mulai . '-' : '') .
+            ($bulan_akhir ? $bulan_akhir . '-' : '') .
+            $tahun .
+            ($jenis ? '-' . $jenis : '') .
+            '.xlsx';
 
-        $nama_file = 'laporan Preventif Maintenance ' . $request->input('bulan') . ' - ' . $request->input('tahun') . '.xlsx';
-        return Excel::download(new PmExport($bulan, $tahun, $jenis), $nama_file);
+        return Excel::download(
+            new PmExport($bulan_mulai, $bulan_akhir, $tahun, $jenis, $kategori_risk, $filter_rs),
+            $nama_file
+        );
     }
 }

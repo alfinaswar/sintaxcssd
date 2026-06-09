@@ -15,79 +15,23 @@
             </div>
             <div class="kt-portlet__head-toolbar">
                 <div class="kt-portlet__head-wrapper">
-
+                    {{-- Tombol Download Laporan --}}
+                    <button type="button" class="btn btn-success btn-sm" data-toggle="modal"
+                        data-target="#modalDownloadLaporan">
+                        <i class="la la-download"></i> Download Laporan
+                    </button>
                 </div>
             </div>
         </div>
 
         <div class="kt-portlet__body">
-            <form id="form-maintanance" action="{{ route('maintanance.store') }}" method="POST" accept-charset="utf-8"
-                enctype="multipart/form-data">
-                @csrf
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group row">
-                            <label for="nama" class="col-3 col-form-label">* Nama Alat</label>
-                            <div class=" col-lg-9 col-md-9 col-sm-12">
-                                <select class="form-control kt-select2" id="nama" name="nama">
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-3 col-form-label">* Bulan</label>
-                            <div class=" col-lg-9 col-md-9 col-sm-12">
-                                <select class="form-control kt-select2" id="bulan" name="bulan">
-                                    <option value=" " selected>--Select Bulan--</option>
-                                    <option value="1">Januari</option>
-                                    <option value="2">Februari</option>
-                                    <option value="3">Maret</option>
-                                    <option value="4">April</option>
-                                    <option value="5">Mei</option>
-                                    <option value="6">Juni</option>
-                                    <option value="7">Juli</option>
-                                    <option value="8">Agustus</option>
-                                    <option value="9">September</option>
-                                    <option value="10">Oktober</option>
-                                    <option value="11">November</option>
-                                    <option value="12">Desember</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group row">
-                            <label class="col-form-label col-lg-3 col-sm-12">Status</label>
-                            <div class=" col-lg-9 col-md-9 col-sm-12">
-                                <select class="form-control kt-select2" id="status" name="status">
-                                    <option value=" " selected>--Select Status--</option>
-                                    <option value="1">Sudah Maintanance</option>
-                                    <option value="2">Belum Maintanance</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-form-label col-lg-3 col-sm-12">Keterangan</label>
-                            <div class="col-lg-9 col-md-9 col-sm-12">
-                                <textarea name="keterangan" id="keterangan" class="form-control"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="kt-align-right">
-                            <button type="button" onclick="simpan(event,this)" class="btn btn-brand btn-hover-primari"> <i
-                                    class="la la-save"></i>Simpan</button>
-                        </div>
-                    </div>
-                </div>
-            </form>
-            <div class="kt-separator kt-separator--space-lg kt-separator--border-dashed"></div>
             <table class="table table-striped- table-bordered table-hover table-checkable" id="kt_table_1">
                 <thead class="table-primary">
                     <tr>
                         <th>No</th>
-                        <th>Nama Alat</th>
+                        <th>Nama Barang</th>
                         <th>Bulan</th>
-                        <th>Status`</th>
-                        <th>Nama RS</th>
+                        <th>Status</th>
                         <th>Keterangan</th>
                         <th>Action</th>
                     </tr>
@@ -95,14 +39,114 @@
                 <tbody>
                 </tbody>
             </table>
-            <!--end: Datatable -->
+        </div>
+    </div>
+
+    {{-- Modal Download Laporan --}}
+    <div class="modal fade" id="modalDownloadLaporan" tabindex="-1" role="dialog"
+        aria-labelledby="modalDownloadLaporanLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalDownloadLaporanLabel">Download Laporan Preventif Maintenance</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('maintanance.export') }}" method="GET" target="_blank">
+                    <div class="modal-body">
+                        <div class="row">
+                            {{-- Filter RS (Hanya tampil untuk Admin) --}}
+                            @if (auth()->user()->role == 'admin')
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="filter_rs">Rumah Sakit <span class="text-danger">*</span></label>
+                                        <select name="filter_rs" id="filter_rs" class="form-control" required>
+                                            <option value="">-- Semua RS --</option>
+                                            @foreach ($rs as $r)
+                                                <option value="{{ $r->kodeRS }}">{{ $r->nama }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            @else
+                                <input type="hidden" name="filter_rs" value="{{ auth()->user()->kodeRS }}">
+                            @endif
+
+                            {{-- Filter Tahun --}}
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="tahun">Tahun <span class="text-danger">*</span></label>
+                                    <select name="tahun" id="tahun" class="form-control" required>
+                                        <option value="">-- Pilih Tahun --</option>
+                                        @for ($i = date('Y'); $i >= date('Y') - 5; $i--)
+                                            <option value="{{ $i }}" {{ $i == date('Y') ? 'selected' : '' }}>
+                                                {{ $i }}</option>
+                                        @endfor
+                                    </select>
+                                </div>
+                            </div>
+
+                            {{-- Filter Bulan Awal --}}
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="bulan_awal">Bulan Awal <span class="text-danger">*</span></label>
+                                    <select name="bulan_awal" id="bulan_awal" class="form-control" required>
+                                        <option value="">-- Pilih Bulan --</option>
+                                        <option value="1">Januari</option>
+                                        <option value="2">Februari</option>
+                                        <option value="3">Maret</option>
+                                        <option value="4">April</option>
+                                        <option value="5">Mei</option>
+                                        <option value="6">Juni</option>
+                                        <option value="7">Juli</option>
+                                        <option value="8">Agustus</option>
+                                        <option value="9">September</option>
+                                        <option value="10">Oktober</option>
+                                        <option value="11">November</option>
+                                        <option value="12">Desember</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {{-- Filter Bulan Akhir --}}
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="bulan_akhir">Bulan Akhir <span class="text-danger">*</span></label>
+                                    <select name="bulan_akhir" id="bulan_akhir" class="form-control" required>
+                                        <option value="">-- Pilih Bulan --</option>
+                                        <option value="1">Januari</option>
+                                        <option value="2">Februari</option>
+                                        <option value="3">Maret</option>
+                                        <option value="4">April</option>
+                                        <option value="5">Mei</option>
+                                        <option value="6">Juni</option>
+                                        <option value="7">Juli</option>
+                                        <option value="8">Agustus</option>
+                                        <option value="9">September</option>
+                                        <option value="10">Oktober</option>
+                                        <option value="11">November</option>
+                                        <option value="12">Desember</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="la la-file-excel-o"></i> Download Excel
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 @endsection
+
 @push('css')
     <link href="{{ asset('') }}assets/vendors/custom/datatables/datatables.bundle.css" rel="stylesheet"
         type="text/css" />
 @endpush
+
 @push('js')
     <script src="{{ asset('') }}assets/vendors/custom/datatables/datatables.bundle.js" type="text/javascript"></script>
     <script>
@@ -142,8 +186,8 @@
                         searchable: false
                     },
                     {
-                        data: 'nama',
-                        name: 'nama    '
+                        data: 'kode_item',
+                        name: 'kode_item'
                     },
                     {
                         data: 'bulan',
@@ -152,10 +196,6 @@
                     {
                         data: 'status',
                         name: 'status'
-                    },
-                    {
-                        data: 'namars',
-                        name: 'namars'
                     },
                     {
                         data: 'keterangan',
@@ -171,63 +211,8 @@
             })
         };
 
-        var time = function() {
-            $('#kt_timepicker_2').timepicker({
-                minuteStep: 1,
-                defaultTime: '',
-                showSeconds: true,
-                showMeridian: false,
-                snapToStep: true
-            });
-        }
-
-        var select_item = function() {
-            $('#nama').select2({
-                placeholder: "--Select Alat--",
-                minimumInputLength: 1,
-                ajax: {
-                    url: '{{ route('kalibrasi.get-item') }}',
-                    dataType: 'json',
-                    delay: 250,
-                    processResults: function(data) {
-                        return {
-                            results: $.map(data, function(item, key) {
-                                return {
-                                    text: key + ' - ' + item,
-                                    id: key + ',' + item
-                                }
-                            })
-                        };
-                    },
-                    cache: true
-                }
-            });
-        }
-        var simpan = function(e, id) {
-            e.preventDefault();
-            KTApp.block('.kt-portlet', {
-                overlayColor: '#000000',
-                type: 'v2',
-                state: 'success',
-                message: 'Please wait...'
-            });
-            $('.progress').show()
-            $(id).addClass('kt-spinner kt-spinner--md kt-spinner--danger disabled');
-            $("#form-maintanance").submit();
-        }
-        //tes tes tes
-
-
-        //asdasd
         jQuery(document).ready(function() {
-            dataTable()
-            time()
-            select_item()
-            $('.progress').hide()
-        });
-        $('#filter_tanggal,#filter_rs,#filter_status').change(function() {
-            var table = $('#kt_table_1').DataTable();
-            table.draw();
+            dataTable();
         });
     </script>
 @endpush

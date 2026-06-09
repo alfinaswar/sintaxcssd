@@ -30,5 +30,13 @@ class Maintanance extends Model
     {
         return $this->hasOne(User::class, 'id', 'id_user');
     }
+    public function getInventaris()
+    {
+        return $this->hasOne(DataInventaris::class, 'kode_item', 'kode_item');
+    }
+    public function getRs()
+    {
+        return $this->hasOne(MasterRs::class, 'kodeRS', 'nama_rs');
+    }
 
 }

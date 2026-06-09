@@ -733,8 +733,13 @@
                                         <div></div>
                                         <div class="custom-file">
                                             <input type="file" class="custom-file-input" id="customFile"
-                                                name="dokumentasi">
-                                            <label class="custom-file-label" for="customFile">Choose file</label>
+                                                name="dokumentasi" @if (isset($data_alat->klasifikasi) && $data_alat->klasifikasi == 'High Risk') required @endif>
+                                            <label class="custom-file-label" for="customFile">Choose file
+                                                @if (isset($data_alat->klasifikasi) && $data_alat->klasifikasi == 'High Risk')
+                                                    <span class="text-danger">*</span>
+                                                @endif
+                                            </label>
+
                                         </div>
                                     </div>
                                 </div>
