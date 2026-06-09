@@ -2,9 +2,7 @@
 @push('title')
     Edit Pengajuan Penghapusan Aset
 @endpush
-{{-- @php
-   dd($data)
-@endphp --}}
+
 @section('content')
     <div class="kt-portlet kt-portlet--mobile">
         <div class="kt-portlet__head kt-portlet__head--lg">
@@ -16,179 +14,140 @@
                     Edit Pengajuan Penghapusan Aset
                 </h3>
             </div>
-            <div class="kt-portlet__head-toolbar">
-                <div class="kt-portlet__head-wrapper">
-                    <div class="kt-portlet__head-actions">
-
-                    </div>
-                </div>
-            </div>
         </div>
 
-        <div class="kt-portlet__body">
-            <form method="post" action="{{ route('pa.update', $data->id) }}" id="form-penghapusan">
-                @csrf
-                @method('PUT')
-                <!-- Header Form -->
-                <div class="row col-12">
+        <form method="post" action="{{ route('pa.update', $data->id) }}" id="form-penghapusan">
+            @csrf
+            @method('PUT') {{-- Penting untuk method PUT --}}
+            <div class="kt-portlet__body">
+                {{-- Header Form --}}
+                <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label for="departemen" class="col-form-label">Departemen</label>
-                            <div class="form-group row">
-                                <div class="col-lg-12 col-md-12 col-sm-12">
-                                    <select class="form-control kt-select2" name="Departemen" id="departemen" required>
-                                        <option value="">Pilih Departemen</option>
-                                        @foreach ($departemen as $dd)
-                                            <option value="{{ $dd->id }}" {{ $data->Departemen == $dd->id ? 'selected' : '' }}>{{ $dd->nama }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
+                            <label for="departemen" class="col-form-label">Departemen <span
+                                    class="text-danger">*</span></label>
+                            <select class="form-control kt-select2" name="Departemen" id="departemen" required>
+                                <option value="{{ $data->Departemen }}" selected>{{ $data->getDepartemen->nama }}</option>
+                            </select>
                         </div>
                     </div>
 
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label for="unit" class="col-form-label">Unit</label>
-                            <div class="form-group row">
-                                <div class="col-lg-12 col-md-12 col-sm-12">
-                                    <select class="form-control kt-select2" id="unit" name="Unit">
-                                        @if($data->Unit)
-                                            <option value="{{ $data->Unit }}" selected>{{ $data->Unit }}</option>
-                                        @endif
-                                    </select>
-                                </div>
-                            </div>
+                            <label for="unit" class="col-form-label">Unit <span class="text-danger">*</span></label>
+                            <select class="form-control kt-select2" id="unit" name="Unit" required>
+                                <option value="{{ $data->Unit }}" selected>{{ $data->Unit }}</option>
+                            </select>
                         </div>
                     </div>
 
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label for="tanggal" class="col-form-label">Tanggal</label>
-                            <div class="form-group row">
-                                <div class="col-lg-12 col-md-12 col-sm-12">
-                                    <input type="date" class="form-control" name="Tanggal" id="tanggal"
-                                        value="{{ $data->Tanggal ? $data->Tanggal : date('Y-m-d') }}" required>
-                                </div>
-                            </div>
+                            <label for="tanggal" class="col-form-label">Tanggal <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" name="Tanggal" id="tanggal"
+                                value="{{ $data->Tanggal }}" required>
                         </div>
                     </div>
                 </div>
 
                 <div class="kt-separator kt-separator--space-lg kt-separator--border-dashed"></div>
 
-                <!-- Table Aset -->
-                <div class="row col-12">
+                {{-- Table Aset --}}
+                <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
                             <label class="col-form-label">Daftar Aset yang Akan Dihapus</label>
                             <div class="table-responsive">
                                 <table class="table table-bordered" id="table-aset">
-                                    <thead>
+                                    <thead class="thead-light">
                                         <tr>
                                             <th width="50%">Nama Item</th>
-                                            <th width="40%">Keterangan</th>
-                                            <th width="10%">Aksi</th>
+                                            <th width="40%">Keterangan Penghapusan</th>
+                                            <th width="10%" class="text-center">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tbody-aset">
-
-                                            @forelse($data->getDetail as $key => $detail)
-                                                <tr>
-                                                    <td>
-                                                        <select class="form-control kt-select2" name="AssetId[]" required>
-                                                            <option value="">Pilih Item</option>
-                                                            @foreach ($item as $it)
-                                                                <option value="{{ $it->id }}" {{ $detail->AssetId == $it->id ? 'selected' : '' }}>
-                                                                    {{ $it->kode_item }} - {{ $it->nama }} - {{ $it->no_inventaris }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <textarea class="form-control" name="Keterangan[]" placeholder="Masukkan keterangan alasan penghapusan" rows="2" required>{{ $detail->Keterangan }}</textarea>
-                                                    </td>
-                                                    <td>
-                                                        <button type="button" class="btn btn-danger btn-sm remove-row" {{ $loop->first && count($data->getDetail) == 1 ? 'disabled' : '' }}>
-                                                            <i class="fa fa-trash"></i>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            @empty
-                                            <tr>
+                                        {{-- Render baris yang sudah ada dari database --}}
+                                        @foreach ($data->getDetail as $index => $detail)
+                                            <tr data-row-id="{{ $index }}">
                                                 <td>
-                                                    <select class="form-control kt-select2" name="AssetId[]" id="kt_select2_1"
+                                                    <select class="form-control kt-select2 asset-select" name="AssetId[]"
                                                         required>
-                                                        <option value="">Pilih Item</option>
-                                                        @foreach ($item as $it)
-                                                            <option value="{{ $it->id }}">{{ $it->kode_item }} -
-                                                                {{ $it->nama }} - {{ $it->no_inventaris }}
+                                                        {{-- Opsi ini akan menjadi nilai terpilih awal di Select2 --}}
+                                                        @if ($detail->getItem)
+                                                            <option value="{{ $detail->AssetId }}" selected>
+                                                                {{ $detail->getItem->no_inventaris ?? $detail->AssetId }} -
+                                                                {{ $detail->getItem->nama ?? 'Item Tidak Ditemukan' }}
                                                             </option>
-                                                        @endforeach
+                                                        @else
+                                                            <option value="{{ $detail->AssetId }}" selected>
+                                                                {{ $detail->AssetId }} - Item Tidak Ditemukan
+                                                            </option>
+                                                        @endif
                                                     </select>
+
                                                 </td>
                                                 <td>
-                                                    <textarea class="form-control" name="Keterangan[]"
-                                                        placeholder="Masukkan keterangan alasan penghapusan" rows="2"
-                                                        required></textarea>
+                                                    <textarea class="form-control" name="Keterangan[]" rows="2" required>{{ $detail->Keterangan }}</textarea>
                                                 </td>
-                                                <td>
-                                                    <button type="button" class="btn btn-danger btn-sm remove-row" disabled>
+                                                <td class="text-center">
+                                                    <button type="button" class="btn btn-danger btn-sm remove-row"
+                                                        title="Hapus baris">
                                                         <i class="fa fa-trash"></i>
                                                     </button>
                                                 </td>
                                             </tr>
-                                        @endforelse
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="mt-3">
-                                <button type="button" class="btn btn-success btn-sm" id="add-row">
-                                    <i class="fa fa-plus"></i> Tambah Baris
-                                </button>
-                            </div>
+                            <button type="button" class="btn btn-success btn-sm" id="add-row">
+                                <i class="fa fa-plus"></i> Tambah Baris
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <div class="row col-12">
+                <div class="kt-separator kt-separator--space-lg kt-separator--border-dashed"></div>
+
+                {{-- Catatan --}}
+                <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
                             <label for="catatan" class="col-form-label">Catatan Tambahan</label>
-                            <div class="form-group row">
-                                <div class="col-lg-12 col-md-12 col-sm-12">
-                                    <textarea class="form-control" name="Catatan" id="catatan"
-                                        placeholder="Masukkan catatan tambahan jika diperlukan" rows="3">{{ $data->Catatan ?? '' }}</textarea>
-                                </div>
-                            </div>
+                            <textarea class="form-control" name="Catatan" id="catatan" rows="3">{{ $data->Catatan }}</textarea>
                         </div>
                     </div>
                 </div>
-            </form>
-        </div>
-        <div class="card-footer">
-            <button class="btn btn-primary btn-block" type="submit" form="form-penghapusan">
-                <i class="fa fa-paper-plane"></i> Simpan Perubahan
-            </button>
-        </div>
+            </div>
+
+            <div class="kt-portlet__foot">
+                <button class="btn btn-primary btn-block" type="submit" id="btn-submit">
+                    <i class="fa fa-save"></i> Update Pengajuan
+                </button>
+            </div>
+        </form>
     </div>
 @endsection
 
 @push('css')
-    <link href="{{ asset('') }}assets/vendors/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css" />
     <style>
-        .table td {
+        #table-aset td {
             vertical-align: middle;
+        }
+
+        #table-aset .select2-container {
+            width: 100% !important;
         }
 
         .remove-row:disabled {
             opacity: 0.3;
+            cursor: not-allowed;
         }
     </style>
 @endpush
 
 @push('after-js')
-    <script src="{{ asset('') }}assets/vendors/custom/datatables/datatables.bundle.js" type="text/javascript"></script>
     <script>
         @if (Session::has('success'))
             toastr.success("{{ Session::get('success') }}", "Berhasil");
@@ -198,114 +157,178 @@
                 toastr.warning(`{{ $error }}`, "Gagal");
             @endforeach
         @endif
-    </script>
-    <script>
-        var addRow = function () {
-            $('#add-row').on('click', function () {
-                var newRow =
-                    `
-                    <tr>
-                        <td>
-                            <select class="form-control kt-select2" name="AssetId[]" required>
-                                <option value="">Pilih Item</option>
-                                @foreach ($item as $it)
-                                    <option value="{{ $it->id }}">{{ $it->kode_item }} - {{ $it->nama }} - {{ $it->no_inventaris }}</option>
-                                @endforeach
-                            </select>
-                        </td>
-                        <td>
-                            <textarea class="form-control" name="Keterangan[]" placeholder="Masukkan keterangan alasan penghapusan" rows="2" required></textarea>
-                        </td>
-                        <td>
-                            <button type="button" class="btn btn-danger btn-sm remove-row">
-                                <i class="fa fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    `;
 
-                $('#tbody-aset').append(newRow);
-                $('#tbody-aset').find('.kt-select2').select2();
-                updateRemoveButtons();
-            });
+        let rowIndex = {{ $data->getDetail->count() }}; // Mulai dari jumlah data yang sudah ada
+
+        // Template row baru
+        function createRowTemplate() {
+            rowIndex++;
+            return `
+                <tr data-row-id="${rowIndex}">
+                    <td>
+                        <select class="form-control kt-select2 asset-select" name="AssetId[]" required>
+                            <option value=""></option>
+                        </select>
+                    </td>
+                    <td>
+                        <textarea class="form-control" name="Keterangan[]" placeholder="Masukkan keterangan alasan penghapusan" rows="2" required></textarea>
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-danger btn-sm remove-row" title="Hapus baris">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
         }
 
-        // Function untuk menghapus baris
-        var removeRow = function () {
-            $(document).on('click', '.remove-row', function () {
-                $(this).closest('tr').remove();
-                updateRemoveButtons();
-            });
-        }
-
-        // Function untuk update status tombol remove
-        var updateRemoveButtons = function () {
-            var rowCount = $('#tbody-aset tr').length;
-            if (rowCount === 1) {
-                $('.remove-row').prop('disabled', true);
-            } else {
-                $('.remove-row').prop('disabled', false);
-            }
-        }
-        var select_unit = function () {
-            $('#unit').select2({
-                placeholder: "Select Data",
+        // Inisialisasi Select2 Asset
+        function initAssetSelect2(element) {
+            $(element).select2({
+                placeholder: "Ketik untuk cari item...",
                 minimumInputLength: 1,
+                allowClear: true,
+                ajax: {
+                    url: '{{ route('inventaris.get-item-penghapusan') }}',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+            // Validasi duplikasi
+            $(element).on('select2:select', function(e) {
+                const selectedId = e.params.data.id;
+                let isDuplicate = false;
+                $('.asset-select').not(this).each(function() {
+                    if ($(this).val() == selectedId) {
+                        isDuplicate = true;
+                        return false;
+                    }
+                });
+
+                if (isDuplicate) {
+                    toastr.warning('Item ini sudah dipilih di baris lain!', 'Duplikat');
+                    $(this).val(null).trigger('change');
+                }
+            });
+        }
+
+        function addRow() {
+            $('#tbody-aset').append(createRowTemplate());
+            initAssetSelect2($('#tbody-aset tr:last .asset-select'));
+            updateRemoveButtons();
+        }
+
+        function removeRow() {
+            $(document).on('click', '.remove-row', function() {
+                if ($('#tbody-aset tr').length <= 1) {
+                    toastr.warning('Minimal harus ada 1 baris!', 'Peringatan');
+                    return;
+                }
+                if (confirm('Yakin ingin menghapus baris ini?')) {
+                    $(this).closest('tr').remove();
+                    updateRemoveButtons();
+                }
+            });
+        }
+
+        function updateRemoveButtons() {
+            $('.remove-row').prop('disabled', $('#tbody-aset tr').length <= 1);
+        }
+
+        function selectDepartemen() {
+            $('#departemen').select2({
+                placeholder: "Ketik untuk cari departemen...",
+                minimumInputLength: 1,
+                allowClear: true,
+                ajax: {
+                    url: '{{ route('inventaris.get-departemen-penghapusan') }}',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });
+        }
+
+        function selectUnit() {
+            $('#unit').select2({
+                placeholder: "Ketik untuk cari unit...",
+                minimumInputLength: 1,
+                allowClear: true,
                 ajax: {
                     url: '{{ route('inventaris.get-unit-his') }}',
                     dataType: 'json',
                     delay: 250,
-                    processResults: function (data) {
+                    data: function(params) {
                         return {
-                            results: $.map(data, function (item) {
-                                return {
-                                    text: item,
-                                    id: item
-                                }
-                            })
+                            q: params.term
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: data
                         };
                     },
                     cache: true
                 }
             });
         }
-        var select_departemen = function () {
-            $('#departemen').select2({
-                placeholder: "Select departemen",
-                minimumInputLength: 1,
-                ajax: {
-                    url: '{{ route("master.get-departemen") }}',
-                    dataType: 'json',
-                    delay: 250,
-                    processResults: function (data) {
-                        return {
-                            results: $.map(data, function (item) {
-                                return {
-                                    text: item.nama,
-                                    id: item.nama
-                                }
-                            })
-                        };
-                    },
-                    cache: true
-                }
-            });
-        }
-        $(document).ready(function () {
-            $('#kt_select2_1').select2();
-        });
-        $(document).ready(function () {
-            $('.kt-select2').select2();
-        });
-        jQuery(document).ready(function () {
 
-            $('.progress').hide();
-            select_unit();
-            addRow();
+        $(document).ready(function() {
+            // Inisialisasi Select2 untuk header
+            selectDepartemen();
+            selectUnit();
+
+            // Inisialisasi Select2 untuk baris aset yang SUDAH ADA dari database
+            $('.asset-select').each(function() {
+                initAssetSelect2(this);
+            });
+
+            // Event handlers
             removeRow();
             updateRemoveButtons();
-            select_unit();
-            select_departemen();
+
+            $('#add-row').on('click', addRow);
+
+            // Validasi submit
+            $('#form-penghapusan').on('submit', function(e) {
+                let emptyAsset = false;
+                $('.asset-select').each(function() {
+                    if (!$(this).val()) {
+                        emptyAsset = true;
+                        return false;
+                    }
+                });
+
+                if (emptyAsset) {
+                    e.preventDefault();
+                    toastr.error('Semua item harus dipilih!', 'Validasi Gagal');
+                    return false;
+                }
+                $('#btn-submit').prop('disabled', true).html(
+                    '<i class="fa fa-spinner fa-spin"></i> Mengupdate...');
+            });
         });
     </script>
 @endpush

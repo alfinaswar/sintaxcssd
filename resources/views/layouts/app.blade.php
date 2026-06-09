@@ -266,9 +266,9 @@
 
                             @can('maintenance')
 
-                                <li class="kt-menu__item @if (request()->is('maintanance'))
+                                <li class="kt-menu__item @if (request()->is('preventif-maintanance'))
                                     {{ 'kt-menu__item--active' }}
-                                @elseif (request()->is('maintanance/*'))
+                                @elseif (request()->is('preventif-maintanance/*'))
                                     {{ 'kt-menu__item--active' }}
                                 @endif" aria-haspopup="true"><a href="{{ route('maintanance.index') }}"
                                         class="kt-menu__link "><span class="kt-menu__link-icon"><i

@@ -313,7 +313,6 @@
                 success: function(response) {
                     if (response.success) {
                         const data = response.data;
-
                         // Isi form dengan data
                         $('#edit_id').val(data.id);
                         $('#formEditMaintanance').attr('action', '{{ route('maintanance.update', ':id') }}'

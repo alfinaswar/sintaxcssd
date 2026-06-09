@@ -892,4 +892,70 @@ class DataInventarisController extends Controller
         $data->delete();
         return response()->json(['msg' => 'Deleted successfully']);
     }
+    public function getItemPenghapusan(Request $request)
+    {
+        $search = $request->get('q', '');
+        $term = strtolower($search);
+
+        // Query dengan distinct berdasarkan assetID
+        $items = DataInventaris::orderBy('assetID', 'asc')
+            ->limit(50)
+            ->get();
+
+        // Filter manual untuk pencarian (jika ada keyword)
+        if (!empty($term)) {
+            $items = DataInventaris::where(function ($query) use ($term) {
+                $query->where('assetID', 'like', "%$term%")
+                    ->orWhere('nama', 'like', "%$term%")
+                    ->orWhere('kode_item', 'like', "%$term%")
+                    ->orWhere('merk', 'like', "%$term%")
+                    ->orWhere('real_name', 'like', "%$term%");
+            })
+                ->orderBy('assetID', 'asc')
+                ->limit(50)
+                ->get();
+        } else {
+            $items = DataInventaris::orderBy('assetID', 'asc')
+                ->limit(50)
+                ->get();
+        }
+
+
+        // Format untuk Select2 (valuenya kode_item)
+        $results = [];
+        foreach ($items as $item) {
+            $results[] = [
+                'id' => $item->kode_item,
+                'text' => $item->no_inventaris . ' - ' . $item->real_name . ' - ' . $item->merk
+
+            ];
+        }
+
+        return response()->json($results);
+    }
+    public function getDepartemenPenghapusan(Request $request)
+    {
+        $search = $request->get('q', '');
+        $term = strtolower($search);
+
+        $departemens = MasterDepartemenModel::orderBy('nama', 'asc')
+            ->limit(20)
+            ->get();
+        if (!empty($term)) {
+            $departemens = $departemens->filter(function ($item) use ($term) {
+                return str_contains(strtolower($item->nama ?? ''), $term);
+            });
+        }
+
+        // Format untuk Select2
+        $results = [];
+        foreach ($departemens as $item) {
+            $results[] = [
+                'id' => $item->id,
+                'text' => $item->nama
+            ];
+        }
+
+        return response()->json($results);
+    }
 }

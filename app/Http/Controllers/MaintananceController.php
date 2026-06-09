@@ -29,7 +29,7 @@ class MaintananceController extends Controller
             $query = Maintanance::with('getInventaris');
 
             if ($user->role !== "admin") {
-                $query->where('kodeRS', $user->kodeRS);
+                $query->where('nama_rs', $user->kodeRS);
             }
 
             return DataTables::of($query)

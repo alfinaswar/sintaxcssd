@@ -81,48 +81,12 @@
                 </div>
             </div>
 
-            <!-- Tanda Tangan -->
+            <!-- Tanda Tangan Hanya SMI & Manajer Penunjang -->
             <div class="row text-center mt-5">
-                <div class="col-md-4">
-                    <p class="mb-4" style="font-weight: bold;">Diajukan Oleh,</p>
-                    @if(!empty($data->getDiajukan->ttd))
-                        <div style="height: 150px;">
-                            <img src="{{ asset('storage/tandatangan/' . $data->getDiajukan->ttd) }}" alt="Tanda Tangan"
-                                style="max-height: 150px;">
-                        </div>
-                    @else
-                        <div style="height: 80px;" class="text-muted">Tidak ada gambar tanda tangan</div>
-                    @endif
-                    <hr style="width: 80%;">
-                    <p class="mt-2 font-weight-bold">( {{$data->getDiajukan->name}} )</p>
-                </div>
-                <div class="col-md-4">
-                    <p class="mb-4" style="font-weight: bold;">Mengetahui Meneger Penunjang dan Pelayanan Medis,</p>
-                    @if($data->AccManager === 'Y')
-                        @if(!empty($data->getDiajukan->ttd))
-                            <div style="height: 150px;">
-                                <img src="{{ asset('storage/tandatangan/' . $data->getDiajukan->ttd) }}" alt="Tanda Tangan"
-                                    style="max-height: 150px;">
-                            </div>
-                        @else
-                            <div style="height: 80px;" class="text-muted">Tidak ada gambar tanda tangan</div>
-                        @endif
-                    @elseif($data->AccManager === 'N')
-                        <div style="height: 80px;"
-                            class="text-danger d-flex flex-column align-items-center justify-content-center">
-                            <i class="bi bi-x-circle-fill" style="font-size: 3rem;"></i>
-                            <div>Dit{{$data->getManager->name}} </div>
-                        </div>
-                    @else
-                        <div style="height: 80px;" class="text-muted">Tidak ada gambar tanda tangan</div>
-                    @endif
-                    <hr style="width: 80%;">
-                    <p class="mt-2 font-weight-bold">( {{$data->getManager->name ?? '-'}} )</p>
-                </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <p class="mb-4" style="font-weight: bold;">Mengetahui SMI,</p>
-                    @if($data->AccSmi === 'Y')
-                        @if(!empty($data->getSmi->ttd))
+                    @if ($data->AccSmi === 'Y')
+                        @if (!empty($data->getSmi->ttd))
                             <div style="height: 150px;">
                                 <img src="{{ asset('storage/tandatangan/' . $data->getSmi->ttd) }}" alt="Tanda Tangan"
                                     style="max-height: 150px;">
@@ -134,26 +98,50 @@
                         <div style="height: 80px;"
                             class="text-danger d-flex flex-column align-items-center justify-content-center">
                             <i class="bi bi-x-circle-fill" style="font-size: 3rem;"></i>
-                            <div>Ditolak {{$data->getSmi->name}} </div>
+                            <div>Ditolak {{ $data->getSmi->name }} </div>
                         </div>
                     @else
                         <div style="height: 80px;" class="text-muted">Tidak ada gambar tanda tangan</div>
                     @endif
                     <hr style="width: 80%;">
-                    <p class="mt-2 font-weight-bold">( {{$data->getSmi->name ?? '-'}} )</p>
+                    <p class="mt-2 font-weight-bold">( {{ $data->getSmi->name ?? '-' }} )</p>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-4" style="font-weight: bold;">Mengetahui Meneger Penunjang dan Pelayanan Medis,</p>
+                    @if ($data->AccManager === 'Y')
+                        @if (!empty($data->getManager->ttd))
+                            <div style="height: 150px;">
+                                <img src="{{ asset('storage/tandatangan/' . $data->getManager->ttd) }}" alt="Tanda Tangan"
+                                    style="max-height: 150px;">
+                            </div>
+                        @else
+                            <div style="height: 80px;" class="text-muted">Tidak ada gambar tanda tangan</div>
+                        @endif
+                    @elseif($data->AccManager === 'N')
+                        <div style="height: 80px;"
+                            class="text-danger d-flex flex-column align-items-center justify-content-center">
+                            <i class="bi bi-x-circle-fill" style="font-size: 3rem;"></i>
+                            <div>Ditolak {{ $data->getManager->name }} </div>
+                        </div>
+                    @else
+                        <div style="height: 80px;" class="text-muted">Tidak ada gambar tanda tangan</div>
+                    @endif
+                    <hr style="width: 80%;">
+                    <p class="mt-2 font-weight-bold">( {{ $data->getManager->name ?? '-' }} )</p>
                 </div>
             </div>
             @can('approval-as-manager')
-                @if($data->Status == 'pengajuan')
+                @if ($data->Status == 'pengajuan')
                     <div class="row mt-4">
                         <div class="col-12 text-center">
-                            <button type="button" class="btn btn-success btn-lg mr-3" onclick="konfirmasiSetujui({{ $data->id }})"
-                                @if(!empty($data->Sign1)) disabled @endif>
+                            <button type="button" class="btn btn-success btn-lg mr-3"
+                                onclick="konfirmasiSetujui({{ $data->id }})"
+                                @if (!empty($data->Sign1)) disabled @endif>
                                 <i class="fa fa-check"></i> Setujui Pengajuan
                             </button>
 
                             <button type="button" class="btn btn-danger btn-lg" onclick="konfirmasiTolak({{ $data->id }})"
-                                @if(!empty($data->Sign1)) disabled @endif>
+                                @if (!empty($data->Sign1)) disabled @endif>
                                 <i class="fa fa-times"></i> Tolak Pengajuan
                             </button>
                         </div>
@@ -161,25 +149,27 @@
                 @endif
             @endcan
             @can('approval-as-smi')
-                @if($data->Status == 'pengajuan')
+                @if ($data->Status == 'pengajuan')
                     <div class="row mt-4">
                         <div class="col-12 text-center">
                             <button type="button" class="btn btn-success btn-lg mr-3"
-                                onclick="konfirmasiSetujuiSmi({{ $data->id }})" @if(!empty($data->Sign2)) disabled @endif>
+                                onclick="konfirmasiSetujuiSmi({{ $data->id }})"
+                                @if (!empty($data->Sign2)) disabled @endif>
                                 <i class="fa fa-check"></i> Setujui Pengajuan
                             </button>
-                            <button type="button" class="btn btn-danger btn-lg" onclick="konfirmasiTolakSmi({{ $data->id }})"
-                                @if(!empty($data->Sign2)) disabled @endif>
+                            <button type="button" class="btn btn-danger btn-lg"
+                                onclick="konfirmasiTolakSmi({{ $data->id }})"
+                                @if (!empty($data->Sign2)) disabled @endif>
                                 <i class="fa fa-times"></i> Tolak Pengajuan
                             </button>
                         </div>
                     </div>
                 @endif
             @endcan
-            @if($data->Status == 'disetujui')
+            @if ($data->Status == 'disetujui')
                 <div class="row mt-4">
                     <div class="col-12 text-center">
-                        <a href="{{route('pa.cetak', $data->id)}}" class="btn btn-info w-100">Cetak Pengajuan</a>
+                        <a href="{{ route('pa.cetak', $data->id) }}" class="btn btn-info w-100">Cetak Pengajuan</a>
                     </div>
                 </div>
             @endif
@@ -208,12 +198,12 @@
                         data: {
                             _token: '{{ csrf_token() }}'
                         },
-                        success: function (res) {
+                        success: function(res) {
                             Swal.fire('Berhasil!', 'Pengajuan telah disetujui.').then(() => {
                                 window.location.reload();
                             });
                         },
-                        error: function (xhr) {
+                        error: function(xhr) {
                             Swal.fire('Gagal!', 'Terjadi kesalahan saat menyetujui pengajuan.');
                         }
                     });
@@ -238,12 +228,12 @@
                         data: {
                             _token: '{{ csrf_token() }}'
                         },
-                        success: function (res) {
+                        success: function(res) {
                             Swal.fire('Berhasil!', 'Pengajuan telah ditolak.').then(() => {
                                 window.location.reload();
                             });
                         },
-                        error: function (xhr) {
+                        error: function(xhr) {
                             Swal.fire('Gagal!', 'Terjadi kesalahan saat menolak pengajuan.');
                         }
                     });
@@ -278,12 +268,12 @@
                         data: {
                             _token: '{{ csrf_token() }}'
                         },
-                        success: function (res) {
+                        success: function(res) {
                             Swal.fire('Berhasil!', 'Pengajuan telah disetujui.').then(() => {
                                 window.location.reload();
                             });
                         },
-                        error: function (xhr) {
+                        error: function(xhr) {
                             Swal.fire('Gagal!', 'Terjadi kesalahan saat menyetujui pengajuan.');
                         }
                     });
@@ -308,12 +298,12 @@
                         data: {
                             _token: '{{ csrf_token() }}'
                         },
-                        success: function (res) {
+                        success: function(res) {
                             Swal.fire('Berhasil!', 'Pengajuan telah ditolak.', 'success').then(() => {
                                 window.location.reload();
                             });
                         },
-                        error: function (xhr) {
+                        error: function(xhr) {
                             Swal.fire('Gagal!', 'Terjadi kesalahan saat menolak pengajuan.', 'error');
                         }
                     });

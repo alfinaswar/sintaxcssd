@@ -209,6 +209,8 @@ Route::prefix('inventaris')->group(function () {
     Route::get('getMerk', [DataInventarisController::class, 'getMerk'])->name('inventaris.get-merk');
     Route::get('tanpa-ro', [DataInventarisController::class, 'CreateBc'])->name('inventaris.tanparo');
     Route::get('/get-master-item', [DataInventarisController::class, 'getMasterItem'])->name('inventaris.get-master-item');
+    Route::get('/get-item-penghapusan', [DataInventarisController::class, 'getItemPenghapusan'])->name('inventaris.get-item-penghapusan');
+    Route::get('/get-departemen-penghapusan', [DataInventarisController::class, 'getDepartemenPenghapusan'])->name('inventaris.get-departemen-penghapusan');
 });
 Route::prefix('flipbook')->group(function () {
     Route::get('/', [FlipbookController::class, 'index'])->name('flipbook.index');
@@ -230,6 +232,8 @@ Route::prefix('penghapusan-aset')->group(function () {
     Route::get('/cetak-pengajuan/{id}', [PenghapusanAsetController::class, 'Print'])->name('pa.cetak');
     Route::get('/edit/{id}', [PenghapusanAsetController::class, 'edit'])->name('pa.edit');
     Route::put('/update/{id}', [PenghapusanAsetController::class, 'update'])->name('pa.update');
+
+
 });
 Route::prefix('preventif-maintanance')->group(function () {
     Route::get('/', [MaintananceController::class, 'index'])->name('maintanance.index');
