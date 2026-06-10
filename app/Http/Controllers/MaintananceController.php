@@ -26,7 +26,8 @@ class MaintananceController extends Controller
         if ($request->ajax()) {
             $user = auth()->user();
 
-            $query = Maintanance::with('getInventaris');
+            $query = Maintanance::latest()->with('getInventaris');
+
 
             if ($user->role !== "admin") {
                 $query->where('nama_rs', $user->kodeRS);
