@@ -330,7 +330,7 @@
                                                     Telah Di Lakukan PM Oleh
                                                     <b>{{ $data->getUser->name ?? 'User tidak diketahui' }}</b> Pada
                                                     <b>
-                                                        {{ $data->updated_at ?? 'Tanggal tidak tersedia' }}</b>
+                                                        {{ $data->created_at ?? 'Tanggal tidak tersedia' }}</b>
                                                 </div>
                                                 <div class="kt-widget2__info">
                                                     <span class="kt-widget2__title" style="font-size: 12px;">
