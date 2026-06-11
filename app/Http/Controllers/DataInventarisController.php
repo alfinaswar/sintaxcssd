@@ -799,14 +799,15 @@ class DataInventarisController extends Controller
     {
         if ($request->hasFile('dokumen_kso')) {
             $manualbook = $request->file('dokumen_kso');
-            // $namaManualbookLama = DataInventaris::where('assetID')->first()->manualbook;
-            // if ($namaManualbookLama) {
-            //     Storage::delete('public/manualbook/' . $namaManualbookLama);
-            // }
+            $namaManualbookLama = DataInventaris::where('assetID')->first()->manualbook;
+            if ($namaManualbookLama) {
+                Storage::delete('public/manualbook/' . $namaManualbookLama);
+            }
             $manualbook->storeAs('public/manualbook', $manualbook->hashName());
         }
 
         $assetID = $request->kode_item;
+        // dd($assetID);
         $manualbookName = isset($manualbook) ? $manualbook->hashName() : null;
         $updatedCount = DataInventaris::where('nama', 'like', '%' . $assetID . '%')
             ->where('nama_rs', 'K')
@@ -814,7 +815,7 @@ class DataInventarisController extends Controller
                 'manualbook' => $manualbookName,
                 'UpdateName' => 'KSO ANA'
             ]);
-
+        // dd($updatedCount);
         return redirect()->back()->with('success', "{$updatedCount} Manualbook berhasil diupdate");
     }
 

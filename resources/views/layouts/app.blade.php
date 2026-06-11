@@ -274,6 +274,14 @@
                                         class="kt-menu__link "><span class="kt-menu__link-icon"><i
                                                 class="fa fa-tools"></i></span><span
                                             class="kt-menu__link-text">Preventif Maintanance</span></a></li>
+                            <li class="kt-menu__item @if (request()->is('preventif-maintanance'))
+                                    {{ 'kt-menu__item--active' }}
+                                @elseif (request()->is('preventif-maintanance/*'))
+                                    {{ 'kt-menu__item--active' }}
+                                @endif" aria-haspopup="true"><a href="{{ route('maintanance.index') }}"
+                                        class="kt-menu__link "><span class="kt-menu__link-icon"><i
+                                                class="fa fa-tools"></i></span><span
+                                            class="kt-menu__link-text">Preventif Maintanance</span></a></li>
                             @endcan
 
 @can('penghapusan-aset')

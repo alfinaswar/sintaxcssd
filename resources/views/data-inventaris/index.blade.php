@@ -241,8 +241,8 @@
                         name: 'kode_item'
                     },
                     {
-                        data: 'real_name',
-                        name: 'real_name'
+                        data: 'nama',
+                        name: 'nama'
                     },
                     {
                         data: 'no_inventaris',

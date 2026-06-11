@@ -301,6 +301,13 @@ Route::group(['prefix' => 'laporan'], function () {
         Route::get('/excel_maintenance/', [ReportMaintenanceController::class, 'excel_maintenance'])->name('laporan.maintenance.excel_maintenance');
         Route::get('/excel_pm/', [ReportMaintenanceController::class, 'excel_pm'])->name('laporan.maintenance.excel_pm');
     });
+    Route::prefix('pembersihan-alat')->group(function () {
+        Route::get('/', [FormulirPembersihanController::class, 'index'])->name('pa.maintenance.index');
+        Route::get('/export', [FormulirPembersihanController::class, 'export'])->name('laporan.maintenance.export');
+        // Route::get('student_export',[StudentController::class, 'get_student_data'])->name('student.export');
+        Route::get('/excel_maintenance/', [FormulirPembersihanController::class, 'excel_maintenance'])->name('laporan.maintenance.excel_maintenance');
+        Route::get('/excel_pm/', [FormulirPembersihanController::class, 'excel_pm'])->name('laporan.maintenance.excel_pm');
+    });
     Route::prefix('item-ruangan')->group(function () {
         Route::get('/', [LaporanController::class, 'index'])->name('laporan.item-ruangan.index');
         Route::get('/file-import', [LaporanController::class, 'importView'])->name('laporan.item-ruangan.import-view');
