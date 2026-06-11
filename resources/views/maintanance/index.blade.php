@@ -209,6 +209,12 @@
                             <label for="edit_keterangan">Keterangan</label>
                             <textarea class="form-control" id="edit_keterangan" name="keterangan" rows="3"></textarea>
                         </div>
+
+                        {{-- Tambahan Created_at --}}
+                        <div class="form-group">
+                            <label for="edit_created_at">Created At</label>
+                            <input type="date" class="form-control" id="edit_created_at" name="created_at">
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
@@ -324,6 +330,26 @@
                         $('#edit_status').val(data.status);
                         $('#edit_keterangan').val(data.keterangan);
 
+                        // ✅ PERBAIKAN: Format created_at ke YYYY-MM-DD agar bisa dibaca input type="date"
+                        if (data.created_at) {
+                            // Cek apakah format dari backend adalah YYYY-MM-DD... (ISO 8601 / SQL Datetime)
+                            if (/^\d{4}-\d{2}-\d{2}/.test(data.created_at)) {
+                                // Ambil 10 karakter pertama (YYYY-MM-DD)
+                                $('#edit_created_at').val(data.created_at.substring(0, 10));
+                            } else {
+                                // Fallback: Parse menggunakan Date object jika format backend berbeda (misal: DD-MM-YYYY)
+                                var date = new Date(data.created_at);
+                                if (!isNaN(date.getTime())) {
+                                    var year = date.getFullYear();
+                                    var month = ('0' + (date.getMonth() + 1)).slice(-2);
+                                    var day = ('0' + date.getDate()).slice(-2);
+                                    $('#edit_created_at').val(year + '-' + month + '-' + day);
+                                }
+                            }
+                        } else {
+                            $('#edit_created_at').val('');
+                        }
+
                         // Tampilkan modal
                         $('#modalEditMaintanance').modal('show');
 
@@ -338,6 +364,17 @@
                         '<i class="la la-check"></i> Update Data');
                 }
             });
+        }
+
+        // Format tanggal & waktu ke bentuk lokal (ex: 2023-09-01 12:05:22 jadi 01-09-2023 12:05:22)
+        function formatDateTime(datetime) {
+            if (!datetime) return '';
+            var d = new Date(datetime);
+            var pad = function(n) {
+                return n < 10 ? '0' + n : n;
+            };
+            return pad(d.getDate()) + '-' + pad(d.getMonth() + 1) + '-' + d.getFullYear() +
+                ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
         }
 
         // Handle submit form edit via AJAX
@@ -382,10 +419,11 @@
             });
         });
 
-        // Reset form saat modal ditutup
+        // Reset form dan created_at saat modal ditutup
         $('#modalEditMaintanance').on('hidden.bs.modal', function() {
             $('#formEditMaintanance')[0].reset();
             $('#formEditMaintanance').attr('action', '');
+            $('#edit_created_at').val('');
         });
     </script>
 @endpush

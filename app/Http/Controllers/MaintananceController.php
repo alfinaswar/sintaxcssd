@@ -239,7 +239,8 @@ class MaintananceController extends Controller
         $request->validate([
             'bulan' => 'required|integer|min:1|max:12',
             'status' => 'required|in:1,2',
-            'keterangan' => 'nullable|string|max:500'
+            'keterangan' => 'nullable|string|max:500',
+            'created_at' => 'required'
         ]);
 
         $maintanance = Maintanance::findOrFail($id);
@@ -251,6 +252,7 @@ class MaintananceController extends Controller
             'bulan' => $request->bulan,
             'status' => $request->status,
             'keterangan' => $request->keterangan,
+            'created_at' => $request->created_at,
         ]);
 
         if ($request->ajax()) {
