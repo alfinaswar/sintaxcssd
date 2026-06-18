@@ -106,7 +106,7 @@ class MaintananceExport implements FromCollection, WithHeadings, WithMapping, Wi
 
         return [
             $this->rowNumber - 2, // Nomor urut
-            $inventaris ? $inventaris->nama : ($row->kode_item ?? '-'), // Nama Barang
+            $inventaris ? $inventaris->nama : ($row->getInventaris->nama ?? $row->kode_item), // Nama Barang
             $inventaris ? ($inventaris->no_sn ?? '-') : '-', // No SN
             $inventaris ? ($inventaris->no_inventaris ?? '-') : '-', // No Inventaris
             $inventaris ? ($inventaris->unit ?? '-') : '-', // Unit
