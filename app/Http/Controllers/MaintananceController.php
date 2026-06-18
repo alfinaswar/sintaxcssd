@@ -119,7 +119,8 @@ class MaintananceController extends Controller
             'filter_rs' => 'nullable|string',
             'bulan_awal' => 'required|integer|min:1|max:12',
             'bulan_akhir' => 'required|integer|min:1|max:12',
-            'tahun' => 'required|integer'
+            'tahun' => 'required|integer',
+            'klasifikasi' => 'nullable'
         ]);
 
         $filterRs = auth()->user()->role == 'admin' ? $request->filter_rs : auth()->user()->kodeRS;
@@ -135,7 +136,8 @@ class MaintananceController extends Controller
                 $filterRs,
                 $request->bulan_awal,
                 $request->bulan_akhir,
-                $request->tahun
+                $request->tahun,
+                $request->klasifikasi
             ),
             $filename . '.xlsx'
         );

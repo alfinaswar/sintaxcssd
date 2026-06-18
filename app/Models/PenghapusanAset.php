@@ -36,4 +36,8 @@ class PenghapusanAset extends Model
     {
         return $this->hasMany(PenghapusanAsetDetail::class, 'idPenghapusan', 'id');
     }
+    public function getGudang()
+    {
+        return $this->belongsTo(MasterGudang::class, 'NamaGudang', 'id');
+    }
 }

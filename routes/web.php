@@ -21,6 +21,7 @@ use App\Http\Controllers\MaintananceController;
 use App\Http\Controllers\ManualBookController;
 use App\Http\Controllers\MasalahController;
 use App\Http\Controllers\MasterDepartemenController;
+use App\Http\Controllers\MasterGudangController;
 use App\Http\Controllers\MasterIPController;
 use App\Http\Controllers\MasterItemGroupController;
 use App\Http\Controllers\MasterMerkController;
@@ -54,6 +55,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('auth.login');
 });
+Route::get('/approval-karu/{id}', [PenghapusanAsetController::class, 'approvalKaru'])->name('pa.approval-karu');
+Route::post('/approval-karu/{id}/submit', [PenghapusanAsetController::class, 'approvalKaruSubmit'])->name('penghapusan-aset.approval-karu.submit');
+Route::get('/penghapusan-aset', [PenghapusanAsetController::class, 'setelahAcc'])->name('penghapusan-aset.index');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('asset-managemen/get-ip', [AssetManagemenController::class, 'getIP'])->name('get-ip');
     Route::get('asset-managemen/get-departemen', [AssetManagemenController::class, 'getDepartemen'])->name('get-departemen');
@@ -94,6 +99,15 @@ Route::group(['prefix' => 'master'], function () {
     Route::resource('master-departemen', MasterDepartemenController::class);
     Route::resource('master-unit', MasterUnitController::class);
     Route::resource('master-merk', MasterMerkController::class);
+    //Master Gudang
+    // Untuk Master Gudang
+    Route::get('/gudang', [MasterGudangController::class, 'index'])->name('master.master-gudang.index');
+    Route::get('/gudang/create', [MasterGudangController::class, 'create'])->name('master.master-gudang.create');
+    Route::get('/gudang/edit/{id}', [MasterGudangController::class, 'edit'])->name('master.master-gudang.edit');
+    Route::put('/gudang/update/{id}', [MasterGudangController::class, 'update'])->name('master.master-gudang.update');
+    Route::post('/gudang/store', [MasterGudangController::class, 'store'])->name('master.master-gudang.store');
+    Route::delete('/gudang/destroy/{id}', [MasterGudangController::class, 'destroy'])->name('master.master-gudang.destroy');
+
 
     Route::prefix('master-pengguna')->group(function () {
         Route::get('/', [MasterPenggunaController::class, 'index'])->name('master.master-pengguna.index');

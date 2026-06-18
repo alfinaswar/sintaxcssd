@@ -40,6 +40,13 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="font-weight-bold">Gudang</label>
+                        <div class="border p-2 rounded bg-light">{{ $data->getGudang->Nama ?? '-' }}</div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- Daftar Aset -->
@@ -49,27 +56,37 @@
                     <table class="table table-bordered table-striped">
                         <thead class="thead-light">
                             <tr>
-                                <th style="width: 60%;">Nama Item</th>
-                                <th style="width: 40%;">Keterangan</th>
+                                <th style="width: 5%;">No</th>
+                                <th style="width: 25%;">Nama Item</th>
+                                <th style="width: 15%;">SN</th>
+                                <th style="width: 20%;">Metode</th>
+                                <th style="width: 35%;">Keterangan</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse ($data->getDetail as $detail)
+                            @forelse ($data->getDetail as $i => $detail)
                                 <tr>
+                                    <td>{{ $i + 1 }}</td>
                                     <td>
                                         {{ $detail->getItem->kode_item ?? '' }}
                                         {{ $detail->getItem->nama ?? '' }}
                                         {{ $detail->getItem->no_inventaris ?? '' }}
                                     </td>
+                                    <td>
+                                        {{ $detail->getItem->no_sn ?? '-' }}
+                                    </td>
+                                    <td>{{ $detail->Metode ?? '-' }}</td>
                                     <td>{{ $detail->Keterangan }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="2" class="text-center text-muted">Tidak ada data aset</td>
+                                    <td colspan="5" class="text-center text-muted">Tidak ada data aset</td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
+
+
                 </div>
             </div>
 
@@ -83,7 +100,31 @@
 
             <!-- Tanda Tangan Hanya SMI & Manajer Penunjang -->
             <div class="row text-center mt-5">
-                <div class="col-md-6">
+                <div class="col-md-4">
+                    <p class="mb-4" style="font-weight: bold;">Mengetahui Karu/Kanit,</p>
+                    @if ($data->AccKaruKanit === 'Y')
+                        @if (!empty($data->getKaruKanit->ttd))
+                            <div style="height: 150px;">
+                                <img src="{{ asset('storage/tandatangan/' . $data->getKaruKanit->ttd) }}"
+                                    alt="Tanda Tangan" style="max-height: 150px;">
+                            </div>
+                        @else
+                            <div style="height: 80px;" class="text-muted">Tidak ada gambar tanda tangan</div>
+                        @endif
+                    @elseif($data->AccKaruKanit === 'N')
+                        <div style="height: 80px;"
+                            class="text-danger d-flex flex-column align-items-center justify-content-center">
+                            <i class="bi bi-x-circle-fill" style="font-size: 3rem;"></i>
+                            <div>Ditolak {{ $data->getKaruKanit->name ?? '-' }} </div>
+                        </div>
+                    @else
+                        <div style="height: 80px;" class="text-muted">Tidak ada gambar tanda tangan</div>
+                    @endif
+                    <hr style="width: 80%;">
+                    <p class="mt-2 font-weight-bold">( {{ $data->getKaruKanit->name ?? '-' }} )</p>
+                </div>
+
+                <div class="col-md-4">
                     <p class="mb-4" style="font-weight: bold;">Mengetahui SMI,</p>
                     @if ($data->AccSmi === 'Y')
                         @if (!empty($data->getSmi->ttd))
@@ -106,7 +147,7 @@
                     <hr style="width: 80%;">
                     <p class="mt-2 font-weight-bold">( {{ $data->getSmi->name ?? '-' }} )</p>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <p class="mb-4" style="font-weight: bold;">Mengetahui Meneger Penunjang dan Pelayanan Medis,</p>
                     @if ($data->AccManager === 'Y')
                         @if (!empty($data->getManager->ttd))
@@ -129,7 +170,9 @@
                     <hr style="width: 80%;">
                     <p class="mt-2 font-weight-bold">( {{ $data->getManager->name ?? '-' }} )</p>
                 </div>
+
             </div>
+
             @can('approval-as-manager')
                 @if ($data->Status == 'pengajuan')
                     <div class="row mt-4">

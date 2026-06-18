@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\DataInventaris;
 use App\Models\Flipbook;
 use App\Models\MasterDepartemenModel;
+use App\Models\MasterGudang;
 use App\Models\PenghapusanAset;
 use App\Models\PenghapusanAsetDetail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
 class PenghapusanAsetController extends Controller
@@ -25,7 +27,8 @@ class PenghapusanAsetController extends Controller
         if ($request->ajax()) {
 
             $query = PenghapusanAset::with('getDepartemen', 'getDiajukan', 'getRs')
-                ->orderBy('id', 'desc');
+                ->latest('id');
+
 
             // Filter berdasarkan kode RS
             if ($request->filled('rs')) {
@@ -40,8 +43,10 @@ class PenghapusanAsetController extends Controller
                     $btnShow = '<a href="' . route('pa.show', $row->id) . '" class="btn btn-outline-info btn-icon" title="Show"><i class="fa fa-eye"></i></a>';
                     $btnEdit = '<a href="' . route('pa.edit', $row->id) . '" class="btn btn-outline-primary btn-icon" title="Edit"><i class="fa fa-edit"></i></a>';
                     $btnDelete = '<button type="button" class="btn btn-outline-danger btn-icon" onclick="delete_data(event,' . $row->id . ')" title="Hapus Data"><i class="fa fa-trash"></i></button>';
-                    return $btnShow . ' ' . $btnEdit . ' ' . $btnDelete;
+                    $btnApprovalKaru = '<a href="' . route('pa.approval-karu', $row->id) . '" class="btn btn-outline-success btn-icon" title="Approval Karu"><i class="fa fa-check-square"></i></a>';
+                    return $btnShow . ' ' . $btnEdit . ' ' . $btnDelete . ' ' . $btnApprovalKaru;
                 })
+
                 ->editColumn('Status', function ($row) {
                     if ($row->Status == 'pengajuan') {
                         return '<span class="badge badge-warning">Pengajuan</span>';
@@ -76,9 +81,10 @@ class PenghapusanAsetController extends Controller
      */
     public function create()
     {
+        $gudang = MasterGudang::get();
         $departemen = MasterDepartemenModel::where('KodeRS', auth()->user()->kodeRS)->get();
         $item = DataInventaris::orderBy('nama', 'ASC')->get();
-        return view('penghapusan-aset.create', compact('departemen', 'item'));
+        return view('penghapusan-aset.create', compact('departemen', 'item', 'gudang'));
     }
 
     /**
@@ -93,10 +99,11 @@ class PenghapusanAsetController extends Controller
         // dd($data);
         PenghapusanAset::create([
             'NomorPengajuan' => $this->GenerateNumber(),
+            'NamaGudang' => $data['Gudang'] ?? null,
             'Departemen' => $data['Departemen'] ?? null,
             'Unit' => $data['Unit'] ?? null,
             'Tanggal' => $data['Tanggal'] ?? null,
-            'Status' => 'pengajuan',
+            'Status' => 'draft',
             'DiajukanOleh' => auth()->user()->id,
             'Sign1' => $data['Sign1'] ?? null,
             'Sign2' => $data['Sign2'] ?? null,
@@ -106,11 +113,14 @@ class PenghapusanAsetController extends Controller
             'Catatan' => $data['Catatan'] ?? null,
         ]);
         $idPenghapusan = PenghapusanAset::where('DiajukanOleh', auth()->user()->id)->orderBy('id', 'desc')->first();
-
         foreach ($data['AssetId'] as $key => $detail) {
+            $cariasset = DataInventaris::where('kode_item', $detail)->first();
             PenghapusanAsetDetail::create([
                 'idPenghapusan' => $idPenghapusan ? $idPenghapusan->id : null,
                 'AssetId' => $detail,
+                'NoInventaris' => $cariasset->no_inventaris ?? 'null',
+                'SerialNumber' => $cariasset->no_sn ?? 'null',
+                'Metode' => $cariasset->MetodePenghapusan ?? 'null',
                 'Qty' => $detail['Qty'] ?? 1,
                 'Keterangan' => $request->Keterangan[$key] ?? null,
             ]);
@@ -122,32 +132,81 @@ class PenghapusanAsetController extends Controller
     }
     private function GenerateNumber()
     {
-
         $tahun = date('y');
         $bulan = date('m');
         $prefix = 'DEL' . $tahun . $bulan;
 
-        // Ambil nomor terakhir di bulan dan tahun ini
-        $last = PenghapusanAset::whereRaw("LEFT(NomorPengajuan, 6) = ?", [$prefix])
-            ->orderBy('NomorPengajuan', 'desc')
-            ->first();
+        // Ambil id terakhir dari tabel penghapusan_asets
+        $last = PenghapusanAset::orderBy('id', 'desc')->first();
+        $nextId = $last ? $last->id + 1 : 1;
 
-        if ($last && strlen($last->NomorPengajuan) >= 10) {
-            $lastNumber = intval(substr($last->NomorPengajuan, 6, 4));
-            $nextNumber = $lastNumber + 1;
-        } else {
-            $nextNumber = 1;
-        }
-
-        $nomorBaru = $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        $nomorBaru = $prefix . str_pad($nextId, 4, '0', STR_PAD_LEFT);
         return $nomorBaru;
     }
 
+    public function approvalKaruSubmit(Request $request, $id)
+    {
+        $request->validate([
+            'action_type' => 'required|in:approve,reject',
+            'nama_penandatangan' => 'required|string|max:255',
+            'signature' => 'required|string',
+        ]);
+
+        try {
+            DB::beginTransaction();
+            $data = PenghapusanAset::findOrFail($id);
+            // Simpan tanda tangan ke storage
+            $signatureData = $request->signature;
+            $signatureName = 'signature_karu_' . $id . '_' . time() . '.png';
+            $signaturePath = 'penghapusan-aset/signatures/' . $signatureName;
+
+            // Decode base64 dan simpan ke storage
+            $image = str_replace('data:image/png;base64,', '', $signatureData);
+            $image = str_replace(' ', '+', $image);
+            Storage::disk('public')->put($signaturePath, base64_decode($image));
+
+            // Update status berdasarkan action
+            if ($request->action_type === 'approve') {
+                $data->NamaKaru = $request->nama_penandatangan;
+                $data->AccKaru = now();
+                $data->Sign3 = $signaturePath;
+                $message = 'Pengajuan di acc oleh Karu.';
+            } else {
+                $data->status_karu = 'rejected';
+                $data->rejected_karu_by = $request->nama_penandatangan;
+                $data->rejected_karu_at = now();
+                $data->signature_karu = $signaturePath;
+                $message = 'Pengajuan ditolak oleh Karu.';
+            }
+
+            $data->save();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'redirect' => route('pa.approval-karu', $id)
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memproses approval: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
     public function show($id)
     {
-        $data = PenghapusanAset::with('getDepartemen', 'getDiajukan', 'getManager', 'getSmi', 'getRs', 'getDetail', 'getDetail.getItem')->where('id', $id)->first();
+        $data = PenghapusanAset::with('getGudang', 'getDepartemen', 'getDiajukan', 'getManager', 'getSmi', 'getRs', 'getDetail', 'getDetail.getItem')->where('id', $id)->first();
         return view('penghapusan-aset.show', compact('data'));
+    }
+    public function approvalKaru($id)
+    {
+        $data = PenghapusanAset::with('getGudang', 'getDepartemen', 'getDiajukan', 'getManager', 'getSmi', 'getRs', 'getDetail', 'getDetail.getItem')->where('id', $id)->first();
+        return view('penghapusan-aset.approval-karu', compact('data'));
     }
     public function Print($id)
     {
@@ -173,8 +232,9 @@ class PenghapusanAsetController extends Controller
      */
     public function edit($id)
     {
+        $gudang = MasterGudang::get();
         $data = PenghapusanAset::with('getDetail')->findOrFail($id);
-        return view('penghapusan-aset.edit', compact('data'));
+        return view('penghapusan-aset.edit', compact('data', 'gudang'));
     }
 
 
@@ -188,6 +248,7 @@ class PenghapusanAsetController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->all();
+        // dd($data);
         $penghapusanAset = PenghapusanAset::findOrFail($id);
         $penghapusanAset->update([
             'Departemen' => $data['Departemen'] ?? null,
@@ -200,9 +261,13 @@ class PenghapusanAsetController extends Controller
         PenghapusanAsetDetail::where('idPenghapusan', $id)->delete();
 
         foreach ($data['AssetId'] as $key => $detail) {
+            $cariasset = DataInventaris::where('kode_item', $detail)->first();
             PenghapusanAsetDetail::create([
                 'idPenghapusan' => $id,
                 'AssetId' => $detail,
+                'NoInventaris' => $cariasset->no_inventaris ?? 'null',
+                'SerialNumber' => $cariasset->no_sn ?? 'null',
+                'Metode' => $request->MetodePenghapusan[$key] ?? null,
                 'Qty' => $detail['Qty'] ?? 1,
                 'Keterangan' => $request->Keterangan[$key] ?? null,
             ]);
@@ -314,4 +379,5 @@ class PenghapusanAsetController extends Controller
             ], 500);
         }
     }
+
 }

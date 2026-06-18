@@ -71,6 +71,27 @@
                                 <input type="hidden" name="filter_rs" value="{{ auth()->user()->kodeRS }}">
                             @endif
 
+                            {{-- Filter Klasifikasi --}}
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="klasifikasi">Klasifikasi</label>
+                                    <select name="klasifikasi" id="klasifikasi" class="form-control">
+                                        <option value="">--Pilih Satu--</option>
+                                        <option value="None" {{ old('klasifikasi') == 'None' ? 'selected' : '' }}>None
+                                        </option>
+                                        <option value="High Risk" {{ old('klasifikasi') == 'High Risk' ? 'selected' : '' }}>
+                                            High Risk</option>
+                                        <option value="Medium Risk"
+                                            {{ old('klasifikasi') == 'Medium Risk' ? 'selected' : '' }}>Medium Risk</option>
+                                        <option value="Low to Medium Risk"
+                                            {{ old('klasifikasi') == 'Low to Medium Risk' ? 'selected' : '' }}>Low to Medium
+                                            Risk</option>
+                                        <option value="Low Risk" {{ old('klasifikasi') == 'Low Risk' ? 'selected' : '' }}>
+                                            Low Risk</option>
+                                    </select>
+                                </div>
+                            </div>
+
                             {{-- Filter Tahun --}}
                             <div class="col-md-4">
                                 <div class="form-group">

@@ -10,7 +10,9 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class MaintananceExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithCustomStartCell
 {
@@ -18,19 +20,28 @@ class MaintananceExport implements FromCollection, WithHeadings, WithMapping, Wi
     protected $bulanAwal;
     protected $bulanAkhir;
     protected $tahun;
+    protected $klasifikasi;
     protected $rowNumber = 3; // Mulai dari baris ke-3 (setelah header laporan)
 
-    public function __construct($filterRs, $bulanAwal, $bulanAkhir, $tahun)
+    public function __construct($filterRs, $bulanAwal, $bulanAkhir, $tahun, $klasifikasi)
     {
         $this->filterRs = $filterRs;
         $this->bulanAwal = $bulanAwal;
         $this->bulanAkhir = $bulanAkhir;
         $this->tahun = $tahun;
+        $this->klasifikasi = $klasifikasi;
     }
 
     public function collection()
     {
-        $query = Maintanance::with(['getInventaris', 'getRs'])
+        $query = Maintanance::with([
+            'getInventaris' => function ($q) {
+                if ($this->klasifikasi) {
+                    $q->where('klasifikasi', $this->klasifikasi);
+                }
+            },
+            'getRs'
+        ])
             ->orderBy('kode_item', 'asc')
             ->orderBy('bulan', 'asc');
 
@@ -58,6 +69,10 @@ class MaintananceExport implements FromCollection, WithHeadings, WithMapping, Wi
         return [
             'No',
             'Nama Barang',
+            'No SN',
+            'No Inventaris',
+            'Unit',
+            'Klasifikasi',
             'Bulan',
             'Keterangan',
             'Tanggal Input',
@@ -82,25 +97,31 @@ class MaintananceExport implements FromCollection, WithHeadings, WithMapping, Wi
             12 => 'Desember'
         ];
 
+        $inventaris = $row->getInventaris;
+
         $this->rowNumber++;
 
         return [
             $this->rowNumber - 2, // Nomor urut
-            $row->getInventaris ? $row->getInventaris->nama : ($row->kode_item ?? '-'),
-            $months[$row->bulan] ?? '-',
-            $row->keterangan ?? '-',
-            $row->created_at ? $row->created_at->format('d/m/Y H:i') : '-',
-            $row->updated_at ? $row->updated_at->format('d/m/Y H:i') : '-'
+            $inventaris ? $inventaris->nama : ($row->kode_item ?? '-'), // Nama Barang
+            $inventaris ? ($inventaris->no_sn ?? '-') : '-', // No SN
+            $inventaris ? ($inventaris->no_inventaris ?? '-') : '-', // No Inventaris
+            $inventaris ? ($inventaris->unit ?? '-') : '-', // Unit
+            $inventaris ? ($inventaris->klasifikasi ?? '-') : '-', // Klasifikasi
+            $months[$row->bulan] ?? $row->bulan, // Bulan (nama)
+            $row->keterangan ?? '-', // Keterangan
+            $row->created_at ? $row->created_at->format('d/m/Y H:i') : '-', // Tanggal Input
+            $row->updated_at ? $row->updated_at->format('d/m/Y H:i') : '-' // Tanggal Update
         ];
     }
 
     public function styles(Worksheet $sheet)
     {
-        // Header Laporan (Baris 1)
-        $sheet->mergeCells('A1:F1');
+        // Header Laporan (Baris 1) - 10 kolom A-J
+        $sheet->mergeCells('A1:J1');
         $sheet->setCellValue('A1', 'LAPORAN PREVENTIF MAINTENANCE ALAT');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
-        $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         // Info Laporan (Baris 2)
         $rsName = '';
@@ -109,32 +130,29 @@ class MaintananceExport implements FromCollection, WithHeadings, WithMapping, Wi
             $rsName = $rs ? $rs->namaRS : 'Semua RS';
         }
 
-        $sheet->mergeCells('A2:F2');
+        $sheet->mergeCells('A2:J2');
         $sheet->setCellValue('A2', "Rumah Sakit: {$rsName} | Periode: {$this->getBulanName($this->bulanAwal)} - {$this->getBulanName($this->bulanAkhir)} {$this->tahun}");
         $sheet->getStyle('A2')->getFont()->setItalic(true);
-        $sheet->getStyle('A2')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        // Header Tabel (Baris 3)
-        $sheet->getStyle('A3:F3')->getFont()->setBold(true);
-        $sheet->getStyle('A3:F3')->getFill()
-            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+        // Header Tabel (Baris 3) - 10 kolom
+        $sheet->getStyle('A3:J3')->getFont()->setBold(true);
+        $sheet->getStyle('A3:J3')->getFill()
+            ->setFillType(Fill::FILL_SOLID)
             ->getStartColor()->setRGB('4472C4');
-        $sheet->getStyle('A3:F3')->getFont()->getColor()->setRGB('FFFFFF');
-        $sheet->getStyle('A3:F3')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('A3:F3')->getBorders()->getAllBorders()
-            ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+        $sheet->getStyle('A3:J3')->getFont()->getColor()->setRGB('FFFFFF');
+        $sheet->getStyle('A3:J3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A3:J3')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
 
-        // Merge cell untuk Nama Barang yang sama
+        // Merge cell untuk Nama Barang yang sama (Kolom B)
         $this->mergeNamaBarangCells($sheet);
 
-        // Border untuk semua cell
-        $lastRow = $this->rowNumber + 2; // +2 karena mulai dari baris 3
-        $sheet->getStyle("A3:F{$lastRow}")->getBorders()->getAllBorders()
-            ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+        // Border untuk semua cell data
+        $lastRow = $this->rowNumber + 2;
+        $sheet->getStyle("A3:J{$lastRow}")->getBorders()->getAllBorders()
+            ->setBorderStyle(Border::BORDER_THIN);
 
-        return [
-            1 => ['font' => ['bold' => true]],
-        ];
+        return [];
     }
 
     protected function mergeNamaBarangCells($sheet)
@@ -150,14 +168,15 @@ class MaintananceExport implements FromCollection, WithHeadings, WithMapping, Wi
         $rowIndex = 4;
 
         foreach ($data as $row) {
-            $namaBarang = $row->getInventaris ? $row->getInventaris->nama : ($row->kode_item ?? '-');
+            $inventaris = $row->getInventaris;
+            $namaBarang = $inventaris ? $inventaris->nama : ($row->kode_item ?? '-');
 
             if ($namaBarang !== $currentNamaBarang) {
-                // Merge cell untuk nama barang sebelumnya
+                // Merge cell untuk nama barang sebelumnya (Kolom B)
                 if ($currentNamaBarang !== '' && ($rowIndex - $mergeStartRow) > 1) {
                     $sheet->mergeCells("B{$mergeStartRow}:B" . ($rowIndex - 1));
                     $sheet->getStyle("B{$mergeStartRow}")->getAlignment()
-                        ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                        ->setVertical(Alignment::VERTICAL_CENTER);
                 }
 
                 $currentNamaBarang = $namaBarang;
@@ -171,7 +190,7 @@ class MaintananceExport implements FromCollection, WithHeadings, WithMapping, Wi
         if ($currentNamaBarang !== '' && ($rowIndex - $mergeStartRow) > 1) {
             $sheet->mergeCells("B{$mergeStartRow}:B" . ($rowIndex - 1));
             $sheet->getStyle("B{$mergeStartRow}")->getAlignment()
-                ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                ->setVertical(Alignment::VERTICAL_CENTER);
         }
     }
 

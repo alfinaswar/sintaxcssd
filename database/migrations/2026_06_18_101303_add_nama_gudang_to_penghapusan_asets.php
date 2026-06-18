@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddNamaRsToFormulirPembersihans extends Migration
+class AddNamaGudangToPenghapusanAsets extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddNamaRsToFormulirPembersihans extends Migration
      */
     public function up()
     {
-        Schema::table('formulir_pembersihans', function (Blueprint $table) {
-            $table->string('nama_rs', 100)->nullable()->after('Keterangan');
+        Schema::table('penghapusan_asets', function (Blueprint $table) {
+            $table->string('NamaGudang', 100)->nullable()->after('id');
         });
     }
 
@@ -25,7 +25,7 @@ class AddNamaRsToFormulirPembersihans extends Migration
      */
     public function down()
     {
-        Schema::table('formulir_pembersihans', function (Blueprint $table) {
+        Schema::table('penghapusan_asets', function (Blueprint $table) {
             //
         });
     }

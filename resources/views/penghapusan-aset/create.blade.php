@@ -47,6 +47,18 @@
                                 value="{{ date('Y-m-d') }}" required>
                         </div>
                     </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="gudang" class="col-form-label">Gudang <span class="text-danger">*</span></label>
+                            <select class="form-control kt-select2" name="Gudang" id="gudang" required>
+                                <option value="">Pilih Gudang</option>
+                                @foreach ($gudang as $g)
+                                    <option value="{{ $g->id }}">{{ $g->Nama }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="kt-separator kt-separator--space-lg kt-separator--border-dashed"></div>

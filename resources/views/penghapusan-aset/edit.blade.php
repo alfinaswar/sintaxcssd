@@ -18,7 +18,7 @@
 
         <form method="post" action="{{ route('pa.update', $data->id) }}" id="form-penghapusan">
             @csrf
-            @method('PUT') {{-- Penting untuk method PUT --}}
+            @method('PUT')
             <div class="kt-portlet__body">
                 {{-- Header Form --}}
                 <div class="row">
@@ -27,7 +27,10 @@
                             <label for="departemen" class="col-form-label">Departemen <span
                                     class="text-danger">*</span></label>
                             <select class="form-control kt-select2" name="Departemen" id="departemen" required>
-                                <option value="{{ $data->Departemen }}" selected>{{ $data->getDepartemen->nama }}</option>
+                                @if ($data->getDepartemen)
+                                    <option value="{{ $data->Departemen }}" selected>{{ $data->getDepartemen->nama }}
+                                    </option>
+                                @endif
                             </select>
                         </div>
                     </div>
@@ -48,6 +51,17 @@
                                 value="{{ $data->Tanggal }}" required>
                         </div>
                     </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="gudang" class="col-form-label">Gudang <span class="text-danger">*</span></label>
+                            <select class="form-control kt-select2" name="Gudang" id="gudang" required>
+                                @foreach ($gudang as $g)
+                                    <option value="{{ $g->id }}" @if ($data->Gudang == $g->id) selected @endif>
+                                        {{ $g->Nama }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="kt-separator kt-separator--space-lg kt-separator--border-dashed"></div>
@@ -61,19 +75,18 @@
                                 <table class="table table-bordered" id="table-aset">
                                     <thead class="thead-light">
                                         <tr>
-                                            <th width="50%">Nama Item</th>
-                                            <th width="40%">Keterangan Penghapusan</th>
+                                            <th width="34%">Nama Item</th>
+                                            <th width="25%">Metode Penghapusan</th>
+                                            <th width="31%">Keterangan Penghapusan</th>
                                             <th width="10%" class="text-center">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tbody-aset">
-                                        {{-- Render baris yang sudah ada dari database --}}
                                         @foreach ($data->getDetail as $index => $detail)
                                             <tr data-row-id="{{ $index }}">
                                                 <td>
                                                     <select class="form-control kt-select2 asset-select" name="AssetId[]"
                                                         required>
-                                                        {{-- Opsi ini akan menjadi nilai terpilih awal di Select2 --}}
                                                         @if ($detail->getItem)
                                                             <option value="{{ $detail->AssetId }}" selected>
                                                                 {{ $detail->getItem->no_inventaris ?? $detail->AssetId }} -
@@ -85,10 +98,29 @@
                                                             </option>
                                                         @endif
                                                     </select>
-
                                                 </td>
                                                 <td>
-                                                    <textarea class="form-control" name="Keterangan[]" rows="2" required>{{ $detail->Keterangan }}</textarea>
+                                                    <select class="form-control metode-penghapusan-select"
+                                                        name="MetodePenghapusan[]" required>
+                                                        <option value="">Pilih Metode</option>
+                                                        <option value="dimusnahkan"
+                                                            @if ($detail->Metode == 'dimusnahkan') selected @endif>Dimusnahkan
+                                                        </option>
+                                                        <option value="dijual"
+                                                            @if ($detail->Metode == 'dijual') selected @endif>Dijual
+                                                        </option>
+                                                        <option value="dihibahkan"
+                                                            @if ($detail->Metode == 'dihibahkan') selected @endif>Dihibahkan
+                                                        </option>
+                                                        <option value="lainnya"
+                                                            @if ($detail->Metode == 'lainnya') selected @endif>Lainnya
+                                                        </option>
+
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control" name="Keterangan[]"
+                                                        value="{{ $detail->Keterangan }}" required>
                                                 </td>
                                                 <td class="text-center">
                                                     <button type="button" class="btn btn-danger btn-sm remove-row"
@@ -158,11 +190,18 @@
             @endforeach
         @endif
 
-        let rowIndex = {{ $data->getDetail->count() }}; // Mulai dari jumlah data yang sudah ada
+        let rowIndex = {{ $data->getDetail->count() }};
 
-        // Template row baru
         function createRowTemplate() {
             rowIndex++;
+            let metodeOptions = `
+                <option value="">Pilih Metode</option>
+                <option value="dimusnahkan">Dimusnahkan</option>
+                <option value="dijual">Dijual</option>
+                <option value="dihibahkan">Dihibahkan</option>
+                <option value="lainnya">Lainnya</option>
+
+            `;
             return `
                 <tr data-row-id="${rowIndex}">
                     <td>
@@ -171,7 +210,12 @@
                         </select>
                     </td>
                     <td>
-                        <textarea class="form-control" name="Keterangan[]" placeholder="Masukkan keterangan alasan penghapusan" rows="2" required></textarea>
+                        <select class="form-control metode-penghapusan-select" name="MetodePenghapusan[]" required>
+                            ${metodeOptions}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="Keterangan[]" placeholder="Masukkan keterangan alasan penghapusan" required>
                     </td>
                     <td class="text-center">
                         <button type="button" class="btn btn-danger btn-sm remove-row" title="Hapus baris">
@@ -182,7 +226,6 @@
             `;
         }
 
-        // Inisialisasi Select2 Asset
         function initAssetSelect2(element) {
             $(element).select2({
                 placeholder: "Ketik untuk cari item...",
@@ -199,14 +242,19 @@
                     },
                     processResults: function(data) {
                         return {
-                            results: data
+                            results: $.map(data, function(item) {
+                                return {
+                                    id: item.id,
+                                    text: (item.no_inventaris ? item.no_inventaris + ' - ' : '') + item
+                                        .nama,
+                                };
+                            })
                         };
                     },
                     cache: true
                 }
             });
 
-            // Validasi duplikasi
             $(element).on('select2:select', function(e) {
                 const selectedId = e.params.data.id;
                 let isDuplicate = false;
@@ -263,7 +311,12 @@
                     },
                     processResults: function(data) {
                         return {
-                            results: data
+                            results: $.map(data, function(item) {
+                                return {
+                                    id: item.id,
+                                    text: item.nama,
+                                };
+                            })
                         };
                     },
                     cache: true
@@ -287,7 +340,12 @@
                     },
                     processResults: function(data) {
                         return {
-                            results: data
+                            results: $.map(data, function(item) {
+                                return {
+                                    id: item.Unit,
+                                    text: item.Unit,
+                                };
+                            })
                         };
                     },
                     cache: true
@@ -295,24 +353,31 @@
             });
         }
 
+        function selectGudang() {
+            $('#gudang').select2({
+                placeholder: "Pilih Gudang...",
+                allowClear: true
+            });
+        }
+
         $(document).ready(function() {
-            // Inisialisasi Select2 untuk header
             selectDepartemen();
             selectUnit();
+            selectGudang();
 
-            // Inisialisasi Select2 untuk baris aset yang SUDAH ADA dari database
             $('.asset-select').each(function() {
                 initAssetSelect2(this);
             });
 
-            // Event handlers
             removeRow();
             updateRemoveButtons();
 
             $('#add-row').on('click', addRow);
 
-            // Validasi submit
             $('#form-penghapusan').on('submit', function(e) {
+                let isValid = true;
+                let errorMsg = '';
+
                 let emptyAsset = false;
                 $('.asset-select').each(function() {
                     if (!$(this).val()) {
@@ -322,12 +387,46 @@
                 });
 
                 if (emptyAsset) {
+                    errorMsg = 'Semua item harus dipilih!';
+                    isValid = false;
+                }
+
+                let emptyMetode = false;
+                $('.metode-penghapusan-select').each(function() {
+                    if (!$(this).val()) {
+                        emptyMetode = true;
+                        return false;
+                    }
+                });
+                if (emptyMetode) {
+                    errorMsg = 'Setiap aset harus memiliki metode penghapusan!';
+                    isValid = false;
+                }
+
+                const selectedItems = [];
+                let hasDuplicate = false;
+                $('.asset-select').each(function() {
+                    const val = $(this).val();
+                    if (selectedItems.includes(val)) {
+                        hasDuplicate = true;
+                        return false;
+                    }
+                    selectedItems.push(val);
+                });
+                if (hasDuplicate) {
+                    errorMsg = 'Terdapat item yang dipilih lebih dari sekali!';
+                    isValid = false;
+                }
+
+                if (!isValid) {
                     e.preventDefault();
-                    toastr.error('Semua item harus dipilih!', 'Validasi Gagal');
+                    toastr.error(errorMsg, 'Validasi Gagal');
                     return false;
                 }
+
                 $('#btn-submit').prop('disabled', true).html(
-                    '<i class="fa fa-spinner fa-spin"></i> Mengupdate...');
+                    '<i class="fa fa-spinner fa-spin"></i> Mengupdate...'
+                );
             });
         });
     </script>
