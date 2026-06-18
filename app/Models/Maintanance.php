@@ -32,7 +32,7 @@ class Maintanance extends Model
     }
     public function getInventaris()
     {
-        return $this->hasOne(DataInventaris::class, 'kode_item', 'kode_item');
+        return $this->belongsTo(DataInventaris::class, 'kode_item', 'kode_item');
     }
     public function getRs()
     {
