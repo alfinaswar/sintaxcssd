@@ -27,4 +27,13 @@ class FormulirPembersihan extends Model
     {
         return $this->belongsTo(User::class, 'createdBy', 'id');
     }
+    /**
+     * Get the inventaris associated with the FormulirPembersihan
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function getInventaris()
+    {
+        return $this->belongsTo(DataInventaris::class, 'kode_item', 'kode_item');
+    }
 }

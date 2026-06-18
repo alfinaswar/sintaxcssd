@@ -244,9 +244,9 @@ class MaintananceController extends Controller
         ]);
 
         $maintanance = Maintanance::findOrFail($id);
-        if (auth()->user()->role !== 'admin' && $maintanance->kodeRS !== auth()->user()->kodeRS) {
-            return response()->json(['success' => false, 'message' => 'Akses ditolak'], 403);
-        }
+        // if (auth()->user()->role !== 'admin' && $maintanance->kodeRS !== auth()->user()->kodeRS) {
+        //     return response()->json(['success' => false, 'message' => 'Akses ditolak'], 403);
+        // }
 
         $maintanance->update([
             'bulan' => $request->bulan,

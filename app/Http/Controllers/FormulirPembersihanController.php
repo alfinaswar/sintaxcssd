@@ -12,6 +12,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Intervention\Image\Facades\Image;
 use Maatwebsite\Excel\Facades\Excel;
+use Yajra\DataTables\DataTables;
 
 class FormulirPembersihanController extends Controller
 {
@@ -31,7 +32,74 @@ class FormulirPembersihanController extends Controller
         $alat = DataInventaris::select('nama')->distinct()->get();
         return view('laporan.monitoring.index', compact('data', 'merk', 'alat'));
     }
+    public function list(Request $request)
+    {
+        if ($request->ajax()) {
+            $user = auth()->user();
 
+            $query = FormulirPembersihan::select([
+                'formulir_pembersihans.*',
+                'data_inventaris.real_name as inventaris_real_name',
+                'data_inventaris.no_inventaris as inventaris_no_inventaris'
+            ])
+                ->join('data_inventaris', 'formulir_pembersihans.kode_item', '=', 'data_inventaris.kode_item');
+
+            if ($user->role !== "admin") {
+                // INNER JOIN otomatis memfilter data yang tidak punya relasi inventaris
+                // Jadi tidak perlu lagi memakai ->whereHas('getInventaris')
+                $query->where('data_inventaris.nama_rs', $user->kodeRS);
+            }
+
+            // 2. Spesifikasikan nama tabel pada latest() agar tidak error 'ambiguous column'
+            $query->latest('formulir_pembersihans.created_at');
+
+            return DataTables::of($query)
+                ->filter(function ($query) use ($request) {
+                    if ($request->has('search') && !empty($request->search['value'])) {
+                        $keyword = $request->search['value'];
+                        $query->where(function ($q) use ($keyword) {
+                            // 3. Prefix nama tabel untuk menghindari error 'ambiguous column' saat search
+                            $q->where('formulir_pembersihans.kode_item', 'like', "%{$keyword}%")
+                                ->orWhere('formulir_pembersihans.Status', 'like', "%{$keyword}%")
+                                ->orWhere('formulir_pembersihans.Keterangan', 'like', "%{$keyword}%");
+
+                            // Opsional: Hapus komentar di bawah jika ingin kolom search bisa mencari nama alat
+                            // ->orWhere('data_inventaris.real_name', 'like', "%{$keyword}%");
+                        });
+                    }
+                }, true)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $btnEdit = '<a href="javascript:void(0)" onclick="openEditModal(' . $row->id . ')" class="btn btn-outline-warning btn-icon" data-toggle="kt-tooltip" data-placement="top" title="Edit Data"><i class="fa fa-edit"></i></a> ';
+                    $btnDelete = '<form action="' . route('formulir-pembersihan.destroy', $row->id) . '" method="POST" style="display:inline;" onsubmit="return confirm(\'Apakah Anda yakin ingin menghapus data ini?\')">'
+                        . csrf_field() . method_field('DELETE')
+                        . '<button type="submit" data-skin="brand" data-toggle="kt-tooltip" data-placement="top" title="Hapus Data" class="btn btn-outline-danger btn-icon"><i class="fa fa-trash"></i></button>'
+                        . '</form>';
+                    return $btnEdit . $btnDelete;
+                })
+                ->addColumn('kode_item', function ($row) {
+                    // 4. Ambil langsung dari kolom hasil join, tidak perlu akses relasi lagi
+                    $nama = $row->inventaris_real_name ?? '-';
+                    $no_inventaris = $row->inventaris_no_inventaris ?? '-';
+                    return $nama . '-' . $no_inventaris;
+                })
+                ->addColumn('Tanggal', function ($row) {
+                    return $row->Tanggal ? date('d-m-Y', strtotime($row->Tanggal)) : '-';
+                })
+                ->editColumn('Status', function ($row) {
+                    return $row->Status == 1 ? "Sudah Dibersihkan" : "Belum Dibersihkan";
+                })
+                // Catatan: editColumn 'Before' dan 'After' dihapus karena sudah di-render di JS (lihat Bonus Fix)
+                ->editColumn('Keterangan', function ($row) {
+                    return $row->Keterangan ?: '-';
+                })
+                ->rawColumns(['action', 'kode_item'])
+                ->make(true);
+        }
+
+        $rs = MasterRs::all();
+        return view('pembersihan-alat.index', compact('rs'));
+    }
     /**
      * Show the form for creating a new resource.
      *
