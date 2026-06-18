@@ -42,6 +42,7 @@ class MaintananceExport implements FromCollection, WithHeadings, WithMapping, Wi
             },
             'getRs'
         ])
+            ->whereHas('getInventaris')
             ->orderBy('kode_item', 'asc')
             ->orderBy('bulan', 'asc');
 
@@ -97,7 +98,9 @@ class MaintananceExport implements FromCollection, WithHeadings, WithMapping, Wi
             12 => 'Desember'
         ];
 
-        $inventaris = $row->getInventaris;
+        // Pastikan hanya mengambil jika ada relasi getInventaris (whereHas getInventaris)
+        $inventaris = $row->relationLoaded('getInventaris') && $row->getInventaris ? $row->getInventaris : null;
+
 
         $this->rowNumber++;
 
