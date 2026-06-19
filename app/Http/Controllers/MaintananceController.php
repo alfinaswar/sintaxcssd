@@ -254,7 +254,10 @@ class MaintananceController extends Controller
             'bulan' => $request->bulan,
             'status' => $request->status,
             'keterangan' => $request->keterangan,
-            'created_at' => $request->created_at,
+            // Tambahkan random waktu ke 'created_at'
+            'created_at' => \Carbon\Carbon::parse($request->created_at)
+                ->setTime(rand(0, 23), rand(0, 59), rand(0, 59)),
+
         ]);
 
         if ($request->ajax()) {
