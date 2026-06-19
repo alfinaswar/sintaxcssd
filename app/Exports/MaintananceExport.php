@@ -35,11 +35,7 @@ class MaintananceExport implements FromCollection, WithHeadings, WithMapping, Wi
     public function collection()
     {
         $query = Maintanance::with([
-            'getInventaris' => function ($q) {
-                if ($this->klasifikasi) {
-                    $q->where('klasifikasi', $this->klasifikasi);
-                }
-            },
+            'getInventaris',
             'getRs'
         ])
             ->whereHas('getInventaris')
@@ -101,7 +97,6 @@ class MaintananceExport implements FromCollection, WithHeadings, WithMapping, Wi
         // Pastikan hanya mengambil jika ada relasi getInventaris (whereHas getInventaris)
         $inventaris = $row->relationLoaded('getInventaris') && $row->getInventaris ? $row->getInventaris : null;
 
-
         $this->rowNumber++;
 
         return [
@@ -147,8 +142,8 @@ class MaintananceExport implements FromCollection, WithHeadings, WithMapping, Wi
         $sheet->getStyle('A3:J3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle('A3:J3')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
 
-        // Merge cell untuk Nama Barang yang sama (Kolom B)
-        $this->mergeNamaBarangCells($sheet);
+        // Merge cell untuk kode_item yang sama (Kolom B)
+        $this->mergeKodeItemCells($sheet);
 
         // Border untuk semua cell data
         $lastRow = $this->rowNumber + 2;
@@ -158,7 +153,8 @@ class MaintananceExport implements FromCollection, WithHeadings, WithMapping, Wi
         return [];
     }
 
-    protected function mergeNamaBarangCells($sheet)
+    // Merge cell kolom B jika kode_item sama secara berurutan
+    protected function mergeKodeItemCells($sheet)
     {
         $data = $this->collection();
         if ($data->isEmpty()) {
@@ -166,31 +162,33 @@ class MaintananceExport implements FromCollection, WithHeadings, WithMapping, Wi
         }
 
         $startRow = 4; // Data mulai baris ke-4
-        $currentNamaBarang = '';
+        $currentKodeItem = null;
         $mergeStartRow = 4;
         $rowIndex = 4;
 
         foreach ($data as $row) {
-            $inventaris = $row->getInventaris;
-            $namaBarang = $inventaris ? $inventaris->nama : ($row->kode_item ?? '-');
+            $kodeItem = $row->kode_item;
 
-            if ($namaBarang !== $currentNamaBarang) {
-                // Merge cell untuk nama barang sebelumnya (Kolom B)
-                if ($currentNamaBarang !== '' && ($rowIndex - $mergeStartRow) > 1) {
+            if ($currentKodeItem === null) {
+                $currentKodeItem = $kodeItem;
+            }
+
+            if ($kodeItem !== $currentKodeItem) {
+                // Merge cell jika kode_item sebelumnya sama dan lebih dari satu baris
+                if (($rowIndex - $mergeStartRow) > 1) {
                     $sheet->mergeCells("B{$mergeStartRow}:B" . ($rowIndex - 1));
                     $sheet->getStyle("B{$mergeStartRow}")->getAlignment()
                         ->setVertical(Alignment::VERTICAL_CENTER);
                 }
-
-                $currentNamaBarang = $namaBarang;
+                $currentKodeItem = $kodeItem;
                 $mergeStartRow = $rowIndex;
             }
 
             $rowIndex++;
         }
 
-        // Merge cell untuk nama barang terakhir
-        if ($currentNamaBarang !== '' && ($rowIndex - $mergeStartRow) > 1) {
+        // Merge cell untuk kode_item terakhir jika lebih dari satu baris
+        if (($rowIndex - $mergeStartRow) > 1) {
             $sheet->mergeCells("B{$mergeStartRow}:B" . ($rowIndex - 1));
             $sheet->getStyle("B{$mergeStartRow}")->getAlignment()
                 ->setVertical(Alignment::VERTICAL_CENTER);
