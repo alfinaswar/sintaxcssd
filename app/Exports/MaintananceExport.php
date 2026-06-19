@@ -38,7 +38,11 @@ class MaintananceExport implements FromCollection, WithHeadings, WithMapping, Wi
             'getInventaris',
             'getRs'
         ])
-            ->whereHas('getInventaris')
+            ->whereHas('getInventaris', function ($q) {
+                if ($this->klasifikasi) {
+                    $q->where('klasifikasi', $this->klasifikasi);
+                }
+            })
             ->orderBy('kode_item', 'asc')
             ->orderBy('bulan', 'asc');
 
