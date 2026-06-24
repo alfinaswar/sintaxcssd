@@ -139,7 +139,115 @@ class DataInventarisController extends Controller
         $dept = MasterDepartemenModel::where('KodeRS', auth()->user()->kodeRS)->get();
         return view('data-inventaris.index', compact('rs', 'dept'));
     }
+    public function indexKso(Request $request)
+    {
+        if ($request->ajax()) {
+            if (auth()->user()->role == 'admin' || auth()->user()->role == 'DKH') {
+                $data = DataInventaris::latest();
+            } else {
+                $data = DataInventaris::where('nama_rs', auth()->user()->kodeRS)->latest();
+            }
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    if (auth()->user()->role == 'DKH') {
+                        $btn = '-';
+                    } else {
+                        $print = '<center><a href="' . route('inventaris.label', $row->id) . '" target="_blank"><button type="button" data-skin="brand" data-toggle="kt-tooltip" data-placement="top" title="Print Barcode" class="btn btn-outline-primary btn-icon btn-md" ><i class="fas fa-qrcode"></i></button></a></center>';
+                        $history = '<center><a href="' . route('masalah.history', $row->kode_item) . '" target="_blank"><button type="button" data-skin="brand" data-toggle="kt-tooltip" data-placement="top" title="Lihat Riwayat" class="btn btn-outline-warning btn-icon btn-md" ><i class="fas fa-bookmark"></i></button></a></center>';
+                        $edit = '<center><a href="' . route('inventaris.edit', $row->id) . '" target="_blank"><button type="button" class="btn btn-outline-success btn-icon" ><i class="fa fa-user-cog"></i></button></a></center>';
+                        $delete = '';
+                        if (Auth::check() && Auth::user()->role === 'admin') {
+                            $delete = '<center><button onclick="delete_data(event, ' . $row->id . ')" class="btn btn-outline-danger btn-icon" title="Hapus"><i class="fa fa-trash"></i></button></center>';
+                        }
 
+                        $btn = $print . ' ' . $edit . ' ' . $history . ' ' . $delete;
+                    }
+
+                    return $btn;
+                })
+                ->addColumn('tahun_beli', function ($row) {
+                    if (!$row->tanggal_beli) {
+                        $tahun_beli = '-';
+                    } else {
+                        $tahun_beli = Carbon::parse($row->tanggal_beli)->format('Y');
+                    }
+                    return $tahun_beli;
+                })
+                ->addColumn('nama_rs', function ($row) {
+                    switch ($row->nama_rs) {
+                        case 'K':
+                            $realname = 'Awalbros Ayani';
+                            break;
+                        case 'I':
+                            $realname = 'Awalbros Panam';
+                            break;
+                        case 'B':
+                            $realname = 'Awalbros Batam';
+                            break;
+                        case 'A':
+                            $realname = 'Awalbros Sudirman';
+                            break;
+                        case 'G':
+                            $realname = 'Awalbros Ujung Batu';
+                            break;
+                        case 'S':
+                            $realname = 'Awalbros Bagan Batu';
+                            break;
+                        case 'R':
+                            $realname = 'Awalbros Botania';
+                            break;
+                        case 'D':
+                            $realname = 'Awalbros Dumai';
+                            break;
+                        case 'Q':
+                            $realname = 'Awalbros Hangtuah';
+                            break;
+                        case 'W':
+                            $realname = 'Awalbros Batu Aji';
+                            break;
+                        default:
+                            $realname = 'Nama RS Kosong';
+                            break;
+                    }
+
+                    $print = $realname;
+                    return $print;
+                })
+                ->filter(function ($instance) use ($request) {
+                    if ($request->get('filter_pengguna') && $request->get('filter_pengguna') !== '') {
+                        $instance->where('pengguna', $request->get('filter_pengguna'));
+                    }
+                    if ($request->get('filter_rs') && $request->get('filter_rs') !== '') {
+                        $instance->where('nama_rs', $request->get('filter_rs'));
+                    }
+                    if ($request->get('filter_departemen') && $request->get('filter_departemen') !== '') {
+                        $instance->where('departemen', $request->get('filter_departemen'));
+                    }
+                    if ($request->get('filter_unit') && $request->get('filter_unit') !== '') {
+                        $instance->where('unit', $request->get('filter_unit'));
+                    }
+                    if ($request->get('filter_pembelian') && $request->get('filter_pembelian') !== '') {
+                        $instance->whereYear('tanggal_beli', $request->get('filter_pembelian'));
+                    }
+
+                    if (!empty($request->get('search'))) {
+                        $instance->where(function ($w) use ($request) {
+                            $search = $request->get('search');
+                            $w
+                                ->orWhere('nama', 'LIKE', "%$search%")
+                                ->orWhere('no_inventaris', 'LIKE', "%$search%")
+                                ->orWhere('no_sn', 'LIKE', "%$search%");
+                        });
+                    }
+                })
+                ->rawColumns(['action', 'tahun_beli'])
+                ->make(true);
+        }
+        $rs = MasterRs::all();
+        $dept = MasterDepartemenModel::where('KodeRS', auth()->user()->kodeRS)->get();
+        return view('data-inventaris.kso.index', compact('rs', 'dept'));
+    }
     public function create()
     {
         if (auth()->user()->role == 'DKH') {
@@ -433,7 +541,7 @@ class DataInventarisController extends Controller
     public function getMerk(Request $request)
     {
         $merk = [];
-        $dataMerk = MasterMerk::select('nama');
+        $dataMerk = MasterMerk::select('id', 'nama', 'nama_rs');
         if ($request->has('q')) {
             $search = $request->q;
             $merk = $dataMerk

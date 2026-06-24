@@ -14,6 +14,7 @@ use App\Http\Controllers\FileTemplateController;
 use App\Http\Controllers\FlipbookController;
 use App\Http\Controllers\FormulirPembersihanController;
 use App\Http\Controllers\GudangController;
+use App\Http\Controllers\InventarisKsoController;
 use App\Http\Controllers\KalibrasiController;
 use App\Http\Controllers\KsoController;
 use App\Http\Controllers\LaporanController;
@@ -225,6 +226,19 @@ Route::prefix('inventaris')->group(function () {
     Route::get('/get-master-item', [DataInventarisController::class, 'getMasterItem'])->name('inventaris.get-master-item');
     Route::get('/get-item-penghapusan', [DataInventarisController::class, 'getItemPenghapusan'])->name('inventaris.get-item-penghapusan');
     Route::get('/get-departemen-penghapusan', [DataInventarisController::class, 'getDepartemenPenghapusan'])->name('inventaris.get-departemen-penghapusan');
+
+
+    Route::get('/kso', [InventarisKsoController::class, 'index'])->name('inventaris.index-kso');
+    // CRUD routes for InventarisKso
+    Route::get('/kso/create', [InventarisKsoController::class, 'create'])->name('inventariskso.create');
+    Route::post('/kso/store', [InventarisKsoController::class, 'store'])->name('inventariskso.store');
+    Route::get('/kso/{inventarisKso}/edit', [InventarisKsoController::class, 'edit'])->name('inventariskso.edit');
+    Route::put('/kso/{inventarisKso}', [InventarisKsoController::class, 'update'])->name('inventariskso.update');
+    Route::delete('/kso/{inventarisKso}', [InventarisKsoController::class, 'destroy'])->name('inventariskso.destroy');
+    Route::get('/kso/import', [InventarisKsoController::class, 'import'])->name('inventariskso.import');
+    Route::get('/laporan-kso', [InventarisKsoController::class, 'laporanKso'])->name('inventaris.laporan-kso');
+    // Route untuk AJAX Select2 Nama Alat dari MasterAlat
+    Route::get('inventariskso/get-master-alat', [InventarisKsoController::class, 'getMasterAlat'])->name('inventariskso.get-master-alat');
 });
 Route::prefix('flipbook')->group(function () {
     Route::get('/', [FlipbookController::class, 'index'])->name('flipbook.index');
