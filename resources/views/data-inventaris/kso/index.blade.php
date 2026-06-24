@@ -27,6 +27,19 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-3">
+                    <small>Filter By Nama:</small>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-prepend"><span class="input-group-text"><i
+                                        class="fa fa-search"></i></span></div>
+                            <select class="form-control kt-select2 @error('Nama') is-invalid @enderror"
+                                id="filter_nama_barang" name="Nama" required>
+                                <option value="">--Pilih Barnag--</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
                     <small>Filter By Jenis:</small>
                     <div class="form-group">
                         <div class="input-group">
@@ -217,6 +230,7 @@
                         d.filter_unit = $('#filter_unit,#unit').val();
                         d.filter_tahun_kerjasama = $('#filter_tahun_kerjasama').val();
                         d.filter_pencarian = $('#filter_pencarian').val();
+                        d.filter_nama_barang = $('#filter_nama_barang').val();
                         d.search = $('input[type="search"]').val();
                     }
                 },
@@ -376,6 +390,7 @@
                         cache: true
                     }
                 });
+
             });
         }
 
@@ -401,17 +416,41 @@
                 }
             });
         }
-
+        var select_nama_alat = function() {
+            $('#filter_nama_barang').select2({
+                placeholder: "Ketik untuk mencari alat...",
+                minimumInputLength: 1,
+                allowClear: true,
+                ajax: {
+                    url: '{{ route('inventariskso.get-master-alat') }}',
+                    dataType: 'json',
+                    delay: 250,
+                    processResults: function(data) {
+                        return {
+                            results: $.map(data, function(item) {
+                                return {
+                                    text: item.Nama,
+                                    id: item.id
+                                }
+                            })
+                        };
+                    },
+                    cache: true
+                }
+            });
+        };
         jQuery(document).ready(function() {
             dataTable();
             select_unit_non();
             select_unit();
+            select_nama_alat();
             $('[data-switch=true]').bootstrapSwitch();
         });
 
-        $('#filter_pengguna,#filter_rs,#filter_departemen,#filter_unit,#unit,#filter_tahun_kerjasama').change(function() {
-            $('#kt_table_1').DataTable().draw();
-        });
+        $('#filter_pengguna,#filter_rs,#filter_departemen,#filter_unit,#unit,#filter_tahun_kerjasama,#filter_nama_barang')
+            .change(function() {
+                $('#kt_table_1').DataTable().draw();
+            });
 
         $('#filter_pencarian').keyup(function() {
             $('#kt_table_1').DataTable().draw();
@@ -424,6 +463,7 @@
                 filter_jenis: $('#filter_pengguna').val(),
                 filter_rs: $('#filter_rs').val(),
                 filter_departemen: $('#filter_departemen').val(),
+                filter_nama_barang: $('#filter_nama_barang').val(),
                 filter_unit: $('#filter_unit,#unit').val(),
                 filter_tahun_kerjasama: $('#filter_tahun_kerjasama').val(),
                 filter_pencarian: $('#filter_pencarian').val(),

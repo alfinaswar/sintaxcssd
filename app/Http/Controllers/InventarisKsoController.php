@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\InventarisKsoExport;
 use App\Models\InventarisKso;
 use App\Models\MasterAlat;
 use App\Models\MasterRs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\DataTables;
 
 class InventarisKsoController extends Controller
@@ -37,6 +39,8 @@ class InventarisKsoController extends Controller
                 $data->where('Unit', $request->filter_unit);
             if ($request->filter_tahun_kerjasama)
                 $data->whereYear('TanggalKerjasama', $request->filter_tahun_kerjasama);
+            if ($request->filter_nama_barang)
+                $data->whereYear('Nama', $request->filter_nama_barang);
 
             if ($request->filter_pencarian) {
                 $search = $request->filter_pencarian;
@@ -329,5 +333,11 @@ class InventarisKsoController extends Controller
             ->limit(20)
             ->get();
         return response()->json($data);
+    }
+
+    public function laporanKso(Request $request)
+    {
+        $filename = 'Laporan-Inventaris-KSO-' . date('Ymd-His') . '.xlsx';
+        return Excel::download(new InventarisKsoExport($request), $filename);
     }
 }
