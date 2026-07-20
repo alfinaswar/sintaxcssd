@@ -91,18 +91,22 @@
             margin-top: 40px;
             border-collapse: separate;
             border-spacing: 30px 0;
+            font-size: 11px;
         }
 
         .signature-table>tbody>tr>td {
             vertical-align: top;
             width: 33%;
+            font-size: 11px;
         }
 
         .signature-table table {
             width: 100%;
             border: none;
             background: none;
+            font-size: 11px;
         }
+
 
         .signature-title {
             text-align: center;
@@ -261,65 +265,23 @@
 
     <table class="signature-table" id="ttd">
         <tr>
-            <!-- Diajukan Oleh -->
+            <!-- Karu/Kanit -->
             <td>
                 <table>
                     <tr>
-                        <td class="signature-title">Diajukan Oleh</td>
+                        <td class="signature-title">Mengetahui Kanit,</td>
                     </tr>
                     <tr>
-                        <td class="signature-box">
-                            @if(!empty($data->getDiajukan->ttd))
-                                <img src="{{ asset('storage/tandatangan/' . $data->getDiajukan->ttd) }}" alt="Tanda Tangan">
-                            @else
-                                <span class="no-signature">Tidak ada tanda tangan</span>
-                            @endif
-                        </td>
+                        <td class="signature-box">&nbsp;</td>
                     </tr>
                     <tr>
                         <td class="signature-line"></td>
                     </tr>
                     <tr>
-                        <td class="signature-name">( {{ $data->getDiajukan->name ?? '-' }} )</td>
+                        <td class="signature-name">( {{ $data->NamaKaru ?? '-' }} )</td>
                     </tr>
                 </table>
             </td>
-            <td>
-                <table>
-                    <tr>
-                        <td class="signature-title">Manager </td>
-                    </tr>
-                    <tr>
-                        <td class="signature-box">
-                            @if($data->AccManager === 'Y')
-                                @if(!empty($data->getManager->ttd))
-                                    <img src="{{ asset('storage/tandatangan/' . $data->getManager->ttd) }}" alt="Tanda Tangan">
-                                @else
-                                    <span class="no-signature">Tidak ada tanda tangan</span>
-                                @endif
-                            @elseif($data->AccManager === 'N')
-                                <table style="width:100%;border:none;background:none;">
-                                    <tr>
-                                        <td class="rejected" style="font-size: 40px;">&#10007;</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="rejected">DITOLAK</td>
-                                    </tr>
-                                </table>
-                            @else
-                                <span class="no-signature">Menunggu persetujuan</span>
-                            @endif
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="signature-line"></td>
-                    </tr>
-                    <tr>
-                        <td class="signature-name">( {{ $data->getManager->name ?? '-' }} )</td>
-                    </tr>
-                </table>
-            </td>
-
             <!-- SMI -->
             <td>
                 <table>
@@ -327,32 +289,30 @@
                         <td class="signature-title">SMI</td>
                     </tr>
                     <tr>
-                        <td class="signature-box">
-                            @if($data->AccSmi === 'Y')
-                                @if(!empty($data->getSmi->ttd))
-                                    <img src="{{ asset('storage/tandatangan/' . $data->getSmi->ttd) }}" alt="Tanda Tangan">
-                                @else
-                                    <span class="no-signature">Tidak ada tanda tangan</span>
-                                @endif
-                            @elseif($data->AccSmi === 'N')
-                                <table style="width:100%;border:none;background:none;">
-                                    <tr>
-                                        <td class="rejected" style="font-size: 40px;">&#10007;</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="rejected">DITOLAK</td>
-                                    </tr>
-                                </table>
-                            @else
-                                <span class="no-signature">Menunggu persetujuan</span>
-                            @endif
-                        </td>
+                        <td class="signature-box">&nbsp;</td>
                     </tr>
                     <tr>
                         <td class="signature-line"></td>
                     </tr>
                     <tr>
                         <td class="signature-name">( {{ $data->getSmi->name ?? '-' }} )</td>
+                    </tr>
+                </table>
+            </td>
+            <!-- Manajer Penunjang dan Pelayanan Medis -->
+            <td>
+                <table>
+                    <tr>
+                        <td class="signature-title">Manajer</td>
+                    </tr>
+                    <tr>
+                        <td class="signature-box">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td class="signature-line"></td>
+                    </tr>
+                    <tr>
+                        <td class="signature-name">( {{ $data->getManager->name ?? '-' }} )</td>
                     </tr>
                 </table>
             </td>

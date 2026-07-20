@@ -13,6 +13,7 @@ use App\Http\Controllers\DataInventarisController;
 use App\Http\Controllers\FileTemplateController;
 use App\Http\Controllers\FlipbookController;
 use App\Http\Controllers\FormulirPembersihanController;
+use App\Http\Controllers\GudangBarangController;
 use App\Http\Controllers\GudangController;
 use App\Http\Controllers\InventarisKsoController;
 use App\Http\Controllers\KalibrasiController;
@@ -229,6 +230,7 @@ Route::prefix('inventaris')->group(function () {
 
 
     Route::get('/kso', [InventarisKsoController::class, 'index'])->name('inventaris.index-kso');
+    Route::get('/gudang', [GudangBarangController::class, 'list'])->name('inventaris.index-gudang');
     // CRUD routes for InventarisKso
     Route::get('/kso/create', [InventarisKsoController::class, 'create'])->name('inventariskso.create');
     Route::post('/kso/store', [InventarisKsoController::class, 'store'])->name('inventariskso.store');

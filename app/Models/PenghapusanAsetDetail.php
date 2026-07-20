@@ -15,6 +15,6 @@ class PenghapusanAsetDetail extends Model
 
     public function getItem()
     {
-        return $this->belongsTo(DataInventaris::class, 'AssetId', 'kode_item');
+        return $this->belongsTo(DataInventaris::class, 'AssetId', 'kode_item')->withTrashed();
     }
 }

@@ -102,44 +102,39 @@
             <div class="row text-center mt-5">
                 <div class="col-md-4">
                     <p class="mb-4" style="font-weight: bold;">Mengetahui Karu/Kanit,</p>
-                    @if ($data->AccKaruKanit === 'Y')
-                        @if (!empty($data->getKaruKanit->ttd))
+                    @if (!is_null($data->AccKaru))
+                        @if (!empty($data->Sign3))
                             <div style="height: 150px;">
-                                <img src="{{ asset('storage/tandatangan/' . $data->getKaruKanit->ttd) }}"
+                                <img src="{{ asset('storage/' . $data->Sign3) }}"
                                     alt="Tanda Tangan" style="max-height: 150px;">
                             </div>
                         @else
                             <div style="height: 80px;" class="text-muted">Tidak ada gambar tanda tangan</div>
                         @endif
-                    @elseif($data->AccKaruKanit === 'N')
+                    @elseif($data->AccKaru === 0 || $data->AccKaru === 'N')
                         <div style="height: 80px;"
                             class="text-danger d-flex flex-column align-items-center justify-content-center">
                             <i class="bi bi-x-circle-fill" style="font-size: 3rem;"></i>
-                            <div>Ditolak {{ $data->getKaruKanit->name ?? '-' }} </div>
+                            <div>Ditolak {{ $data->NamaKaru ?? '-' }} </div>
                         </div>
-                    @else
-                        <div style="height: 80px;" class="text-muted">Tidak ada gambar tanda tangan</div>
                     @endif
+
+
                     <hr style="width: 80%;">
-                    <p class="mt-2 font-weight-bold">( {{ $data->getKaruKanit->name ?? '-' }} )</p>
+                    <p class="mt-2 font-weight-bold">( {{ $data->NamaKaru ?? '-' }} )</p>
                 </div>
 
                 <div class="col-md-4">
                     <p class="mb-4" style="font-weight: bold;">Mengetahui SMI,</p>
                     @if ($data->AccSmi === 'Y')
-                        @if (!empty($data->getSmi->ttd))
-                            <div style="height: 150px;">
-                                <img src="{{ asset('storage/tandatangan/' . $data->getSmi->ttd) }}" alt="Tanda Tangan"
-                                    style="max-height: 150px;">
-                            </div>
-                        @else
-                            <div style="height: 80px;" class="text-muted">Tidak ada gambar tanda tangan</div>
-                        @endif
+                        <div style="height: 150px;">
+                            <img src="{{ asset('assets/img/approved.png') }}" alt="Tanda Tangan SMI"
+                                style="max-height: 150px;">
+                        </div>
                     @elseif($data->AccSmi === 'N')
-                        <div style="height: 80px;"
-                            class="text-danger d-flex flex-column align-items-center justify-content-center">
-                            <i class="bi bi-x-circle-fill" style="font-size: 3rem;"></i>
-                            <div>Ditolak {{ $data->getSmi->name }} </div>
+                        <div style="height: 150px;">
+                            <img src="{{ asset('assets/img/rejected.png') }}" alt="Tanda Tangan SMI"
+                                style="max-height: 150px;">
                         </div>
                     @else
                         <div style="height: 80px;" class="text-muted">Tidak ada gambar tanda tangan</div>
@@ -150,23 +145,19 @@
                 <div class="col-md-4">
                     <p class="mb-4" style="font-weight: bold;">Mengetahui Meneger Penunjang dan Pelayanan Medis,</p>
                     @if ($data->AccManager === 'Y')
-                        @if (!empty($data->getManager->ttd))
-                            <div style="height: 150px;">
-                                <img src="{{ asset('storage/tandatangan/' . $data->getManager->ttd) }}" alt="Tanda Tangan"
-                                    style="max-height: 150px;">
-                            </div>
-                        @else
-                            <div style="height: 80px;" class="text-muted">Tidak ada gambar tanda tangan</div>
-                        @endif
+                        <div style="height: 150px;">
+                            <img src="{{ asset('assets/img/approved.png') }}" alt="Tanda Tangan Manager"
+                                style="max-height: 150px;">
+                        </div>
                     @elseif($data->AccManager === 'N')
-                        <div style="height: 80px;"
-                            class="text-danger d-flex flex-column align-items-center justify-content-center">
-                            <i class="bi bi-x-circle-fill" style="font-size: 3rem;"></i>
-                            <div>Ditolak {{ $data->getManager->name }} </div>
+                        <div style="height: 150px;">
+                            <img src="{{ asset('assets/img/rejected.png') }}" alt="Tanda Tangan Manager"
+                                style="max-height: 150px;">
                         </div>
                     @else
                         <div style="height: 80px;" class="text-muted">Tidak ada gambar tanda tangan</div>
                     @endif
+
                     <hr style="width: 80%;">
                     <p class="mt-2 font-weight-bold">( {{ $data->getManager->name ?? '-' }} )</p>
                 </div>
@@ -174,7 +165,7 @@
             </div>
 
             @can('approval-as-manager')
-                @if ($data->Status == 'pengajuan')
+                @if ($data->Status == 'proses')
                     <div class="row mt-4">
                         <div class="col-12 text-center">
                             <button type="button" class="btn btn-success btn-lg mr-3"
@@ -192,7 +183,7 @@
                 @endif
             @endcan
             @can('approval-as-smi')
-                @if ($data->Status == 'pengajuan')
+                @if ($data->Status == 'draft')
                     <div class="row mt-4">
                         <div class="col-12 text-center">
                             <button type="button" class="btn btn-success btn-lg mr-3"

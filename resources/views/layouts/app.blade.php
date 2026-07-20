@@ -209,16 +209,30 @@
                                     <div class="kt-menu__submenu ">
                                         <span class="kt-menu__arrow"></span>
                                         <ul class="kt-menu__subnav">
-                                            <li class="kt-menu__item @if (request()->is('inventaris') || request()->is('inventaris/*')) kt-menu__item--active @endif" aria-haspopup="true">
+                                            <li class="kt-menu__item @if (request()->is('inventaris/inventaris')) kt-menu__item--active @endif" aria-haspopup="true">
                                                 <a href="{{ route('inventaris.index') }}" class="kt-menu__link ">
                                                     <span class="kt-menu__link-text">Inventaris</span>
                                                 </a>
                                             </li>
-                                            <li class="kt-menu__item @if (Str::contains(request()->url(), 'kso')) kt-menu__item--active @endif" aria-haspopup="true">
+
+
+                                            <li class="kt-menu__item @if (request()->is('inventaris/kso') || request()->is('inventaris/kso/*')) kt-menu__item--active @endif" aria-haspopup="true">
                                                 <a href="{{ route('inventaris.index-kso') }}" class="kt-menu__link ">
                                                     <span class="kt-menu__link-text">Inventaris KSO</span>
                                                 </a>
                                             </li>
+
+
+
+                                            <li class="kt-menu__item @if (request()->is('inventaris/gudang') || request()->is('inventaris/gudang/*')) kt-menu__item--active @endif" aria-haspopup="true">
+                                                <a href="{{ route('inventaris.index-gudang') }}" class="kt-menu__link ">
+                                                    <span class="kt-menu__link-text">Gudang Inventaris</span>
+                                                </a>
+                                            </li>
+
+
+
+
 
                                         </ul>
                                     </div>

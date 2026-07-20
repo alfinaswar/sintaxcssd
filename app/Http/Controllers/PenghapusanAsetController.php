@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DataInventaris;
 use App\Models\Flipbook;
+use App\Models\GudangBarang;
 use App\Models\MasterDepartemenModel;
 use App\Models\MasterGudang;
 use App\Models\PenghapusanAset;
@@ -201,6 +202,7 @@ class PenghapusanAsetController extends Controller
     public function show($id)
     {
         $data = PenghapusanAset::with('getGudang', 'getDepartemen', 'getDiajukan', 'getManager', 'getSmi', 'getRs', 'getDetail', 'getDetail.getItem')->where('id', $id)->first();
+        // dd($data);
         return view('penghapusan-aset.show', compact('data'));
     }
     public function approvalKaru($id)
@@ -278,34 +280,74 @@ class PenghapusanAsetController extends Controller
     public function AccPengajuan(Request $request, $id)
     {
         $penghapusanAset = PenghapusanAset::find($id);
+        // dd($penghapusanAset);
         $penghapusanAset->update([
             'Sign1' => auth()->user()->id,
             'AccManager' => 'Y',
             'AccManagerPada' => now(),
             'Status' => 'disetujui',
         ]);
+        foreach ($penghapusanAset->getDetail as $key => $value) {
+            $cek = DataInventaris::with('DataMaintenance', 'getFormPembersihan')->where('kode_item', $value->AssetId)->first();
+
+            // Data $cek:
+            // id, kode_item, RO2ID, harga, ROID, assetID, nama, merk, real_name, no_inventaris, no_sn, tanggal_beli,
+            // nama_rs, departemen, unit, pengguna, gambar, tgl_kalibrasi, tgl_expire, dokumen,
+            // keterangan, isKalibrasi, manualbook, klasifikasi, UserCreate, UserId
+
+            GudangBarang::create([
+                'kode_item'      => $cek->kode_item ?? null,
+                'RO2ID'          => $cek->RO2ID ?? null,
+                'harga'          => $cek->harga ?? null,
+                'ROID'           => $cek->ROID ?? null,
+                'assetID'        => $cek->assetID ?? null,
+                'nama'    => $cek->nama ?? null,
+                'merk'           => $cek->merk ?? null,
+                'real_name'      => $cek->real_name ?? null,
+                'no_inventaris'  => $cek->no_inventaris ?? null,
+                'no_sn'          => $cek->no_sn ?? null,
+                'tanggal_beli'   => $cek->tanggal_beli ?? null,
+                'nama_rs'        => $cek->nama_rs ?? null,
+                'departemen'     => $cek->departemen ?? null,
+                'unit'           => $cek->unit ?? null,
+                'pengguna'       => $cek->pengguna ?? null,
+                'gambar'         => $cek->gambar ?? null,
+                'tgl_kalibrasi'  => $cek->tgl_kalibrasi ?? null,
+                'tgl_expire'     => $cek->tgl_expire ?? null,
+                'dokumen'        => $cek->dokumen ?? null,
+                'keterangan'     => $cek->keterangan ?? null,
+                'isKalibrasi'    => $cek->isKalibrasi ?? null,
+                'manualbook'     => $cek->manualbook ?? null,
+                'klasifikasi'    => $cek->klasifikasi ?? null,
+                'UserCreate'     => $cek->UserCreate ?? null,
+                'UserId'         => $cek->UserId ?? null,
+                'UpdateName'     => $cek->UpdateName ?? null,
+                'id_gudang'      => $penghapusanAset->NamaGudang ?? null,
+                'qty'            => $value->Qty ?? 1,
+                'id_penghapusan' => $penghapusanAset->id,
+            ]);
+        if ($cek) {
+            $cek->delete();
+        }
+
+        }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Pengajuan telah disetujui oleh Manager.'
+            'message' => 'Pengajuan telah disetujui oleh Manager dan inventaris telah dipindahkan ke GudangBarang.'
         ], 200);
     }
     public function AccPengajuanSmi(Request $request, $id)
     {
         $penghapusanAset = PenghapusanAset::with('getDetail')->find($id);
+        // dd($penghapusanAset);
         $penghapusanAset->update([
-            'Sign1' => auth()->user()->id,
+            'Sign2' => auth()->user()->id,
             'AccSmi' => 'Y',
             'AccSmiPada' => now(),
             'Status' => 'proses',
         ]);
 
-        foreach ($penghapusanAset->getDetail as $key => $value) {
-            $cek = DataInventaris::with('DataMaintenance', 'getFormPembersihan')->find($value->AssetId);
-            $cek->DataMaintenance->delete();
-            $cek->getFormPembersihan->delete();
-            $cek->delete();
-        }
         return response()->json([
             'status' => 'success',
             'message' => 'Pengajuan telah disetujui oleh SMI.'
