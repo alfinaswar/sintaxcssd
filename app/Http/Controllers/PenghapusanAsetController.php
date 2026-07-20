@@ -30,8 +30,12 @@ class PenghapusanAsetController extends Controller
             $query = PenghapusanAset::with('getDepartemen', 'getDiajukan', 'getRs')
                 ->latest('id');
 
+            if (strtolower(auth()->user()->role) !== 'admin') {
+                $query->where('KodeRS', auth()->user()->getKeyName());
+            }
 
-            // Filter berdasarkan kode RS
+
+            // Tambahan filter manual berdasarkan input 'rs'
             if ($request->filled('rs')) {
                 $query->where('KodeRS', $request->rs);
             }
