@@ -348,7 +348,7 @@
                                 results: $.map(data, function(item, key) {
                                     return {
                                         text: item,
-                                        id: key
+                                        id: item
                                     }
                                 })
                             };

@@ -115,9 +115,22 @@ class DataInventarisController extends Controller
                     if ($request->get('filter_departemen') && $request->get('filter_departemen') !== '') {
                         $instance->where('departemen', $request->get('filter_departemen'));
                     }
-                    if ($request->get('filter_unit') && $request->get('filter_unit') !== '') {
-                        $instance->where('unit', $request->get('filter_unit'));
+                    $filterUnit = $request->get('filter_unit');
+
+                    if ($filterUnit && $filterUnit !== '') {
+                        // Cek apakah ada karakter garis miring (/) menggunakan strpos
+                        if (strpos($filterUnit, '/') !== false) {
+                            $instance->where('unit', 'LIKE', '%' . $filterUnit . '%');
+                        } else {
+                            // dd($filterUnit);
+                            // Kalau tidak ada, gunakan where biasa (exact match)
+                            $instance->where('unit', $filterUnit);
+                        }
                     }
+                    if ($request->get('filter_unit') && $request->get('filter_unit') !== '') {
+                        $instance->where('unit', 'like', '%' . $request->get('filter_unit') . '%');
+                    }
+
                     if ($request->get('filter_pembelian') && $request->get('filter_pembelian') !== '') {
                         $instance->whereYear('tanggal_beli', $request->get('filter_pembelian'));
                     }
