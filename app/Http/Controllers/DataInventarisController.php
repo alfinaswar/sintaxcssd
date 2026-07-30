@@ -318,6 +318,8 @@ class DataInventarisController extends Controller
                     $selectdb = 'mysql13';
                 } elseif ($kodeRS === 'W') {  // hangtuah
                     $selectdb = 'mysql14';
+                } elseif ($kodeRS === 'C') {  // hangtuah
+                    $selectdb = 'mysql15';
                 }
             }
         }
@@ -371,6 +373,9 @@ class DataInventarisController extends Controller
                     break;
                 case 'W':
                     $selectdb = 'mysql14';
+                    break;
+                case 'C':
+                    $selectdb = 'mysql15';
                     break;
                 default:
                     $selectdb = 'Unknown';
@@ -430,6 +435,9 @@ class DataInventarisController extends Controller
             case 'W':
                 $selectdb = 'mysql14';
                 break;
+            case 'C':
+                $selectdb = 'mysql15';
+                break;
             default:
                 $selectdb = 'Unknown';
                 break;
@@ -486,6 +494,9 @@ class DataInventarisController extends Controller
                 case 'W':
                     $selectdb = 'mysql14';
                     break;
+                case 'C':
+                    $selectdb = 'mysql15';
+                    break;
                 default:
                     $selectdb = 'Unknown';
                     break;
@@ -533,6 +544,8 @@ class DataInventarisController extends Controller
                 $selectdb = 'mysql13';
             } elseif ($kodeRS === 'W') {  // batuaji
                 $selectdb = 'mysql14';
+            } elseif ($kodeRS === 'C') {  // batuaji
+                $selectdb = 'mysql15';
             }
         }
         $query = DB::connection($selectdb)
