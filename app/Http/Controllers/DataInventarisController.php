@@ -1031,29 +1031,34 @@ class DataInventarisController extends Controller
     {
         $search = $request->get('q', '');
         $term = strtolower($search);
+        $unit = $request->get('unit', ''); // ✅ Ambil parameter unit dari request AJAX
 
-        // Query dengan distinct berdasarkan assetID
-        $items = DataInventaris::orderBy('assetID', 'asc')
-            ->limit(50)
-            ->get();
+        // Inisialisasi Query Builder
+        $query = DataInventaris::query();
 
-        // Filter manual untuk pencarian (jika ada keyword)
+        // ✅ 1. Filter berdasarkan Unit
+        if (!empty($unit)) {
+            // PENTING: Sesuaikan 'unit' dengan nama kolom unit di tabel DataInventaris Anda
+            // (misalnya: 'unit', 'nama_unit', 'kode_unit', atau 'id_unit')
+            $query->where('unit', $unit);
+        }
+
+        // 2. Filter berdasarkan pencarian (jika ada keyword yang diketik)
         if (!empty($term)) {
-            $items = DataInventaris::where(function ($query) use ($term) {
-                $query->where('assetID', 'like', "%$term%")
+            $query->where(function ($q) use ($term) {
+                $q->where('assetID', 'like', "%$term%")
                     ->orWhere('nama', 'like', "%$term%")
                     ->orWhere('kode_item', 'like', "%$term%")
                     ->orWhere('merk', 'like', "%$term%")
                     ->orWhere('real_name', 'like', "%$term%");
-            })
-                ->orderBy('assetID', 'asc')
-                ->limit(50)
-                ->get();
-        } else {
-            $items = DataInventaris::orderBy('assetID', 'asc')
-                ->limit(50)
-                ->get();
+            });
         }
+
+        // Eksekusi query dengan urutan dan limit
+        $items = $query->where('nama_rs', auth()->user()->kodeRS)
+            ->orderBy('assetID', 'asc')
+            ->limit(30)
+            ->get();
 
 
         // Format untuk Select2 (valuenya kode_item)
@@ -1062,7 +1067,6 @@ class DataInventarisController extends Controller
             $results[] = [
                 'id' => $item->kode_item,
                 'text' => $item->no_inventaris . ' - ' . $item->real_name . ' - ' . $item->merk
-
             ];
         }
 

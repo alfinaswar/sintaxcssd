@@ -49,7 +49,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label for="gudang" class="col-form-label">Gudang <span class="text-danger">*</span></label>
+                            <label for="gudang" class="col-form-label">Gudang Tujuan <span class="text-danger">*</span></label>
                             <select class="form-control kt-select2" name="Gudang" id="gudang" required>
                                 <option value="">Pilih Gudang</option>
                                 @foreach ($gudang as $g)
@@ -181,17 +181,18 @@
 
         // Inisialisasi Select2 untuk asset dengan AJAX
         function initAssetSelect2(element) {
-            $(element).select2({
+$(element).select2({
                 placeholder: "Ketik untuk cari item...",
                 minimumInputLength: 1,
                 allowClear: true,
                 ajax: {
-                    url: '{{ route('inventaris.get-item-penghapusan') }}', // ✅ Route baru
+                    url: '{{ route('inventaris.get-item-penghapusan') }}',
                     dataType: 'json',
                     delay: 250,
                     data: function(params) {
                         return {
-                            q: params.term // search term
+                            q: params.term, // search term
+                            unit: $('#unit').val()
                         };
                     },
                     processResults: function(data) {
@@ -260,29 +261,6 @@
         }
 
         // Select2 Departemen (AJAX)
-        function selectDepartemen() {
-            $('#departemen').select2({
-                placeholder: "Ketik untuk cari departemen...",
-                minimumInputLength: 1,
-                allowClear: true,
-                ajax: {
-                    url: '{{ route('inventaris.get-departemen-penghapusan') }}', // ✅ Route baru
-                    dataType: 'json',
-                    delay: 250,
-                    data: function(params) {
-                        return {
-                            q: params.term // search term
-                        };
-                    },
-                    processResults: function(data) {
-                        return {
-                            results: data
-                        };
-                    },
-                    cache: true
-                }
-            });
-        }
 
         // Select2 Unit (AJAX)
         function selectUnit() {
@@ -372,7 +350,29 @@
                 );
             });
         }
-
+function selectDepartemen() {
+            $('#departemen').select2({
+                placeholder: "Ketik untuk cari departemen...",
+                minimumInputLength: 1,
+                allowClear: true,
+                ajax: {
+                    url: '{{ route('inventaris.get-departemen-penghapusan') }}', // ✅ Route baru
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term // search term
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });
+        }
         // Init semua saat DOM ready
         $(document).ready(function() {
             // Init select2 header
@@ -389,6 +389,9 @@
             // Event add row
             $('#add-row').on('click', function() {
                 addRow();
+            });
+            $('#unit').on('change', function() {
+                $('.asset-select').val(null).trigger('change');
             });
         });
     </script>
