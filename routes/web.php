@@ -285,7 +285,8 @@ Route::prefix('kalibrasi')->group(function () {
     Route::get('/', [KalibrasiController::class, 'index'])->name('kalibrasi.index');
     Route::post('/store', [KalibrasiController::class, 'store'])->name('kalibrasi.store');
     Route::get('/get-item', [KalibrasiController::class, 'getItem'])->name('kalibrasi.get-item');
-    Route::get('/destroy', [KalibrasiController::class, 'destroy'])->name('kalibrasi.destroy');
+    // Ganti GET menjadi DELETE, dan tambahkan parameter {id}
+Route::get('/{id}/destroy', [KalibrasiController::class, 'destroy'])->name('kalibrasi.destroy');
     Route::get('getInv', [KalibrasiController::class, 'getInv'])->name('kalibrasi.getInv');
 });
 
