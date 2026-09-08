@@ -37,7 +37,16 @@
             <form id="form-kalibrasi" action="{{ route('kalibrasi.store') }}" method="POST" accept-charset="utf-8"
                 enctype="multipart/form-data">
                 @csrf
+                  <div class="alert alert-warning d-flex align-items-center justify-content-center" role="alert" style="font-size: 1.15rem; padding: 24px; border-radius: 8px;">
+                        <span class="mr-3"><i class="fa fa-exclamation-triangle" style="font-size: 1.7rem;"></i></span>
+                        <div>
+                            <strong>Perhatian</strong><br>
+                            Kami mohon maaf, saat ini fitur yang Anda akses sedang dalam tahap pemeliharaan sistem.<br>
+                            Silakan coba kembali beberapa saat lagi. Terima kasih atas pengertian Anda.
+                        </div>
+                    </div>
                 <div class="row">
+
                     <div class="col-md-6">
                         <div class="form-group row">
                             <label for="nama" class="col-3 col-form-label">* Nama Alat</label>
@@ -88,10 +97,10 @@
                             </div>
                         </div>
 
-                        <div class="kt-align-right">
+                        {{-- <div class="kt-align-right">
                             <button type="button" onclick="simpan(event,this)" class="btn btn-brand btn-hover-primari"> <i
                                     class="la la-save"></i>Simpan</button>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </form>
@@ -171,12 +180,12 @@
                         {{-- <span class="badge bg-danger text-white">Normal Kembali Pada Pukul 15.15 Wib</span> --}}
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         </button>
-                        
+
                     </div>
                     <div class="modal-body">
-                        
+
                         <div class="row col-12">
-                           
+
                             <div class="col-md-3">
                                 <div class="form-group">
                                 <label for="cariNama" class="col-form-label">Cari Berdasarkan</label>
@@ -186,21 +195,21 @@
                                     <option value="no_sn">Serial Number</option>
                                    </select>
                                 </div>
-                                   
+
                             </div>
                              <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="cariNama" class="col-form-label">Ketik Kata Kunci</label>
                                    <input type="text" class="form-control" id="keyword" name="keyword" placeholder="Ketikan Kata Kunci">
                                    </div>
-                                   
+
                             </div>
 
                         <div class="col-md-3">
                             <br> <br>
                              <button type="button" class="btn btn-md btn-primary" onclick="cariData(event,this)">Cari</button>
                         </div>
- 
+
 
                         </div>
 

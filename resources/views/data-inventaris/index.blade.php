@@ -187,6 +187,16 @@
             </div>
         </div>
     </div>
+@if (Session::has('testing'))
+    <script>
+        Swal.fire({
+            icon: 'info',
+            title: 'Testing',
+            text: "{{ Session::get('testing') }}",
+            confirmButtonText: 'OK'
+        });
+    </script>
+@endif
 
 @endsection
 @push('css')

@@ -289,16 +289,15 @@
                     <div class="kt-portlet__head">
                         <div class="kt-portlet__head-label">
                             <h3 class="kt-portlet__head-title">
-                                Preventif Maintenance
+                                Preventive Maintenance
                             </h3>
                         </div>
-
                         <div class="kt-portlet__head-toolbar">
                             <div class="kt-portlet__head-label">
                                 @if (Auth::check())
-                                    <button type="button" class="btn btn-bold btn-label-brand btn-sm"
+                                    {{-- <button type="button" class="btn btn-bold btn-label-brand btn-sm"
                                         data-toggle="modal" data-target="#kt_modal_4"><i class="fa fa-plus"></i>
-                                        Tambah</button>
+                                        Tambah</button> --}}
                                 @else
                                     <div class="alert alert-danger mt-3" role="alert">
                                         <i class="fa fa-exclamation-circle"></i> <strong>Anda Belum Login</strong>
@@ -490,8 +489,8 @@
                         <div class="kt-portlet__head-toolbar">
                             <div class="kt-portlet__head-label">
                                 {{-- @if (Auth::check()) --}}
-                                <button type="button" class="btn btn-bold btn-label-brand btn-sm"
-                                    data-toggle="modal" data-target="#kt_modal_5">Tambah</button>
+                                {{-- <button type="button" class="btn btn-bold btn-label-brand btn-sm"
+                                    data-toggle="modal" data-target="#kt_modal_5">Tambah</button> --}}
                                 {{-- @else
                                 @endif --}}
 

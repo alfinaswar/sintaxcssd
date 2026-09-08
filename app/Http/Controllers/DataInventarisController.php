@@ -582,6 +582,7 @@ class DataInventarisController extends Controller
 
     public function storeNoro(request $request)
     {
+        return redirect()->back()->with('SEDANG MAINTENANCE');
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|max:255',
             'merk' => 'required|string|max:255',

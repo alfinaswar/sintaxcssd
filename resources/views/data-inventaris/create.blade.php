@@ -409,15 +409,26 @@
                             </script>
                         </div>
                     </div>
+                    <div class="alert alert-warning d-flex align-items-center justify-content-center" role="alert" style="font-size: 1.15rem; padding: 24px; border-radius: 8px;">
+                        <span class="mr-3"><i class="fa fa-exclamation-triangle" style="font-size: 1.7rem;"></i></span>
+                        <div>
+                            <strong>Perhatian</strong><br>
+                            Kami mohon maaf, saat ini fitur yang Anda akses sedang dalam tahap pemeliharaan sistem.<br>
+                            Silakan coba kembali beberapa saat lagi. Terima kasih atas pengertian Anda.
+                        </div>
+                    </div>
 
-                    <div class="kt-portlet__foot">
+
+
+
+                    {{-- <div class="kt-portlet__foot">
                         <div class="kt-form__actions">
                             <button type="button" onclick="simpan(event,this)" class="btn btn-info">Submit</button>
                             <a href="{{ route('inventaris.index') }}">
                                 <button type="button" class="btn btn-secondary">Cancel</button>
                             </a>
                         </div>
-                    </div>
+                    </div> --}}
                     </form>
                 </div>
             </div>
@@ -482,6 +493,36 @@
             </div>
         </div>
     </div>
+@if (Session::has('success'))
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil',
+            text: "{{ Session::get('success') }}",
+            confirmButtonText: 'OK'
+        });
+    </script>
+@endif
+@if (Session::has('error'))
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal',
+            text: "{{ Session::get('error') }}",
+            confirmButtonText: 'OK'
+        });
+    </script>
+@endif
+@if ($errors->any())
+    <script>
+        Swal.fire({
+            icon: 'warning',
+            title: 'Peringatan',
+            html: `{!! implode('<br>', $errors->all()) !!}`,
+            confirmButtonText: 'OK'
+        });
+    </script>
+@endif
 
 @endsection
 @push('js')
