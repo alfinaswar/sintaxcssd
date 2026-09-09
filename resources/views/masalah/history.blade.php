@@ -766,6 +766,28 @@
 
 
 
+    <script>
+        // Example: display SweetAlert if there's a session success message
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Sukses!',
+                text: "{{ session('success') }}",
+                showConfirmButton: false,
+                timer: 2000
+            });
+        @endif
+
+        // Example: display SweetAlert if there's a session error message
+        @if(session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: "{{ session('error') }}",
+                showConfirmButton: true
+            });
+        @endif
+    </script>
 
 
     <!-- begin::Scrolltop -->

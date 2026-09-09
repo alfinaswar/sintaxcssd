@@ -4,16 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Exports\ItemRuanganExport;
 use App\Exports\LaporanPembersihanAlat;
+use App\Helpers\R2Client;
 use App\Models\DataInventaris;
 use App\Models\FormulirPembersihan;
 use App\Models\MasterMerk;
 use App\Models\MasterRs;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\DataTables;
-
+use Illuminate\Support\Facades\File;
 class FormulirPembersihanController extends Controller
 {
     /**
@@ -158,48 +160,62 @@ class FormulirPembersihanController extends Controller
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        $data = $request->all();
-        $data['createdBy'] = auth()->user()->id ?? 1;
+        // dd();
+        $validated = $request->validate([
+            'Before' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:15240',
+            'After' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:15240',
+        ]);
 
-        // Kompres gambar sebelum disimpan agar ukuran file lebih kecil
+        $data = collect($validated)->except(['Before', 'After'])->toArray();
+        $data['createdBy'] = auth()->id() ?? 1;
+
         if ($request->hasFile('Before')) {
-            $file = $request->file('Before');
-            $filename = $file->getClientOriginalName() . '-' . microtime(true) . '.' . $file->getClientOriginalExtension();
-
-            // Kompres gambar menggunakan Intervention Image
-            $image = Image::make($file->getRealPath());
-            $image->encode('jpg', 70); // Kompres ke kualitas 70
-            $path = public_path('storage/gambar/Pembersihan/Before/' . $filename);
-            $image->save($path);
-
-            $data['Before'] = $filename;
+            $data['Before'] = $this->compressImage($request->file('Before'), 'Before');
         }
 
         if ($request->hasFile('After')) {
-            $file = $request->file('After');
-            $filename = $file->getClientOriginalName() . '-' . microtime(true) . '.' . $file->getClientOriginalExtension();
-
-            // Kompres gambar menggunakan Intervention Image
-            $image = Image::make($file->getRealPath());
-            $image->encode('jpg', 70); // Kompres ke kualitas 70
-            $path = public_path('storage/gambar/Pembersihan/After/' . $filename);
-            $image->save($path);
-
-            $data['After'] = $filename;
+            $data['After'] = $this->compressImage($request->file('After'), 'After');
         }
 
         FormulirPembersihan::create($data);
-        return redirect()->back()->with('success', 'Data Telah Disimpan');
+
+        return redirect()->back()->with('success', 'Data Telah Disimpan ke R2');
     }
 
+    private function compressImage($file, $folderName, $maxBytes = 900000)
+    {
+        $image = Image::make($file->getRealPath());
+        $image->orientate();
+        $image->resize(1280, null, function ($constraint) {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+        });
+
+        $quality = 50;
+        $image->encode('jpg', $quality);
+
+        while (strlen($image->getEncoded()) > $maxBytes && $quality > 20) {
+            $quality -= 5;
+            $image->encode('jpg', $quality);
+        }
+        $filename = time() . '_' . Str::random(10) . '.jpg';
+        $r2Path = "gambar/Pembersihan/{$folderName}/{$filename}";
+        $tempFilePath = sys_get_temp_dir() . '/' . $filename;
+        $image->save($tempFilePath);
+
+        try {
+            $r2Client = new R2Client();
+            $r2Client->upload($tempFilePath, $r2Path, 'image/jpeg');
+            File::delete($tempFilePath);
+
+        } catch (\Exception $e) {
+            File::delete($tempFilePath);
+            throw new \Exception('Gagal upload ke R2: ' . $e->getMessage());
+        }
+        return $r2Path;
+    }
     /**
      * Display the specified resource.
      *
