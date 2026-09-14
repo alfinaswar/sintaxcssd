@@ -37,14 +37,14 @@
             <form id="form-kalibrasi" action="{{ route('kalibrasi.store') }}" method="POST" accept-charset="utf-8"
                 enctype="multipart/form-data">
                 @csrf
-                  <div class="alert alert-warning d-flex align-items-center justify-content-center" role="alert" style="font-size: 1.15rem; padding: 24px; border-radius: 8px;">
+                  {{-- <div class="alert alert-warning d-flex align-items-center justify-content-center" role="alert" style="font-size: 1.15rem; padding: 24px; border-radius: 8px;">
                         <span class="mr-3"><i class="fa fa-exclamation-triangle" style="font-size: 1.7rem;"></i></span>
                         <div>
                             <strong>Perhatian</strong><br>
                             Kami mohon maaf, saat ini fitur yang Anda akses sedang dalam tahap pemeliharaan sistem.<br>
                             Silakan coba kembali beberapa saat lagi. Terima kasih atas pengertian Anda.
                         </div>
-                    </div>
+                    </div> --}}
                 <div class="row">
 
                     <div class="col-md-6">
@@ -97,10 +97,10 @@
                             </div>
                         </div>
 
-                        {{-- <div class="kt-align-right">
+                        <div class="kt-align-right">
                             <button type="button" onclick="simpan(event,this)" class="btn btn-brand btn-hover-primari"> <i
                                     class="la la-save"></i>Simpan</button>
-                        </div> --}}
+                        </div>
                     </div>
                 </div>
             </form>

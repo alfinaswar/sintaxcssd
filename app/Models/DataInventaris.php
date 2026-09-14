@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Http\Controllers\KalibrasiController;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DataInventaris extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -44,4 +45,9 @@ class DataInventaris extends Model
     {
         return $this->hasMany(FormulirPembersihan::class, 'kode_item', 'kode_item');
     }
+    public function getKalibrasi()
+    {
+        return $this->hasMany(KalibrasiModel::class, 'assetID', 'kode_item');
+    }
+
 }

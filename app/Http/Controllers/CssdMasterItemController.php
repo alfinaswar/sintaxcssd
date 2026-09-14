@@ -23,6 +23,7 @@ class CssdMasterItemController extends Controller
      */
     public function index(Request $request)
     {
+        // dd(123);
         if ($request->ajax()) {
             if (auth()->user()->hasRole('superadmin_cssd') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('Admin')) {
                 $data = cssdMasterItem::with('getNama', 'getMerk', 'getTipe', 'getNamaRS', 'getSatuan')

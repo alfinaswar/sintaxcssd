@@ -136,7 +136,7 @@
                         <div class="form-group row">
                             <label for="keterangan" class="col-3 col-form-label">Keterangan</label>
                             <div class="col-9">
-                                <textarea name="keterangan" class="form-control" id="keterangan" rows="3">{{ $datainv->keterangan }}</textarea>
+                                <textarea name="keterangan" class="form-control" id="keterangan" rows="5">{{ $datainv->keterangan }}</textarea>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -152,41 +152,65 @@
                     </div>
                 </div>
                 {{-- Bagian upload gambar dan SPO alat, drag & drop, preview, col-6 --}}
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
-                        <label class="col-form-label">* Upload SPO Alat</label>
-                        <div id="drop-area-manualbook" class="drop-area mb-2"
-                            style="border: 2px dashed #ccc; border-radius: 6px; padding: 20px; text-align: center; cursor: pointer;">
-                            <span id="drop-text-manualbook">Drag & Drop file PDF di sini atau klik untuk memilih</span>
-                            <input type="file" name="manualbook" id="manualbook"
-                                class="form-control-file d-none" accept="application/pdf">
-                            <div id="manualbook-preview" class="mt-2">
-                                @if($datainv->manualbook)
-                                    <a href="{{ asset('storage/'.$datainv->manualbook) }}" target="_blank" class="btn btn-sm btn-primary">Lihat File Saat Ini</a>
-                                    <small class="form-text text-muted">File saat ini: {{ $datainv->manualbook }}</small>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
-                        <label class="col-form-label">* Gambar</label>
-                        <div id="drop-area-gambar" class="drop-area mb-2"
-                            style="border: 2px dashed #ccc; border-radius: 6px; padding: 20px; text-align: center; cursor: pointer;">
-                            <span id="drop-text-gambar">Drag & Drop gambar di sini atau klik untuk memilih</span>
-                            <input type="file" class="form-control-file d-none"
-                                name="gambar" id="gambar" accept="image/*" />
-                            <div id="gambar-preview" class="mt-2">
-                                @if($datainv->gambar)
-                                    <img src="{{ asset('storage/gambar/'.$datainv->gambar) }}" alt="Preview Gambar" class="img-thumbnail preview-img" style="max-width: 120px;">
-                                    <small class="form-text text-muted">File saat ini: {{ $datainv->gambar }}</small>
-                                @endif
-                            </div>
-                        </div>
-                        <input type="text" hidden class="form-control"
-                            value="{{ old('nama_rs', auth()->check() ? auth()->user()->kodeRS : '') }}"
-                            name="nama_rs" id="nama_rs" placeholder="" />
-                    </div>
-                </div>
+                @php
+    // Inisialisasi R2Client sekali di awal agar lebih efisien
+    $r2 = new \App\Helpers\R2Client();
+@endphp
+
+<div class="form-group row align-items-center">
+    <!-- Kolom 1: Upload SPO Alat (Manualbook) -->
+    <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
+        <label class="col-form-label">* Upload SPO Alat</label>
+        {{-- Tampilkan tombol & info file saat ini DI LUAR drag and drop --}}
+        <div class="mb-2" id="manualbook-current-file-info">
+            @if(!empty($datainv->manualbook))
+                @php
+                    // Generate URL R2 untuk manualbook
+                    $manualUrl = $r2->getUrl('manualbook/' . $datainv->manualbook);
+                @endphp
+                <a href="{{ $manualUrl }}" target="_blank" class="btn btn-sm btn-primary mb-1">
+                    <i class="fa fa-eye"></i> Lihat File Saat Ini
+                </a>
+                <br>
+                <small class="form-text text-muted">File saat ini: {{ $datainv->manualbook }}</small>
+            @else
+                <small class="form-text text-muted">Belum ada file SPO diupload.</small>
+            @endif
+        </div>
+        <div id="drop-area-manualbook" class="drop-area mb-2"
+            style="border: 2px dashed #ccc; border-radius: 6px; padding: 20px; text-align: center; cursor: pointer;">
+            <span id="drop-text-manualbook">Drag & Drop file PDF di sini atau klik untuk memilih</span>
+            <input type="file" name="manualbook" id="manualbook"
+                class="form-control-file d-none" accept="application/pdf">
+            <div id="manualbook-preview" class="mt-2"></div>
+        </div>
+    </div>
+
+    <!-- Kolom 2: Upload Gambar -->
+    <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
+        <label class="col-form-label">* Gambar</label>
+        <div id="drop-area-gambar" class="drop-area mb-2"
+            style="border: 2px dashed #ccc; border-radius: 6px; padding: 20px; text-align: center; cursor: pointer;">
+            <span id="drop-text-gambar">Drag & Drop gambar di sini atau klik untuk memilih</span>
+            <input type="file" class="form-control-file d-none" name="gambar" id="gambar" accept="image/*" />
+
+            <div id="gambar-preview" class="mt-2">
+                @if(!empty($datainv->gambar))
+                    @php
+                        // Generate URL R2 untuk gambar
+                        $gambarUrl = $r2->getUrl('gambar/' . $datainv->gambar);
+                    @endphp
+                    <img src="{{ $gambarUrl }}" alt="Preview Gambar" class="img-thumbnail preview-img" style="max-width: 120px; height: auto;">
+                    <br>
+                    <small class="form-text text-muted">File saat ini: {{ $datainv->gambar }}</small>
+                @else
+                    <small class="form-text text-muted">Belum ada gambar diupload.</small>
+                @endif
+            </div>
+        </div>
+        <input type="hidden" class="form-control" value="{{ auth()->check() ? auth()->user()->kodeRS : '' }}" name="nama_rs" id="nama_rs" />
+    </div>
+</div>
 
                 <style>
                     .drop-area {

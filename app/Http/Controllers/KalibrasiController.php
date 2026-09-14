@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Helpers\R2Client;
 use App\Models\DataInventaris;
 use App\Models\KalibrasiModel;
 use App\Models\MasterRs;
@@ -41,14 +42,24 @@ class KalibrasiController extends Controller
                     return $btn = $show;
                 })
                 ->addColumn('dokumen', function ($row) {
-                    $show = '<a href="' . url('storage/dokumen/') . '/' . $row->dokumen . '" target="_blank"><button type="button" data-skin="brand" data-toggle="kt-tooltip" data-placement="top" title="Brand skin" class="btn btn-outline-primary" >Lihat Dokumen</button></a>';
-                    $btnlihat = '';
-                    $btnupdate = '';
+    // 1. Cek apakah ada file dokumen (Mencegah error/link rusak)
+    if (empty($row->dokumen)) {
+        return '<span class="text-muted font-italic">Tidak ada dokumen</span>';
+    }
 
-                    // $print = '<a href="' . route('kalibrasi.store', $row->kode_item) . '" target="_blank"><button type="button" data-skin="brand" data-toggle="kt-tooltip" data-placement="top" title="Brand skin" class="btn btn-outline-primary btn-icon" ><i class="fa fa-print"></i></button></a>';
-                    $btn = $show;
-                    return $btn = $show;
-                })
+    // 2. Generate URL dari Cloudflare R2
+    $r2 = new R2Client();
+    $fileUrl = $r2->getUrl('dokumen/' . $row->dokumen);
+
+    // 3. Buat HTML Button (Dibersihkan dan ditambahkan icon agar lebih rapi)
+    $show = '<a href="' . $fileUrl . '" target="_blank">
+                <button type="button" data-toggle="kt-tooltip" data-placement="top" title="Lihat Dokumen" class="btn btn-outline-primary btn-sm">
+                    <i class="fa fa-file-pdf-o mr-1"></i> Lihat Dokumen
+                </button>
+            </a>';
+
+    return $show;
+})
                 ->filter(function ($instance) use ($request) {
                     if ($request->get('filter_pemilik') == 'Dokter' || $request->get('filter_pemilik') == 'Rumah Sakit' || $request->get('filter_pemilik') == 'Vendor') {
                         $instance->where('kepemilikan', $request->get('filter_pemilik'));
@@ -91,24 +102,36 @@ class KalibrasiController extends Controller
      */
     public function store(Request $request)
     {
-        $datanama = $request->nama;
-        $kodeRS = auth()->user()->kodeRS;
-        $assetid = $request->idalat;
+        // 1. Validasi
         $this->validate($request, [
-            'dokumen' => 'required|mimes:jpeg,bmp,png,gif,svg,pdf,doc|max:5000',
+            'dokumen' => 'required|mimes:jpeg,bmp,png,gif,svg,pdf,doc,docx|max:5000',
         ]);
+
         $dokumen = $request->file('dokumen');
-        $dokumen->storeAs('public/dokumen', $dokumen->hashName());
+        $filename = $dokumen->hashName();
+
+        // 2. Upload ke Cloudflare R2 dengan error handling
+        try {
+            $r2 = new R2Client();
+            $r2->upload($dokumen->getRealPath(), 'dokumen/' . $filename, $dokumen->getMimeType());
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal mengupload dokumen ke R2: ' . $e->getMessage())
+                ->withInput();
+        }
+
+        // 3. Simpan ke Database
         KalibrasiModel::create([
             'nama' => $request->nama,
-            'assetID' => $assetid,
+            'assetID' => $request->idalat,
             'kodeRS' => auth()->user()->kodeRS,
             'kepemilikan' => $request->kepemilikan,
             'tgl_kalibrasi' => $request->tgl_kalibrasi,
             'exp_date' => $request->exp_date,
             'keterangan' => $request->keterangan,
-            'dokumen' => $dokumen->hashName(),
+            'dokumen' => $filename,
         ]);
+
         return redirect()->route('kalibrasi.index')->with('success', 'Data berhasil ditambahkan');
     }
 
@@ -191,8 +214,18 @@ class KalibrasiController extends Controller
      */
     public function destroy($id)
     {
-        DB::table('kalibrasi')->where('id', $id)->delete();
-        return redirect('kalibrasi.index')->with('status', 'Data Berhasil DiHapus');
+        try {
+            $item = KalibrasiModel::findOrFail($id);
+            $r2 = new R2Client();
+            if (!empty($item->dokumen)) {
+                $r2->delete('dokumen/' . $item->dokumen);
+            }
+            $item->delete();
+            return redirect()->route('kalibrasi.index')->with('success', 'Data dan file berhasil dihapus');
+
+        } catch (\Exception $e) {
+            return redirect()->route('kalibrasi.index')->with('error', 'Gagal menghapus data: ' . $e->getMessage());
+        }
     }
 
     public function getItem(Request $request)

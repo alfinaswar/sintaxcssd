@@ -26,33 +26,42 @@ class CssdItemsetController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            if (auth()->user()->hasRole('superadmin_cssd')) {
-                $data = cssdItemset::with('getNamaset', 'getrs', 'DetailItem')->orderBy('id', 'desc')->get();
-            } else {
-                $data = cssdItemset::with('getNamaset', 'getrs', 'DetailItem')->where('KodeRs', auth()->user()->kodeRS)->orderBy('id', 'desc')->get();
+            // 1. Gunakan Eager Loading bersarang dan Query Builder (Tanpa ->get())
+            $query = cssdItemset::with([
+                'getNamaset',
+                'getrs',
+                'DetailItem.masterItem.getNama' // Tarik relasi detail beserta master itemnya sekaligus
+            ])->orderBy('id', 'desc');
+
+            if (!auth()->user()->hasRole('superadmin_cssd')) {
+                $query->where('KodeRs', auth()->user()->kodeRS);
             }
-            return DataTables::of($data)
+
+            // 2. Kirim Query Builder, JANGAN pakai ->get() agar Yajra DataTables melakukan LIMIT/OFFSET di database
+            return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     $btnEdite = '<a href="' . route('cssd-item-set.edit', $row->id) . '"><button type="button" class="btn btn-outline-success btn-icon" ><i class="fa fa-cogs"></i></button></a>';
                     $btnlihat = '<button type="button" class="btn btn-outline-danger btn-icon" onclick="delete_data(event,' . $row->id . ')" ><i class="fa fa-times"></i></button>';
-                    $btn = $btnEdite . '&nbsp;' . $btnlihat;
-                    return $btn;
+                    return $btnEdite . '&nbsp;' . $btnlihat;
                 })
                 ->addColumn('Item', function ($row) {
-                    $details = cssdItemsetDetail::where('IdItemset', $row->id)->get();
+                    // 3. Ambil data dari relasi yang sudah di eager load, HAPUS QUERY DI DALAM SINI
+                    $details = $row->DetailItem;
                     $label = '-';
 
-                    if ($details && $details->count() > 0) {
+                    if ($details && $details->isNotEmpty()) {
                         $labels = [];
                         foreach ($details as $detail) {
-                            $item = cssdMasterItem::with('getNama')->find($detail->ItemId);
+                            // Ganti 'masterItem' dengan nama fungsi relasi di model cssdItemsetDetail Anda
+                            $item = $detail->masterItem;
                             $qty = $detail->Qty ?? 0;
 
                             if ($item) {
                                 $namaItem = $item->getNama->Nama ?? '-';
                                 $sn = $item->SerialNumber ?? '-';
-                                $labels[] = '<span class="badge badge-primary m-1">' . $namaItem . ' (SN: ' . $sn . ', Qty: ' . $qty . ')</span>';
+                                // 4. Tambahkan e() untuk menghindari celah XSS (karena rawColumns aktif)
+                                $labels[] = '<span class="badge badge-primary m-1">' . e($namaItem) . ' (SN: ' . e($sn) . ', Qty: ' . $qty . ')</span>';
                             }
                         }
                         $label = implode(' ', $labels);
@@ -66,7 +75,6 @@ class CssdItemsetController extends Controller
 
         return view('cssd.master-item-set.index');
     }
-
     /**
      * Show the form for creating a new resource.
      *

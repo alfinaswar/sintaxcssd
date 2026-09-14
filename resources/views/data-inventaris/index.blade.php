@@ -177,6 +177,8 @@
                             <th>Unit</th>
                             <th>Jenis</th>
                             <th>Tahun Beli</th>
+                            <!-- KOLOM BARU DITAMBAHKAN DI SINI -->
+                            <th>Status Kalibrasi</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -187,16 +189,16 @@
             </div>
         </div>
     </div>
-@if (Session::has('testing'))
-    <script>
-        Swal.fire({
-            icon: 'info',
-            title: 'Testing',
-            text: "{{ Session::get('testing') }}",
-            confirmButtonText: 'OK'
-        });
-    </script>
-@endif
+    @if (Session::has('testing'))
+        <script>
+            Swal.fire({
+                icon: 'info',
+                title: 'Testing',
+                text: "{{ Session::get('testing') }}",
+                confirmButtonText: 'OK'
+            });
+        </script>
+    @endif
 
 @endsection
 @push('css')
@@ -244,7 +246,6 @@
                         name: 'DT_RowIndex',
                         orderable: false,
                         searchable: false
-
                     },
                     {
                         data: 'kode_item',
@@ -282,6 +283,14 @@
                         data: 'tahun_beli',
                         name: 'tahun_beli'
                     },
+                    // === DEFINISI KOLOM BARU ===
+                    {
+                        data: 'status_kalibrasi',
+                        name: 'status_kalibrasi',
+                        orderable: false, // Set false karena ini kolom virtual hasil kalkulasi
+                        searchable: false
+                    },
+                    // ============================
                     {
                         data: 'action',
                         name: 'action',

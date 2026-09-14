@@ -23,19 +23,31 @@
             <div class="kt-portlet__body">
                 <div class="kt-widget kt-widget--user-profile-3">
                     <div class="kt-widget__top">
-                        <div class="kt-widget__media kt-hidden-">
-                            <?php if ($data_alat->gambar == null) {
-                                $gambar = 'imagenotfound.png';
-                            } else {
-                                $gambar = $data_alat->gambar;
-                            }
-                            ?>
-                            <img src="{{ url('storage/gambar/' . $gambar) }}" />
-                        </div>
-                        <div
+                       <div class="kt-widget__media">
+    @if(!empty($data_alat->gambar))
+        @php
+
+            $r2 = new \App\Helpers\R2Client();
+            $imageUrl = $r2->getUrl('gambar/' . $data_alat->gambar);
+        @endphp
+
+        {{-- Tampilkan gambar dari R2 --}}
+        <img src="{{ $imageUrl }}"
+             alt="Gambar Alat"
+             class="img-fluid"
+             style="max-width: 100%; height: auto; object-fit: cover; border-radius: 4px;" />
+    @else
+        {{-- Fallback: Tampilkan gambar lokal jika data gambar kosong/null --}}
+        <img src="{{ asset('imagenotfound.png') }}"
+             alt="Gambar Tidak Ditemukan"
+             class="img-fluid"
+             style="max-width: 100%; height: auto;" />
+    @endif
+</div>
+                        {{-- <div
                             class="kt-widget__pic kt-widget__pic--danger kt-font-danger kt-font-boldest kt-font-light kt-hidden">
                             JM
-                        </div>
+                        </div> --}}
                         <div class="kt-widget__content">
                             <div class="kt-widget__head">
                                 <a href="#" class="kt-widget__username kt-hidden">
@@ -150,46 +162,47 @@
                             </div>
                         </div>
 
-                        <div class="kt-widget__item">
-                            <div class="kt-widget__icon">
-                                <i class="flaticon-file-2"></i>
-                            </div>
-                            <div class="kt-widget__details">
-                                <span class="kt-widget__title">
-                                    @if (isset($data_kalibrasi->tgl_kalibrasi))
-                                        {!! '<a href="' .
-                                            url('storage/dokumen/') .
-                                            '/' .
-                                            $data_kalibrasi->dokumen .
-                                            '" target="_blank">Dokumen Kalibrasi</a>' !!}
-                                    @else
-                                        Tidak Dikalibrasi
-                                    @endif
-                                </span>
-                                {{-- <span class="kt-widget__value">{!!$file!!}</span> --}}
-                            </div>
+                        {{-- 1. Dokumen Kalibrasi --}}
+<div class="kt-widget__item">
+    <div class="kt-widget__icon">
+        <i class="flaticon-file-2"></i>
+    </div>
+    <div class="kt-widget__details">
+        <span class="kt-widget__title">
+            @if (!empty($data_kalibrasi->dokumen))
+                @php
+                    $r2 = new \App\Helpers\R2Client();
+                    // Path disesuaikan dengan folder upload Kalibrasi
+                    $kalibrasiUrl = $r2->getUrl('dokumen/' . $data_kalibrasi->dokumen);
+                @endphp
+                <a href="{{ $kalibrasiUrl }}" target="_blank">Dokumen Kalibrasi</a>
+            @else
+                Tidak Dikalibrasi
+            @endif
+        </span>
+    </div>
+</div>
 
-                        </div>
-                        <div class="kt-widget__item">
-                            <div class="kt-widget__icon">
-                                <i class="flaticon-file-2"></i>
-                            </div>
-                            <div class="kt-widget__details">
-                                <span class="kt-widget__title">
-                                    @if (isset($data_alat->manualbook))
-                                        {!! '<a href="' .
-                                            url('storage/manualbook/') .
-                                            '/' .
-                                            $data_alat->manualbook .
-                                            '" target="_blank">Dokumen SPO Alat</a>' !!}
-                                    @else
-                                        SPO Belum Tersedia
-                                    @endif
-                                </span>
-                                {{-- <span class="kt-widget__value">{!!$file!!}</span> --}}
-                            </div>
-
-                        </div>
+{{-- 2. Dokumen SPO Alat / Manualbook --}}
+<div class="kt-widget__item">
+    <div class="kt-widget__icon">
+        <i class="flaticon-file-2"></i>
+    </div>
+    <div class="kt-widget__details">
+        <span class="kt-widget__title">
+            @if (!empty($data_alat->manualbook))
+                @php
+                    $r2 = new \App\Helpers\R2Client();
+                    // Path disesuaikan dengan folder upload Inventaris
+                    $manualbookUrl = $r2->getUrl('manualbook/' . $data_alat->manualbook);
+                @endphp
+                <a href="{{ $manualbookUrl }}" target="_blank">Dokumen SPO Alat</a>
+            @else
+                SPO Belum Tersedia
+            @endif
+        </span>
+    </div>
+</div>
 
                         {{-- <div class="kt-widget__item">
                             <div class="kt-widget__icon">
@@ -295,9 +308,9 @@
                         <div class="kt-portlet__head-toolbar">
                             <div class="kt-portlet__head-label">
                                 @if (Auth::check())
-                                    {{-- <button type="button" class="btn btn-bold btn-label-brand btn-sm"
+                                    <button type="button" class="btn btn-bold btn-label-brand btn-sm"
                                         data-toggle="modal" data-target="#kt_modal_4"><i class="fa fa-plus"></i>
-                                        Tambah</button> --}}
+                                        Tambah</button>
                                 @else
                                     <div class="alert alert-danger mt-3" role="alert">
                                         <i class="fa fa-exclamation-circle"></i> <strong>Anda Belum Login</strong>
@@ -309,7 +322,7 @@
                     <div class="kt-portlet__body">
                         <div class="tab-content">
                             <div class="tab-pane active" id="kt_widget2_tab1_content">
-                                @if (count($data_mtnc) > 0)
+
                                     @foreach ($data_mtnc as $data)
                                         <div class="kt-widget2">
 
@@ -349,60 +362,7 @@
 
                                         </div>
                                     @endforeach
-                                @else
-                                    @if ($data_alat->pengguna == 'Medis' && $data_alat->nama_rs == 'K')
-                                        <div class="kt-widget2">
 
-                                            <div class="kt-widget__label">
-                                                <span class="badge {{ $bgwarna }}"
-                                                    style="font-size: 12px;">{{ date('F', mktime(0, 0, 0, 10, 10)) }}</span>
-                                            </div>
-                                            <div class="kt-widget2__item kt-widget2__item--primary">
-                                                <div class="kt-widget2__checkbox">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                                        height="24" viewBox="0 0 24 24" fill="currentColor"
-                                                        class="icon icon-tabler icons-tabler-filled icon-tabler-square-check">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path
-                                                            d="M18.333 2c1.96 0 3.56 1.537 3.662 3.472l.005 .195v12.666c0 1.96 -1.537 3.56 -3.472 3.662l-.195 .005h-12.666a3.667 3.667 0 0 1 -3.662 -3.472l-.005 -.195v-12.666c0 -1.96 1.537 -3.56 3.472 -3.662l.195 -.005h12.666zm-2.626 7.293a1 1 0 0 0 -1.414 0l-3.293 3.292l-1.293 -1.292l-.094 -.083a1 1 0 0 0 -1.32 1.497l2 2l.094 .083a1 1 0 0 0 1.32 -.083l4 -4l.083 -.094a1 1 0 0 0 -.083 -1.32z" />
-                                                    </svg>
-                                                    Telah Di Lakukan PM Oleh
-                                                    <b>Dicky</b> Pada <b>
-                                                        2025-10-22
-                                                        {{ sprintf(
-                                                            '%02d:%02d:%02d',
-                                                            rand(10, 15), // jam antara 10-15
-                                                            rand(0, 59),
-                                                            rand(0, 59),
-                                                        ) }}
-                                                    </b>
-                                                </div>
-                                                <div class="kt-widget2__info">
-                                                    <span class="kt-widget2__title" style="font-size: 12px;">
-
-                                                    </span>
-
-                                                    <span class="kt-widget2__username">
-                                                        Laik
-                                                    </span>
-                                                </div>
-
-                                                <div class="kt-widget2__actions">
-                                                    <span
-                                                        class="badge {{ $bgwarna }}">{{ $data_alat->klasifikasi ?? 'Tidak Ada' }}</span>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    @else
-                                        <div class="alert alert-warning" role="alert">
-                                            <div class="alert-icon"><i class="flaticon-warning"></i></div>
-                                            <div class="alert-text"><strong>Whoops!, Tidak ada data yang
-                                                    ditemukan</strong>
-                                            </div>
-                                        </div>
-                                    @endif
-                                @endif
                             </div>
 
 
@@ -476,83 +436,98 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-6">
-                <!--begin:: Widgets/Tasks -->
-                <div class="kt-portlet kt-portlet--tabs kt-portlet--height-fluid">
-                    <div class="kt-portlet__head">
-                        <div class="kt-portlet__head-label">
-                            <h3 class="kt-portlet__head-title">
-                                Formulir Pembersihan
-                            </h3>
-                        </div>
+<div class="col-xl-6">
+    <!--begin:: Widgets/Tasks -->
+    <div class="kt-portlet kt-portlet--tabs kt-portlet--height-fluid">
+        <div class="kt-portlet__head">
+            <div class="kt-portlet__head-label">
+                <h3 class="kt-portlet__head-title">
+                    Formulir Pembersihan
+                </h3>
+            </div>
 
-                        <div class="kt-portlet__head-toolbar">
-                            <div class="kt-portlet__head-label">
-                                {{-- @if (Auth::check()) --}}
-                                {{-- <button type="button" class="btn btn-bold btn-label-brand btn-sm"
-                                    data-toggle="modal" data-target="#kt_modal_5">Tambah</button> --}}
-                                {{-- @else
-                                @endif --}}
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="kt-portlet__body">
-                        <div class="form-group">
-                            <label for="filter-month">Filter Bulan:</label>
-                            <select id="filter-month" class="form-control" onchange="filterByMonth()">
-                                <option value="">Semua Bulan</option>
-                                @foreach (range(1, 12) as $month)
-                                    <option value="{{ str_pad($month, 2, '0', STR_PAD_LEFT) }}">
-                                        {{ date('F', mktime(0, 0, 0, $month, 1)) }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="tab-content">
-                            <div class="tab-pane active" id="kt_widget2_tab1_content">
-                                @if (isset($pembersihan) && count($pembersihan) > 0)
-                                    @foreach ($pembersihan as $p)
-                                        <div class="card shadow-sm mb-4"
-                                            data-month="{{ \Carbon\Carbon::parse($p->Tanggal)->format('m') }}">
-                                            <div class="card-header d-flex justify-content-between align-items-center">
-                                                <span class="badge badge-primary" style="font-size: 12px;">
-                                                    {{ \Carbon\Carbon::parse($p->Tanggal)->format('d-m-Y') }}
-                                                </span>
-                                                <span
-                                                    class="badge {{ $p->Status == 'Bersih' ? 'badge-success' : ($p->Status == 'Lainnya' ? 'badge-info' : 'badge-danger') }}">
-                                                    {{ $p->Status }}
-                                                </span>
-                                            </div>
-                                            <div class="card-body">
-                                                <h6 class="mb-2">Nama: <b>{{ $p->idUser ?? 'Tanpa Nama' }}</b></h6>
-                                                <p class="mb-2">Keterangan: <b>{{ $p->Keterangan }}</b></p>
-                                                <div class="row">
-                                                    <div class="col-md-6 text-center">
-                                                        <h6>Before</h6>
-                                                        <img src="{{ url('storage/gambar/Pembersihan/Before/' . $p->Before) }}"
-                                                            class="img-fluid rounded shadow" alt="Before Image">
-                                                    </div>
-                                                    <div class="col-md-6 text-center">
-                                                        <h6>After</h6>
-                                                        <img src="{{ url('storage/gambar/Pembersihan/After/' . $p->After) }}"
-                                                            class="img-fluid rounded shadow" alt="After Image">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                @else
-                                    <div class="alert alert-warning d-flex align-items-center" role="alert">
-                                        <i class="flaticon-warning mr-2"></i>
-                                        <strong>Whoops!, Tidak ada data yang ditemukan</strong>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
+            <div class="kt-portlet__head-toolbar">
+                <div class="kt-portlet__head-label">
+                    <button type="button" class="btn btn-bold btn-label-brand btn-sm"
+                        data-toggle="modal" data-target="#kt_modal_5">Tambah</button>
                 </div>
             </div>
+        </div>
+
+        <div class="kt-portlet__body">
+            <div class="form-group">
+                <label for="filter-month">Filter Bulan:</label>
+                <select id="filter-month" class="form-control" onchange="filterByMonth()">
+                    <option value="">Semua Bulan</option>
+                    @foreach (range(1, 12) as $month)
+                        <option value="{{ str_pad($month, 2, '0', STR_PAD_LEFT) }}">
+                            {{ date('F', mktime(0, 0, 0, $month, 1)) }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="tab-content">
+                <div class="tab-pane active" id="kt_widget2_tab1_content">
+                    @if (isset($pembersihan) && count($pembersihan) > 0)
+
+                        {{-- Inisialisasi R2Client sekali di luar loop agar performa lebih ringan --}}
+                        @php
+                            $r2 = new \App\Helpers\R2Client();
+                        @endphp
+
+                        @foreach ($pembersihan as $p)
+                            <div class="card shadow-sm mb-4" data-month="{{ \Carbon\Carbon::parse($p->Tanggal)->format('m') }}">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <span class="badge badge-primary" style="font-size: 12px;">
+                                        {{ \Carbon\Carbon::parse($p->Tanggal)->format('d-m-Y') }}
+                                    </span>
+                                    <span class="badge {{ $p->Status == 'Bersih' ? 'badge-success' : ($p->Status == 'Lainnya' ? 'badge-info' : 'badge-danger') }}">
+                                        {{ $p->Status }}
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="mb-2">Nama: <b>{{ $p->idUser ?? 'Tanpa Nama' }}</b></h6>
+                                    <p class="mb-2">Keterangan: <b>{{ $p->Keterangan }}</b></p>
+
+                                    <div class="row">
+                                        <div class="col-md-6 text-center">
+                                            <h6>Before</h6>
+                                            @if($p->Before)
+                                                <img src="{{ $r2->getUrl('gambar/Pembersihan/Before/' . $p->Before) }}"
+                                                    class="img-fluid rounded shadow" alt="Before Image"
+                                                    style="max-height: 300px; object-fit: contain;">
+                                            @else
+                                                <p class="text-muted font-italic mt-3">Tidak ada gambar</p>
+                                            @endif
+                                        </div>
+
+                                        <div class="col-md-6 text-center">
+                                            <h6>After</h6>
+                                            @if($p->After)
+                                                <img src="{{ $r2->getUrl('gambar/Pembersihan/After/' . $p->After) }}"
+                                                    class="img-fluid rounded shadow" alt="After Image"
+                                                    style="max-height: 300px; object-fit: contain;">
+                                            @else
+                                                <p class="text-muted font-italic mt-3">Tidak ada gambar</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+
+                    @else
+                        <div class="alert alert-warning d-flex align-items-center" role="alert">
+                            <i class="flaticon-warning mr-2"></i>
+                            <strong>Whoops!, Tidak ada data yang ditemukan</strong>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
             <!--end:: Widgets/Tasks -->
         </div>
     </div>

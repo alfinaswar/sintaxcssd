@@ -227,6 +227,7 @@ Route::prefix('inventaris')->group(function () {
     Route::get('/get-master-item', [DataInventarisController::class, 'getMasterItem'])->name('inventaris.get-master-item');
     Route::get('/get-item-penghapusan', [DataInventarisController::class, 'getItemPenghapusan'])->name('inventaris.get-item-penghapusan');
     Route::get('/get-departemen-penghapusan', [DataInventarisController::class, 'getDepartemenPenghapusan'])->name('inventaris.get-departemen-penghapusan');
+    Route::post('/store-kalibrasi', [DataInventarisController::class, 'storeKalibrasi'])->name('inventaris.store-kalibrasi');
 
 
     Route::get('/kso', [InventarisKsoController::class, 'index'])->name('inventaris.index-kso');

@@ -10,7 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\DataTables;
-
+use Illuminate\Support\Facades\File;
+use Intervention\Image\Facades\Image;
+use App\Helpers\R2Client; // Pastikan import ini ada di bagian atas controller
 class InventarisKsoController extends Controller
 {
     /**
@@ -124,70 +126,83 @@ class InventarisKsoController extends Controller
      */
     public function store(Request $request)
     {
+        // 1. Validasi (Saya tambahkan TglKalibrasi karena ada di kode simpan Anda)
         $validated = $request->validate([
-            'Nama' => 'required',
-            'Merk' => 'required',
+            'Nama' => 'required|string|max:255',
+            'Merk' => 'required|string|max:255',
             'Tipe' => 'nullable|string|max:255',
             'NoSn' => 'nullable|string|max:255',
-            'Vendor' => 'required',
+            'Vendor' => 'required|string|max:255',
             'TanggalKerjasama' => 'required|date',
-            'AkhirKerjasama' => [
-                'nullable',
-                'date',
-                'after_or_equal:TanggalKerjasama'
-            ],
-
-            'Departemen' => 'required',
+            'AkhirKerjasama' => 'nullable|date|after_or_equal:TanggalKerjasama',
+            'Departemen' => 'required|string|max:255',
             'Unit' => 'required|string|max:255',
             'Pengguna' => 'required|in:Medis,Non Medis',
             'Klasifikasi' => 'nullable|in:None,High Risk,Medium Risk,Low to Medium Risk,Low Risk',
+            'TglKalibrasi' => 'nullable|date', // Ditambahkan agar valid
             'Keterangan' => 'nullable|string|max:1000',
             'Dokumen' => 'nullable|file|mimes:pdf,doc,docx,xlsx,csv,jpg,jpeg,png|max:5048',
             'Gambar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
+        // 2. Inisialisasi R2 Client
+        $r2 = new R2Client();
         $gambarPath = null;
         $dokumenPath = null;
 
+        // 3. Handle Upload GAMBAR (dengan kompresi)
         if ($request->hasFile('Gambar')) {
-            $gambarFile = $request->file('Gambar');
-            $gambarOriginalName = pathinfo($gambarFile->getClientOriginalName(), PATHINFO_FILENAME);
-            $gambarExtension = $gambarFile->getClientOriginalExtension();
-            $gambarTimestamp = time();
-            $gambarFileName = $gambarOriginalName . '_' . $gambarTimestamp . '.' . $gambarExtension;
-            $gambarFile->storeAs('inventariskso/gambar', $gambarFileName, 'public');
-            $gambarPath = $gambarFileName;
+            $file = $request->file('Gambar');
+            $filename = $file->hashName(); // Lebih aman untuk cloud storage
+
+            // Kompres gambar
+            $image = Image::make($file->getRealPath());
+            $image->orientate(); // Memperbaiki rotasi gambar dari HP
+            $image->encode('jpg', 70); // Kompresi ke kualitas 70%
+
+            // Simpan sementara di folder temp OS
+            $tempPath = sys_get_temp_dir() . '/' . $filename;
+            $image->save($tempPath);
+
+            // Upload ke R2 (Path folder TETAP: 'inventariskso/gambar/')
+            $r2->upload($tempPath, 'inventariskso/gambar/' . $filename, 'image/jpeg');
+
+            // Hapus file temp agar server tidak penuh
+            File::delete($tempPath);
+
+            $gambarPath = $filename;
         }
 
+        // 4. Handle Upload DOKUMEN
         if ($request->hasFile('Dokumen')) {
-            $dokumenFile = $request->file('Dokumen');
-            $dokumenOriginalName = pathinfo($dokumenFile->getClientOriginalName(), PATHINFO_FILENAME);
-            $dokumenExtension = $dokumenFile->getClientOriginalExtension();
-            $dokumenTimestamp = time();
-            $dokumenFileName = $dokumenOriginalName . '_' . $dokumenTimestamp . '.' . $dokumenExtension;
-            $dokumenFile->storeAs('inventariskso/dokumen', $dokumenFileName, 'public');
-            $dokumenPath = $dokumenFileName;
+            $file = $request->file('Dokumen');
+            $filename = $file->hashName();
+
+            // Upload ke R2 (Path folder TETAP: 'inventariskso/dokumen/')
+            $r2->upload($file->getRealPath(), 'inventariskso/dokumen/' . $filename, $file->getMimeType());
+
+            $dokumenPath = $filename;
         }
 
-
-        $inventarisKso = new InventarisKso();
-        $inventarisKso->Nama = $request->Nama;
-        $inventarisKso->Merk = $request->Merk;
-        $inventarisKso->Tipe = $request->Tipe;
-        $inventarisKso->NoSn = $request->NoSn;
-        $inventarisKso->Vendor = $request->Vendor;
-        $inventarisKso->TanggalKerjasama = $request->TanggalKerjasama;
-        $inventarisKso->AkhirKerjasama = $request->AkhirKerjasama;
-        $inventarisKso->Departemen = $request->Departemen;
-        $inventarisKso->Unit = $request->Unit;
-        $inventarisKso->Pengguna = $request->Pengguna;
-        $inventarisKso->Klasifikasi = $request->Klasifikasi;
-        $inventarisKso->TglKalibrasi = $request->TglKalibrasi;
-        $inventarisKso->Keterangan = $request->Keterangan;
-        $inventarisKso->NamaRS = auth()->user()->kodeRS;
-        $inventarisKso->Gambar = $gambarPath;
-        $inventarisKso->Dokumen = $dokumenPath;
-        $inventarisKso->save();
+        // 5. Simpan ke Database (Menggunakan create() agar lebih rapi dan aman)
+        InventarisKso::create([
+            'Nama' => $request->Nama,
+            'Merk' => $request->Merk,
+            'Tipe' => $request->Tipe,
+            'NoSn' => $request->NoSn,
+            'Vendor' => $request->Vendor,
+            'TanggalKerjasama' => $request->TanggalKerjasama,
+            'AkhirKerjasama' => $request->AkhirKerjasama,
+            'Departemen' => $request->Departemen,
+            'Unit' => $request->Unit,
+            'Pengguna' => $request->Pengguna,
+            'Klasifikasi' => $request->Klasifikasi,
+            'TglKalibrasi' => $request->TglKalibrasi,
+            'Keterangan' => $request->Keterangan,
+            'NamaRS' => auth()->user()->kodeRS,
+            'Gambar' => $gambarPath,   // Hanya menyimpan nama file
+            'Dokumen' => $dokumenPath, // Hanya menyimpan nama file
+        ]);
 
         return redirect()->route('inventaris.index-kso')->with('success', 'Inventaris KSO berhasil ditambahkan!');
     }
@@ -224,72 +239,94 @@ class InventarisKsoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Cari dulu datanya baru update
+        // 1. Cari data lama (findOrFail mencegah error jika ID tidak ditemukan)
         $inventarisKso = InventarisKso::findOrFail($id);
 
+        // 2. Validasi
         $validated = $request->validate([
-            'Nama' => 'required',
-            'Merk' => 'required',
+            'Nama' => 'required|string|max:255',
+            'Merk' => 'required|string|max:255',
             'Tipe' => 'nullable|string|max:255',
             'NoSn' => 'nullable|string|max:255',
-            'Vendor' => 'required',
+            'Vendor' => 'required|string|max:255',
             'TanggalKerjasama' => 'required|date',
-            'AkhirKerjasama' => [
-                'nullable',
-                'date',
-                'after_or_equal:TanggalKerjasama'
-            ],
-            'Departemen' => 'required',
+            'AkhirKerjasama' => 'nullable|date|after_or_equal:TanggalKerjasama',
+            'Departemen' => 'required|string|max:255',
             'Unit' => 'required|string|max:255',
             'Pengguna' => 'required|in:Medis,Non Medis',
             'Klasifikasi' => 'nullable|in:None,High Risk,Medium Risk,Low to Medium Risk,Low Risk',
             'Keterangan' => 'nullable|string|max:1000',
             'TglKalibrasi' => 'nullable|date',
-            'Dokumen' => 'nullable|file|mimes:pdf,doc,docx,xlsx,csv,jpg,jpeg,png|max:2048',
+            'Dokumen' => 'nullable|file|mimes:pdf,doc,docx,xlsx,csv,jpg,jpeg,png|max:5048',
             'Gambar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // Handle Gambar
-        $gambarPath = $inventarisKso->Gambar;
+        // 3. Inisialisasi R2 Client dan Array Data
+        $r2 = new R2Client();
+        $data = [];
+
+        // 4. Handle Upload GAMBAR (dengan kompresi & hapus file lama)
         if ($request->hasFile('Gambar')) {
-            $gambarFile = $request->file('Gambar');
-            $gambarOriginalName = pathinfo($gambarFile->getClientOriginalName(), PATHINFO_FILENAME);
-            $gambarExtension = $gambarFile->getClientOriginalExtension();
-            $gambarTimestamp = time();
-            $gambarFileName = $gambarOriginalName . '_' . $gambarTimestamp . '.' . $gambarExtension;
-            $gambarFile->storeAs('inventariskso/gambar', $gambarFileName, 'public');
-            $gambarPath = $gambarFileName;
+            // Hapus file lama dari R2 jika ada
+            if (!empty($inventarisKso->Gambar)) {
+                $r2->delete('inventariskso/gambar/' . $inventarisKso->Gambar);
+            }
+
+            $file = $request->file('Gambar');
+            $filename = $file->hashName(); // Lebih aman untuk cloud storage
+
+            // Kompres gambar
+            $image = Image::make($file->getRealPath());
+            $image->orientate(); // Memperbaiki rotasi gambar dari HP
+            $image->encode('jpg', 70);
+
+            // Simpan sementara di folder temp OS
+            $tempPath = sys_get_temp_dir() . '/' . $filename;
+            $image->save($tempPath);
+
+            // Upload ke R2 (Path folder TETAP: 'inventariskso/gambar/')
+            $r2->upload($tempPath, 'inventariskso/gambar/' . $filename, 'image/jpeg');
+
+            // Hapus file temp agar server tidak penuh
+            File::delete($tempPath);
+
+            $data['Gambar'] = $filename;
         }
 
-        // Handle Dokumen
-        $dokumenPath = $inventarisKso->Dokumen;
+        // 5. Handle Upload DOKUMEN (hapus file lama)
         if ($request->hasFile('Dokumen')) {
-            $dokumenFile = $request->file('Dokumen');
-            $dokumenOriginalName = pathinfo($dokumenFile->getClientOriginalName(), PATHINFO_FILENAME);
-            $dokumenExtension = $dokumenFile->getClientOriginalExtension();
-            $dokumenTimestamp = time();
-            $dokumenFileName = $dokumenOriginalName . '_' . $dokumenTimestamp . '.' . $dokumenExtension;
-            $dokumenFile->storeAs('inventariskso/dokumen', $dokumenFileName, 'public');
-            $dokumenPath = $dokumenFileName;
+            // Hapus file lama dari R2 jika ada
+            if (!empty($inventarisKso->Dokumen)) {
+                $r2->delete('inventariskso/dokumen/' . $inventarisKso->Dokumen);
+            }
+
+            $file = $request->file('Dokumen');
+            $filename = $file->hashName();
+
+            // Upload ke R2 (Path folder TETAP: 'inventariskso/dokumen/')
+            $r2->upload($file->getRealPath(), 'inventariskso/dokumen/' . $filename, $file->getMimeType());
+
+            $data['Dokumen'] = $filename;
         }
 
-        $inventarisKso->Nama = $request->Nama;
-        $inventarisKso->Merk = $request->Merk;
-        $inventarisKso->Tipe = $request->Tipe;
-        $inventarisKso->NoSn = $request->NoSn;
-        $inventarisKso->Vendor = $request->Vendor;
-        $inventarisKso->TanggalKerjasama = $request->TanggalKerjasama;
-        $inventarisKso->AkhirKerjasama = $request->AkhirKerjasama;
-        $inventarisKso->Departemen = $request->Departemen;
-        $inventarisKso->Unit = $request->Unit;
-        $inventarisKso->Pengguna = $request->Pengguna;
-        $inventarisKso->Klasifikasi = $request->Klasifikasi;
-        $inventarisKso->TglKalibrasi = $request->TglKalibrasi;
-        $inventarisKso->Keterangan = $request->Keterangan;
-        $inventarisKso->NamaRS = auth()->user()->kodeRS;
-        $inventarisKso->Gambar = $gambarPath;
-        $inventarisKso->Dokumen = $dokumenPath;
-        $inventarisKso->save();
+        // 6. Update Field Teks Lainnya
+        $data['Nama'] = $request->Nama;
+        $data['Merk'] = $request->Merk;
+        $data['Tipe'] = $request->Tipe;
+        $data['NoSn'] = $request->NoSn;
+        $data['Vendor'] = $request->Vendor;
+        $data['TanggalKerjasama'] = $request->TanggalKerjasama;
+        $data['AkhirKerjasama'] = $request->AkhirKerjasama;
+        $data['Departemen'] = $request->Departemen;
+        $data['Unit'] = $request->Unit;
+        $data['Pengguna'] = $request->Pengguna;
+        $data['Klasifikasi'] = $request->Klasifikasi;
+        $data['TglKalibrasi'] = $request->TglKalibrasi;
+        $data['Keterangan'] = $request->Keterangan;
+        $data['NamaRS'] = auth()->user()->kodeRS;
+
+        // 7. Simpan Perubahan ke Database (Lebih bersih daripada assign manual satu per satu)
+        $inventarisKso->update($data);
 
         return redirect()->route('inventaris.index-kso')->with('success', 'Inventaris KSO berhasil diupdate!');
     }
@@ -302,28 +339,26 @@ class InventarisKsoController extends Controller
      */
     public function destroy(InventarisKso $inventarisKso)
     {
-        // Hapus file gambar jika ada
-        if ($inventarisKso->Gambar) {
-            $gambarPath = storage_path('app/public/inventariskso/gambar/' . $inventarisKso->Gambar);
-            if (file_exists($gambarPath)) {
-                @unlink($gambarPath);
+        try {
+            $r2 = new R2Client();
+            if (!empty($inventarisKso->Gambar)) {
+                $r2->delete('inventariskso/gambar/' . $inventarisKso->Gambar);
             }
-        }
-
-        // Hapus file dokumen jika ada
-        if ($inventarisKso->Dokumen) {
-            $dokumenPath = storage_path('app/public/inventariskso/dokumen/' . $inventarisKso->Dokumen);
-            if (file_exists($dokumenPath)) {
-                @unlink($dokumenPath);
+            if (!empty($inventarisKso->Dokumen)) {
+                $r2->delete('inventariskso/dokumen/' . $inventarisKso->Dokumen);
             }
+            $inventarisKso->delete();
+            return response()->json([
+                'success' => true,
+                'message' => 'Data dan file Inventaris KSO berhasil dihapus dari R2.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus data: ' . $e->getMessage()
+            ], 500);
         }
-
-        $inventarisKso->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Data Inventaris KSO berhasil dihapus.'
-        ]);
     }
     public function getMasterAlat(Request $request)
     {

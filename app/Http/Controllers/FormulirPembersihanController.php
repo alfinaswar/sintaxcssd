@@ -162,20 +162,27 @@ class FormulirPembersihanController extends Controller
 
     public function store(Request $request)
     {
-        // dd();
         $validated = $request->validate([
+            'idUser' => 'required|string',
+            'Tanggal' => 'required|date',
+            'Status' => 'required|string',
+            'Keterangan' => 'nullable|string',
+            'idAlat' => 'required|string',
+            'kode_item' => 'required|string',
             'Before' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:15240',
             'After' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:15240',
         ]);
 
-        $data = collect($validated)->except(['Before', 'After'])->toArray();
+        $data = $validated;
         $data['createdBy'] = auth()->id() ?? 1;
 
         if ($request->hasFile('Before')) {
+            // Sekarang $data['Before'] hanya berisi nama file saja
             $data['Before'] = $this->compressImage($request->file('Before'), 'Before');
         }
 
         if ($request->hasFile('After')) {
+            // Sekarang $data['After'] hanya berisi nama file saja
             $data['After'] = $this->compressImage($request->file('After'), 'After');
         }
 
@@ -184,6 +191,7 @@ class FormulirPembersihanController extends Controller
         return redirect()->back()->with('success', 'Data Telah Disimpan ke R2');
     }
 
+    // Fungsi ini meng-upload file ke folder 'gambar/Pembersihan/{folderName}' di R2.
     private function compressImage($file, $folderName, $maxBytes = 900000)
     {
         $image = Image::make($file->getRealPath());
@@ -200,7 +208,10 @@ class FormulirPembersihanController extends Controller
             $quality -= 5;
             $image->encode('jpg', $quality);
         }
+
         $filename = time() . '_' . Str::random(10) . '.jpg';
+
+        // Upload ke folder R2: 'gambar/Pembersihan/{folderName}/{filename}'
         $r2Path = "gambar/Pembersihan/{$folderName}/{$filename}";
         $tempFilePath = sys_get_temp_dir() . '/' . $filename;
         $image->save($tempFilePath);
@@ -209,12 +220,13 @@ class FormulirPembersihanController extends Controller
             $r2Client = new R2Client();
             $r2Client->upload($tempFilePath, $r2Path, 'image/jpeg');
             File::delete($tempFilePath);
-
         } catch (\Exception $e) {
             File::delete($tempFilePath);
             throw new \Exception('Gagal upload ke R2: ' . $e->getMessage());
         }
-        return $r2Path;
+
+        // Yang disimpan di database HANYA nama file-nya saja (tanpa path folder R2-nya)
+        return $filename;
     }
     /**
      * Display the specified resource.

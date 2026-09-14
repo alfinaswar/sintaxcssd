@@ -15,9 +15,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Intervention\Image\Facades\Image;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\File;
+use Intervention\Image\Facades\Image;
+use App\Helpers\R2Client;
+use App\Models\KalibrasiModel;
 
 class DataInventarisController extends Controller
 {
@@ -34,9 +37,9 @@ class DataInventarisController extends Controller
     {
         if ($request->ajax()) {
             if (auth()->user()->role == 'admin' || auth()->user()->role == 'DKH') {
-                $data = DataInventaris::latest();
+                $data = DataInventaris::with('getKalibrasi')->latest();
             } else {
-                $data = DataInventaris::where('nama_rs', auth()->user()->kodeRS)->latest();
+                $data = DataInventaris::with('getKalibrasi')->where('nama_rs', auth()->user()->kodeRS)->latest();
             }
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -57,6 +60,48 @@ class DataInventarisController extends Controller
 
                     return $btn;
                 })
+                ->addColumn('status_kalibrasi', function ($row) {
+                    // Ambil data kalibrasi terbaru berdasarkan tanggal
+                    $latestKal = $row->getKalibrasi ? $row->getKalibrasi->sortByDesc('tgl_kalibrasi')->first() : null;
+
+                    // Only text color, no background.
+                    $baseStyle = 'display:inline-block;padding:4px 8px;border-radius:4px;font-weight:bold;';
+                    $iconStyle = 'margin-right:4px;';
+
+                    if (!$latestKal || !$latestKal->exp_date) {
+                        $labelStyle = $baseStyle . 'color:#6c757d;'; // abu-abu
+                        return '<span style="'.$labelStyle.'"><i class="fa fa-minus-circle" style="'.$iconStyle.'"></i> Belum / Tidak Dikalibrasi</span>';
+                    }
+
+                    $expDate = Carbon::parse($latestKal->exp_date);
+                    $daysLeft = Carbon::now()->diffInDays($expDate, false); // false = allow negative
+
+                    if ($daysLeft < 0) {
+                        // Sudah kadaluarsa - Merah tua
+                        $labelStyle = $baseStyle . 'color:#a71d2a;';
+                        return '<span style="'.$labelStyle.'" title="Kadaluarsa: '.$expDate->format('d M Y').'"><i class="fa fa-exclamation-triangle" style="'.$iconStyle.'"></i> Expired (' . abs($daysLeft) . ' hari)</span>';
+                    } elseif ($daysLeft <= 7) {
+                        // <= 1 minggu - Merah
+                        $labelStyle = $baseStyle . 'color:#c82333;';
+                        return '<span style="'.$labelStyle.'" title="Kadaluarsa: '.$expDate->format('d M Y').'"><i class="fa fa-bell" style="'.$iconStyle.'"></i> ' . $daysLeft . ' hari lagi (Minggu terakhir!)</span>';
+                    } elseif ($daysLeft <= 30) {
+                        // <= 1 bulan - Oranye
+                        $labelStyle = $baseStyle . 'color:#a38320;';
+                        return '<span style="'.$labelStyle.'" title="Kadaluarsa: '.$expDate->format('d M Y').'"><i class="fa fa-clock" style="'.$iconStyle.'"></i> ' . $daysLeft . ' hari lagi (&lt; 1 Bulan)</span>';
+                    } elseif ($daysLeft <= 60) {
+                        // <= 2 bulan - Biru muda
+                        $labelStyle = $baseStyle . 'color:#0c5460;';
+                        return '<span style="'.$labelStyle.'" title="Kadaluarsa: '.$expDate->format('d M Y').'"><i class="fa fa-info-circle" style="'.$iconStyle.'"></i> ' . $daysLeft . ' hari lagi (&lt; 2 Bulan)</span>';
+                    } elseif ($daysLeft <= 90) {
+                        // <= 3 bulan - Biru
+                        $labelStyle = $baseStyle . 'color:#004085;';
+                        return '<span style="'.$labelStyle.'" title="Kadaluarsa: '.$expDate->format('d M Y').'"><i class="fa fa-flag" style="'.$iconStyle.'"></i> ' . $daysLeft . ' hari lagi (&lt; 3 Bulan)</span>';
+                    } else {
+                        // Aman, > 3 bulan - Hijau
+                        $labelStyle = $baseStyle . 'color:#155724;';
+                        return '<span style="'.$labelStyle.'" title="Kadaluarsa: '.$expDate->format('d M Y').'"><i class="fa fa-check-circle" style="'.$iconStyle.'"></i> Aman (' . $daysLeft . ' hari)</span>';
+                    }
+                })
                 ->addColumn('tahun_beli', function ($row) {
                     if (!$row->tanggal_beli) {
                         $tahun_beli = '-';
@@ -65,6 +110,11 @@ class DataInventarisController extends Controller
                     }
                     return $tahun_beli;
                 })
+                ->addColumn('kode_item', function($row) {
+                    $route = route('inventaris.show', $row->id);
+                    return '<a href="' . $route . '" target="_blank" style="text-decoration: underline;">' . e($row->kode_item) . '</a>';
+                })
+
                 ->addColumn('nama_rs', function ($row) {
                     switch ($row->nama_rs) {
                         case 'K':
@@ -145,7 +195,7 @@ class DataInventarisController extends Controller
                         });
                     }
                 })
-                ->rawColumns(['action', 'tahun_beli'])
+                 ->rawColumns(['action', 'tahun_beli', 'kode_item', 'status_kalibrasi'])
                 ->make(true);
         }
         $rs = MasterRs::all();
@@ -580,9 +630,9 @@ class DataInventarisController extends Controller
         return response()->json($merk);
     }
 
-    public function storeNoro(request $request)
+    public function storeNoro(Request $request)
     {
-        return redirect()->back()->with('SEDANG MAINTENANCE');
+        // 1. Validasi Terpusat
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|max:255',
             'merk' => 'required|string|max:255',
@@ -593,72 +643,32 @@ class DataInventarisController extends Controller
             'unit' => 'required|string|max:255',
             'userPengguna' => 'required|in:Medis,Non Medis',
             'klasifikasi' => 'nullable|in:None,High Risk,Medium Risk,Low to Medium Risk,Low Risk',
-            'gambar' => 'required|image|max:3048',  //
+            'gambar' => 'required|image|mimes:jpeg,jpg,png|max:5000',
+            'manualbook' => 'nullable|file|mimes:pdf|max:5000',
             'isKalibrasi' => 'nullable|in:0,1',
             'keterangan' => 'nullable|string|max:1000',
         ]);
 
         if ($validator->fails()) {
-            return redirect()
-                ->back()
-                ->withErrors($validator)
-                ->withInput();
+            return redirect()->back()->withErrors($validator)->withInput();
         }
-        if ($request->userPengguna == 'Medis') {
-            $JenisItem = 'MED';
-        } else {
-            $JenisItem = 'UMUM';
-        }
-        $TahunBeli = Carbon::parse($request->tanggal_beli)->year;
-        $Departemen = $request->departemen;
-        $unit = $request->unit;
-        $autonumber = DataInventaris::latest()->first()->id + 1;
-        $NoInv = $JenisItem . '-' . $autonumber;
 
-        $latestId = null;
-        if (DataInventaris::count() > 0) {
-            $latestId = DataInventaris::latest()->first()->id + 1;
-        }
+        // 2. Proses Data Dasar
+        $JenisItem = $request->userPengguna == 'Medis' ? 'MED' : 'UMUM';
+
+        $latestRecord = DataInventaris::latest('id')->first();
+        $latestId = $latestRecord ? $latestRecord->id + 1 : 1;
+
+        $NoInv = $JenisItem . '-' . $latestId;
         $kode_item = 'Item-' . str_pad($latestId, 8, '0', STR_PAD_LEFT);
-        $kategori = $request->asd;
 
-        $data = $request->nama;
-        $data = explode(',', $data);
-        $nama = $data[1];
-        $assetid = $data[0];
+        // Parsing nama dan assetID
+        $dataNama = explode(',', $request->nama);
+        $nama = $dataNama[1] ?? $request->nama;
+        $assetid = $dataNama[0] ?? null;
 
-        $this->validate($request, [
-            'gambar' => 'required|file|mimes:jpeg,jpg,png|max:5000',
-            'manualbook' => 'file|mimes:pdf|max:5000',
-            'departemen' => 'required',
-            'unit' => 'required',
-        ]);
-        // Kompres gambar sebelum disimpan agar ukuran file tidak terlalu besar
-        if ($request->hasFile('gambar')) {
-            $gambarFile = $request->file('gambar');
-            $namaFile = $gambarFile->hashName();
-            $lokasiSimpan = storage_path('app/public/gambar/' . $namaFile);
-
-            // Kompres gambar menggunakan Intervention Image
-            $image = Image::make($gambarFile->getRealPath());
-
-            // Kompres ke kualitas 70 (bisa diubah sesuai kebutuhan)
-            $image->encode('jpg', 70)->save($lokasiSimpan);
-
-            $gambar = $namaFile;
-        } else {
-            $gambar = null;
-        }
-
-        if ($request->hasFile('manualbook')) {
-            $manualbook = $request->file('manualbook');
-            $manualbook->storeAs('public/manualbook', $manualbook->hashName());
-            $manualbook = $manualbook->hashName();
-        } else {
-            $manualbook = null;
-        }
-
-        DataInventaris::create([
+        // 3. Siapkan Array Data
+        $data = [
             'ROID' => $request->ROID,
             'RO2ID' => $request->RO2ID,
             'harga' => null,
@@ -674,26 +684,57 @@ class DataInventarisController extends Controller
             'departemen' => $request->departemen,
             'unit' => $request->unit,
             'pengguna' => $request->userPengguna,
-            'gambar' => $gambar,
+            'klasifikasi' => $request->klasifikasi,
             'tgl_kalibrasi' => $request->tgl_kalibrasi,
             'tgl_expire' => $request->tgl_expire,
-            'manualbook' => $manualbook,
-            'klasifikasi' => $request->klasifikasi,
             'nama_rs' => auth()->user()->kodeRS,
             'isKalibrasi' => $request->isKalibrasi,
             'UserCreate' => auth()->user()->name ?? null,
             'UserId' => auth()->user()->id ?? null,
             'UpdateName' => null,
             'UpdateById' => null,
-        ]);
+        ];
 
-        $username = auth()->user()->name;
+        // 4. Inisialisasi R2 Client
+        $r2 = new R2Client();
+
+        // 5. Handle Upload GAMBAR (PATH TETAP: 'gambar/')
+        if ($request->hasFile('gambar')) {
+            $file = $request->file('gambar');
+            $filename = $file->hashName();
+
+            $image = Image::make($file->getRealPath());
+            $image->orientate();
+            $image->encode('jpg', 70);
+
+            $tempPath = sys_get_temp_dir() . '/' . $filename;
+            $image->save($tempPath);
+
+            $r2->upload($tempPath, 'gambar/' . $filename, 'image/jpeg');
+            File::delete($tempPath);
+
+            $data['gambar'] = $filename;
+        }
+
+        // 6. Handle Upload MANUALBOOK (PATH TETAP: 'manualbook/')
+        if ($request->hasFile('manualbook')) {
+            $file = $request->file('manualbook');
+            $filename = $file->hashName();
+
+            $r2->upload($file->getRealPath(), 'manualbook/' . $filename, $file->getMimeType());
+
+            $data['manualbook'] = $filename;
+        }
+
+        // 7. Simpan ke Database (HANYA 1 KALI)
+        DataInventaris::create($data);
 
         return redirect()->route('inventaris.index')->with('success', 'Data berhasil ditambahkan');
     }
 
-    public function store(request $request)
+    public function store(Request $request)
     {
+        // 1. Validasi Terpusat (Menggabungkan semua validasi agar tidak berulang)
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|max:255',
             'merk' => 'required|string|max:255',
@@ -704,220 +745,89 @@ class DataInventarisController extends Controller
             'unit' => 'required|string|max:255',
             'userPengguna' => 'required|in:Medis,Non Medis',
             'klasifikasi' => 'nullable|in:None,High Risk,Medium Risk,Low to Medium Risk,Low Risk',
-            'gambar' => 'required|image|max:3048',  //
+            'gambar' => 'required|image|mimes:jpeg,jpg,png|max:5000',
+            'manualbook' => 'nullable|file|mimes:pdf|max:5000',
             'isKalibrasi' => 'nullable|in:0,1',
             'keterangan' => 'nullable|string|max:1000',
         ]);
 
         if ($validator->fails()) {
-            return redirect()
-                ->back()
-                ->withErrors($validator)
-                ->withInput();
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $Harga = str_replace('Rp. ', '', $request->Harga);
-        $Harga = str_replace('.', '', $Harga);
+        // 2. Proses Data Dasar (Logika tetap sama persis dengan kode asli Anda)
+        $Harga = str_replace(['Rp. ', '.'], '', $request->Harga);
+        $JenisItem = $request->userPengguna == 'Medis' ? 'MED' : 'UMUM';
 
-        if ($request->userPengguna == 'Medis') {
-            $JenisItem = 'MED';
-        } else {
-            $JenisItem = 'UMUM';
-        }
-        $TahunBeli = Carbon::parse($request->tanggal_beli)->year;
-        $Departemen = $request->departemen;
-        $unit = $request->unit;
-        $autonumber = DataInventaris::latest()->first()->id + 1;
-        $NoInv = $JenisItem . '-' . $autonumber;
+        $latestRecord = DataInventaris::latest('id')->first();
+        $latestId = $latestRecord ? $latestRecord->id + 1 : 1;
 
-        $latestId = null;
-        if (DataInventaris::count() > 0) {
-            $latestId = DataInventaris::latest()->first()->id + 1;
-        }
+        $NoInv = $JenisItem . '-' . $latestId;
         $kode_item = 'Item-' . str_pad($latestId, 8, '0', STR_PAD_LEFT);
-        $kategori = $request->asd;
-        if ($request->hasFile('gambar') && $request->hasFile('manualbook')) {
-            $this->validate($request, [
-                'gambar' => 'required|file|mimes:jpeg,jpg,png|max:5000',
-                'manualbook' => 'required|file|mimes:pdf|max:5000',
-                'departemen' => 'required',
-                'unit' => 'required',
-            ]);
-            $gambar = $request->file('gambar');
-            // Kompres gambar sebelum disimpan
-            $img = Image::make($gambar->getRealPath());
-            $img->encode('jpg', 70);
-            $namaFile = $gambar->hashName();
-            $img->save(storage_path('app/public/gambar/' . $namaFile));
-            // $dokumen = $request->file('dokumen');
-            // $dokumen->storeAs('public/dokumen', $dokumen->hashName());
-            $manualbook = $request->file('manualbook');
-            $manualbook->storeAs('public/manualbook', $manualbook->hashName());
 
-            DataInventaris::create([
-                'ROID' => $request->ROID,
-                'RO2ID' => $request->RO2ID,
-                'harga' => $Harga,
-                'nama' => $request->nama,
-                'merk' => $request->merk,
-                'real_name' => $request->real_name,
-                'kode_item' => $kode_item,
-                'assetID' => $request->ItemID,
-                'no_inventaris' => $NoInv,
-                'no_sn' => $request->no_sn,
-                'tanggal_beli' => $request->tanggal_beli,
-                'keterangan' => $request->keterangan,
-                'departemen' => $request->departemen,
-                'unit' => $request->unit,
-                'pengguna' => $request->userPengguna,
-                'gambar' => $gambar->hashName(),
-                'tgl_kalibrasi' => $request->tgl_kalibrasi,
-                'tgl_expire' => $request->tgl_expire,
-                'manualbook' => $manualbook->hashName(),
-                'klasifikasi' => $request->klasifikasi,
-                'nama_rs' => auth()->user()->kodeRS,
-                'isKalibrasi' => $request->isKalibrasi,
-                'UserCreate' => auth()->user()->name ?? null,
-                'UserId' => auth()->user()->id ?? null,
-                'UpdateName' => null,
-                'UpdateById' => null,
-            ]);
-        } elseif ($request->hasFile('gambar')) {
-            $this->validate($request, [
-                'gambar' => 'required|file|mimes:jpeg,jpg,png|max:5000',
-                'departemen' => 'required',
-                'unit' => 'required',
-            ]);
-            $gambar = $request->file('gambar');
-            // Kompres gambar sebelum disimpan
-            $img = Image::make($gambar->getRealPath());
-            $img->encode('jpg', 70);
-            $namaFile = $gambar->hashName();
-            $img->save(storage_path('app/public/gambar/' . $namaFile));
-            // $dokumen = $request->file('dokumen');
-            // $dokumen->storeAs('public/dokumen', $dokumen->hashName());
+        // 3. Siapkan Array Data untuk Database (Hanya field teks/angka dulu)
+        $data = [
+            'ROID' => $request->ROID,
+            'RO2ID' => $request->RO2ID,
+            'harga' => $Harga,
+            'nama' => $request->nama,
+            'merk' => $request->merk,
+            'real_name' => $request->real_name,
+            'kode_item' => $kode_item,
+            'assetID' => $request->ItemID,
+            'no_inventaris' => $NoInv,
+            'no_sn' => $request->no_sn,
+            'tanggal_beli' => $request->tanggal_beli,
+            'keterangan' => $request->keterangan,
+            'departemen' => $request->departemen,
+            'unit' => $request->unit,
+            'pengguna' => $request->userPengguna,
+            'klasifikasi' => $request->klasifikasi,
+            'tgl_kalibrasi' => $request->tgl_kalibrasi,
+            'tgl_expire' => $request->tgl_expire,
+            'nama_rs' => auth()->user()->kodeRS,
+            'isKalibrasi' => $request->isKalibrasi,
+            'UserCreate' => auth()->user()->name ?? null,
+            'UserId' => auth()->user()->id ?? null,
+            'UpdateName' => null,
+            'UpdateById' => null,
+        ];
 
-            DataInventaris::create([
-                'ROID' => $request->ROID,
-                'RO2ID' => $request->RO2ID,
-                'harga' => $Harga,
-                'nama' => $request->nama,
-                'merk' => $request->merk,
-                'real_name' => $request->real_name,
-                'kode_item' => $kode_item,
-                'assetID' => $request->ItemID,
-                'no_inventaris' => $NoInv,
-                'no_sn' => $request->no_sn,
-                'tanggal_beli' => $request->tanggal_beli,
-                'keterangan' => $request->keterangan,
-                'departemen' => $request->departemen,
-                'unit' => $request->unit,
-                'pengguna' => $request->userPengguna,
-                'gambar' => $gambar->hashName(),
-                'tgl_kalibrasi' => $request->tgl_kalibrasi,
-                'tgl_expire' => $request->tgl_expire,
-                'nama_rs' => auth()->user()->kodeRS,
-                'isKalibrasi' => $request->isKalibrasi,
-                'klasifikasi' => $request->klasifikasi,
-                'UserCreate' => auth()->user()->name ?? null,
-                'UserId' => auth()->user()->id ?? null,
-                'UpdateName' => null,
-                'UpdateById' => null,
-            ]);
-            // }elseif ($request->hasFile('dokumen')) {
-            //     $this->validate($request, [
-            //         'dokumen' => 'required|file|mimes:pdf|max:4096',
-            //     ]);
-            //     $dokumen = $request->file('dokumen');
-            //     $dokumen->storeAs('public/dokumen', $dokumen->hashName());
+        // 4. Inisialisasi R2 Client
+        $r2 = new R2Client();
 
-            //     DataInventaris::create([
-            //         'ROID' => $request->ROID,
-            //         'RO2ID' => $request->RO2ID,
-            // 'harga' => $Harga,
-            //         'nama' => $request->nama,
-            //         'real_name' => $request->real_name,
-            //         'kode_item' => $kode_item,
-            //         'assetID' => $request->ItemID,
-            //         'no_inventaris' => $NoInv,
-            //         'no_sn' => $request->no_sn,
-            //         'tanggal_beli' => $request->tanggal_beli,
-            //         'keterangan' => $request->keterangan,
-            //         'departemen' => $request->departemen,
-            //         'unit' => $request->unit,
-            //         'pengguna' => $request->userPengguna,
-            //         // 'gambar' => $gambar->hashName(),
-            //         'tgl_kalibrasi' => $request->tgl_kalibrasi,
-            //         'tgl_expire' => $request->tgl_expire,
-            //         'dokumen' => $dokumen->hashName(),
-            //         'nama_rs' => auth()->user()->kodeRS,
-            //     ]);
-            // }
-        } elseif ($request->hasFile('manualboook')) {
-            $this->validate($request, [
-                'manualbook' => 'required|file|mimes:pdf|max:5000',
-                'departemen' => 'required',
-                'unit' => 'required',
-            ]);
-            $manualbook = $request->file('manualbook');
-            $manualbook->storeAs('public/manualbook', $manualbook->hashName());
+        // 5. Handle Upload GAMBAR (dengan kompresi, PATH TETAP: 'gambar/')
+        if ($request->hasFile('gambar')) {
+            $file = $request->file('gambar');
+            $filename = $file->hashName();
 
-            DataInventaris::create([
-                'ROID' => $request->ROID,
-                'RO2ID' => $request->RO2ID,
-                'harga' => $Harga,
-                'nama' => $request->nama,
-                'merk' => $request->merk,
-                'real_name' => $request->real_name,
-                'kode_item' => $kode_item,
-                'assetID' => $request->ItemID,
-                'no_inventaris' => $NoInv,
-                'no_sn' => $request->no_sn,
-                'tanggal_beli' => $request->tanggal_beli,
-                'keterangan' => $request->keterangan,
-                'departemen' => $request->departemen,
-                'unit' => $request->unit,
-                'pengguna' => $request->userPengguna,
-                // 'gambar' => $gambar->hashName(),
-                'klasifikasi' => $request->klasifikasi,
-                'tgl_kalibrasi' => $request->tgl_kalibrasi,
-                'tgl_expire' => $request->tgl_expire,
-                'manualbook' => $manualbook->hashName(),
-                'nama_rs' => auth()->user()->kodeRS,
-                'isKalibrasi' => $request->isKalibrasi,
-                'UserCreate' => auth()->user()->name ?? null,
-                'UserId' => auth()->user()->id ?? null,
-                'UpdateName' => null,
-                'UpdateById' => null,
-            ]);
-        } else {
-            DataInventaris::create([
-                'ROID' => $request->ROID,
-                'RO2ID' => $request->RO2ID,
-                'harga' => $Harga,
-                'nama' => $request->nama,
-                'merk' => $request->merk,
-                'real_name' => $request->real_name,
-                'kode_item' => $kode_item,
-                'assetID' => $request->ItemID,
-                'no_inventaris' => $NoInv,
-                'no_sn' => $request->no_sn,
-                'tanggal_beli' => $request->tanggal_beli,
-                'keterangan' => $request->keterangan,
-                'departemen' => $request->departemen,
-                'unit' => $request->unit,
-                'klasifikasi' => $request->klasifikasi,
-                'pengguna' => $request->userPengguna,
-                'tgl_kalibrasi' => $request->tgl_kalibrasi,
-                'tgl_expire' => $request->tgl_expire,
-                'nama_rs' => auth()->user()->kodeRS,
-                'isKalibrasi' => $request->isKalibrasi,
-                'UserCreate' => auth()->user()->name ?? null,
-                'UserId' => auth()->user()->id ?? null,
-                'UpdateName' => null,
-                'UpdateById' => null,
-            ]);
+            $image = Image::make($file->getRealPath());
+            $image->orientate();
+            $image->encode('jpg', 70);
+
+            $tempPath = sys_get_temp_dir() . '/' . $filename;
+            $image->save($tempPath);
+
+            // Upload ke R2 dengan path folder 'gambar/' (Sesuai permintaan)
+            $r2->upload($tempPath, 'gambar/' . $filename, 'image/jpeg');
+
+            File::delete($tempPath); // Hapus file temp
+            $data['gambar'] = $filename; // Simpan nama file saja ke array $data
         }
+
+        // 6. Handle Upload MANUALBOOK (PATH TETAP: 'manualbook/')
+        if ($request->hasFile('manualbook')) {
+            $file = $request->file('manualbook');
+            $filename = $file->hashName();
+
+            // Upload ke R2 dengan path folder 'manualbook/' (Sesuai permintaan)
+            $r2->upload($file->getRealPath(), 'manualbook/' . $filename, $file->getMimeType());
+
+            $data['manualbook'] = $filename; // Simpan nama file saja ke array $data
+        }
+
+        // 7. Simpan ke Database (HANYA 1 KALI, menggantikan 4 blok if/else yang panjang)
+        DataInventaris::create($data);
 
         return redirect()->route('inventaris.index')->with('success', 'Data berhasil ditambahkan');
     }
@@ -956,42 +866,70 @@ class DataInventarisController extends Controller
 
     public function update(Request $request, $id)
     {
+        // 1. Ambil data lama SEKALI saja (lebih efisien daripada memanggil find() berulang kali)
+        $item = DataInventaris::findOrFail($id);
+
+        // 2. Inisialisasi R2 Client dan Array Data
+        $r2 = new R2Client();
+        $data = [];
+
+        // 3. Handle Upload GAMBAR (dengan kompresi & hapus file lama di R2)
         if ($request->hasFile('gambar')) {
-            $gambar = $request->file('gambar');
-            $namaGambarLama = DataInventaris::find($id)->gambar;
-            if ($namaGambarLama) {
-                Storage::delete('public/gambar/' . $namaGambarLama);
+            // Hapus file lama dari R2 jika ada
+            if (!empty($item->gambar)) {
+                $r2->delete('gambar/' . $item->gambar);
             }
 
-            // Kompres gambar menggunakan Intervention Image
-            $namaFile = $gambar->hashName();
-            $lokasiSimpan = storage_path('app/public/gambar/' . $namaFile);
+            $file = $request->file('gambar');
+            $filename = $file->hashName();
 
-            // Pastikan library Intervention Image sudah diimport di atas
-            $image = Image::make($gambar->getRealPath());
-            $image->encode('jpg', 70)->save($lokasiSimpan);
+            // Kompres gambar
+            $image = Image::make($file->getRealPath());
+            $image->orientate(); // Memperbaiki rotasi gambar dari HP
+            $image->encode('jpg', 70);
 
-            $data['gambar'] = $namaFile;
+            // Simpan sementara di folder temp OS (agar tidak memenuhi storage Laravel)
+            $tempPath = sys_get_temp_dir() . '/' . $filename;
+            $image->save($tempPath);
+
+            // Upload ke R2 (Path folder TETAP: 'gambar/')
+            $r2->upload($tempPath, 'gambar/' . $filename, 'image/jpeg');
+
+            // Hapus file temp agar server tidak penuh
+            File::delete($tempPath);
+
+            $data['gambar'] = $filename;
         }
 
+        // 4. Handle Upload DOKUMEN
         if ($request->hasFile('dokumen')) {
-            $dokumen = $request->file('dokumen');
-            $namaDokumenLama = DataInventaris::find($id)->dokumen;
-            if ($namaDokumenLama) {
-                Storage::delete('public/dokumen/' . $namaDokumenLama);
+            // Hapus file lama dari R2 jika ada
+            if (!empty($item->dokumen)) {
+                $r2->delete('dokumen/' . $item->dokumen);
             }
-            $dokumen->storeAs('public/dokumen', $dokumen->hashName());
-            $data['dokumen'] = $dokumen->hashName();
+
+            $file = $request->file('dokumen');
+            $filename = $file->hashName();
+
+            // Upload ke R2 (Path folder TETAP: 'dokumen/')
+            $r2->upload($file->getRealPath(), 'dokumen/' . $filename, $file->getMimeType());
+
+            $data['dokumen'] = $filename;
         }
+
+        // 5. Handle Upload MANUALBOOK
         if ($request->hasFile('manualbook')) {
-            $manualbook = $request->file('manualbook');
-            $namaManualbookLama = DataInventaris::find($id)->manualbook;
-            if ($namaManualbookLama) {
-                Storage::delete('public/manualbook/' . $namaManualbookLama);
+            if (!empty($item->manualbook)) {
+                $r2->delete('manualbook/' . $item->manualbook);
             }
-            $manualbook->storeAs('public/manualbook', $manualbook->hashName());
-            $data['manualbook'] = $manualbook->hashName();
+            $file = $request->file('manualbook');
+            $filename = $file->hashName();
+            $r2->upload($file->getRealPath(), 'manualbook/' . $filename, $file->getMimeType());
+
+            $data['manualbook'] = $filename;
         }
+
+        // 6. Update Field Teks Lainnya
         $data['nama'] = $request->nama;
         $data['real_name'] = $request->real_name;
         $data['no_inventaris'] = $request->no_inventaris;
@@ -1004,10 +942,11 @@ class DataInventarisController extends Controller
         $data['klasifikasi'] = $request->klasifikasi;
         $data['UpdateName'] = auth()->user()->name ?? null;
         $data['UpdateById'] = auth()->user()->id ?? null;
-        $query = DataInventaris::find($id);
-        $query->update($data);
 
-        return redirect()->route('inventaris.index')->with('success', 'Data berhasil di ubah');
+        // 7. Simpan Perubahan ke Database
+        $item->update($data);
+
+        return redirect()->route('inventaris.index')->with('success', 'Data berhasil diubah');
     }
 
     public function getMasterItem(Request $request)
@@ -1024,9 +963,44 @@ class DataInventarisController extends Controller
 
     public function destroy($id)
     {
-        $data = DataInventaris::find($id);
-        $data->delete();
-        return response()->json(['msg' => 'Deleted successfully']);
+        try {
+            // 1. Ambil data. Jika tidak ditemukan, otomatis return 404 (aman dari error null)
+            $item = DataInventaris::findOrFail($id);
+
+            // 2. Inisialisasi R2 Client
+            $r2 = new R2Client();
+
+            // 3. Hapus file GAMBAR dari R2 jika ada
+            if (!empty($item->gambar)) {
+                $r2->delete('gambar/' . $item->gambar);
+            }
+
+            // 4. Hapus file DOKUMEN dari R2 jika ada
+            if (!empty($item->dokumen)) {
+                $r2->delete('dokumen/' . $item->dokumen);
+            }
+
+            // 5. Hapus file MANUALBOOK dari R2 jika ada
+            if (!empty($item->manualbook)) {
+                $r2->delete('manualbook/' . $item->manualbook);
+            }
+
+            // 6. Hapus data dari database
+            $item->delete();
+
+            // 7. Return response JSON (Sangat cocok untuk request AJAX/DataTables)
+            return response()->json([
+                'success' => true,
+                'msg' => 'Data dan file terkait berhasil dihapus dari R2.'
+            ]);
+
+        } catch (\Exception $e) {
+            // Handle error jika ada masalah (misal: record tidak ditemukan atau R2 error)
+            return response()->json([
+                'success' => false,
+                'msg' => 'Gagal menghapus data: ' . $e->getMessage()
+            ], 500);
+        }
     }
     public function getItemPenghapusan(Request $request)
     {
@@ -1073,6 +1047,72 @@ class DataInventarisController extends Controller
 
         return response()->json($results);
     }
+    public function show($id)
+    {
+        // Cari item DataInventaris berdasarkan id
+        $item = DataInventaris::with([
+            'DataMaintenance',
+            'getKalibrasi',
+            'getLaporanMonitoring' => function ($query) {
+                // Ambil hanya 7 hari terakhir untuk formulir pembersihan
+                $query->where('Tanggal', '>=', now()->subDays(7)->toDateString());
+            }
+        ])->find($id);
+        return view('data-inventaris.show', compact('item')); // Sesuaikan path view Anda
+    }
+    public function storeKalibrasi(Request $request)
+{
+    $request->validate([
+        'nama' => 'required|string',
+        'idalat' => 'required',
+        'kepemilikan' => 'required|string',
+        'tgl_kalibrasi' => 'nullable|date',
+        'exp_date' => 'nullable|date',
+        'keterangan' => 'nullable|string',
+        'dokumen' => 'required|mimes:jpeg,bmp,png,gif,svg,pdf,doc,docx|max:5000',
+    ]);
+
+    $dokumen = $request->file('dokumen');
+    $filename = $dokumen->hashName();
+
+    // 2. Upload ke Cloudflare R2
+    try {
+        $r2 = new R2Client();
+        $r2->upload($dokumen->getRealPath(), 'dokumen/' . $filename, $dokumen->getMimeType());
+    } catch (\Exception $e) {
+        // Kembalikan JSON error agar ditangkap oleh blok 'error' di AJAX frontend
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal mengupload dokumen ke R2: ' . $e->getMessage()
+        ], 500);
+    }
+
+    // 3. Simpan ke Database
+    try {
+        KalibrasiModel::create([
+            'nama' => $request->nama,
+            'assetID' => $request->idalat,
+            'kodeRS' => auth()->user()->kodeRS,
+            'kepemilikan' => $request->kepemilikan,
+            'tgl_kalibrasi' => $request->tgl_kalibrasi,
+            'exp_date' => $request->exp_date,
+            'keterangan' => $request->keterangan,
+            'dokumen' => $filename,
+        ]);
+
+        // Kembalikan JSON success agar ditangkap oleh blok 'success' di AJAX frontend
+        return response()->json([
+            'success' => true,
+            'message' => 'Data kalibrasi berhasil ditambahkan.'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal menyimpan data ke database: ' . $e->getMessage()
+        ], 500);
+    }
+}
     public function getDepartemenPenghapusan(Request $request)
     {
         $search = $request->get('q', '');

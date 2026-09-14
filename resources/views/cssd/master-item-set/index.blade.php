@@ -1,7 +1,14 @@
 @extends('layouts.app')
+
+{{-- Pastikan ada meta csrf-token di layouts.app Anda, atau tambahkan ini di head --}}
+@push('head')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+@endpush
+
 @push('title')
     CSSD Item Set
 @endpush
+
 @section('content')
     <div class="kt-portlet kt-portlet--mobile">
         <div class="kt-portlet__head kt-portlet__head--lg">
@@ -17,8 +24,7 @@
                 <div class="kt-portlet__head-wrapper">
                     <div class="kt-portlet__head-actions">
                         <a href="{{ route('cssd-item-set.create') }}" class="btn btn-brand btn-elevate btn-icon-sm">
-                            <i class="la la-plus"></i>
-                            Tambah
+                            <i class="la la-plus"></i> Tambah
                         </a>
                     </div>
                 </div>
@@ -26,8 +32,7 @@
         </div>
 
         <div class="kt-portlet__body">
-            <!--begin: Datatable -->
-            <table class="table table-striped- table-bordered table-hover table-checkable" id="kt_table_1">
+            <table class="table table-striped table-bordered table-hover table-checkable" id="kt_table_1">
                 <thead class="table-primary">
                     <tr>
                         <th width="5%">No</th>
@@ -35,128 +40,125 @@
                         <th width="12%">Nama</th>
                         <th>Detail Instrumen</th>
                         <th>Kode RS</th>
-                        <th width="8%">Actions</th>
+                        <th width="8%" class="text-center">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                </tbody>
+                <tbody></tbody>
             </table>
-            <!--end: Datatable -->
         </div>
     </div>
 @endsection
+
 @push('css')
-    <link href="{{ asset('') }}assets/vendors/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css" />
+    {{-- Perbaikan path asset agar lebih bersih --}}
+    <link href="{{ asset('assets/vendors/custom/datatables/datatables.bundle.css') }}" rel="stylesheet" type="text/css" />
 @endpush
+
 @push('js')
-    <script src="{{ asset('') }}assets/vendors/custom/datatables/datatables.bundle.js" type="text/javascript"></script>
+    <script src="{{ asset('assets/vendors/custom/datatables/datatables.bundle.js') }}" type="text/javascript"></script>
+
     <script>
+        // 1. Setup Global CSRF Token agar tidak perlu dikirim manual di setiap AJAX
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        // 2. Notifikasi yang lebih aman dari error quote/string breaking
         @if (Session::has('success'))
             toastr.success("{{ Session::get('success') }}", "Berhasil");
         @endif
+
         @if ($errors->any())
             @foreach ($errors->all() as $error)
-                toastr.warning(`{{ $error }}`, "Gagal");
+                toastr.warning(@json($error), "Gagal");
             @endforeach
         @endif
-    </script>
-    <script>
-                                                                                                                                                                var dataTable = function () {
-            var table = $('#kt_table_1');
-            table.DataTable({
+
+        // 3. Simpan instance DataTable di variabel global agar bisa di-reload tanpa rebuild total
+        let dtInstance;
+
+        function initDataTable() {
+            dtInstance = $('#kt_table_1').DataTable({
                 responsive: true,
                 serverSide: true,
-                bDestroy: true,
                 processing: true,
+                deferRender: true, // 🔥 KUNCI PERFORMA: Hanya merender baris yang terlihat di layar
+                bDestroy: true,
                 language: {
-                    processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span> '
+                    processing: '<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><span class="sr-only"> Loading...</span>'
                 },
                 ajax: "{{ route('cssd-item-set.index') }}",
-                columns: [{
-                    data: 'DT_RowIndex',
-                    name: 'DT_RowIndex'
-                },
-                {
-                    data: 'Kode',
-                    name: 'Kode'
-                },
-                {
-                    data: 'get_namaset.Nama',
-                    name: 'get_namaset.Nama'
-                },
-                {
-                    data: 'Item',
-                    name: 'Item'
-                },
-                {
-                    data: 'getrs.nama',
-                    name: 'getrs.nama'
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false
-                },
+                columns: [
+                    { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+                    { data: 'Kode', name: 'Kode' },
+                    { data: 'get_namaset.Nama', name: 'get_namaset.Nama' },
+                    { data: 'Item', name: 'Item', orderable: false, searchable: false },
+                    { data: 'getrs.nama', name: 'getrs.nama' },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center'
+                    },
                 ]
-            })
-        };
-        var delete_data = function (e, id) {
-            e.preventDefault()
-            var url = "{{ route('cssd-item-set.destroy', 'id') }}"
-            url = url.replace('id', id)
+            });
+        }
 
-            swal.fire({
-                title: 'kamu yakin?',
-                text: "Kamu akan menghapus data ini!",
-                type: 'warning',
+        function delete_data(e, id) {
+            e.preventDefault();
+            const url = "{{ route('cssd-item-set.destroy', ':id') }}".replace(':id', id);
+
+            Swal.fire({
+                title: 'Kamu yakin?',
+                text: "Data yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning', // Perbaikan: 'type' deprecated di SweetAlert2, gunakan 'icon'
                 showCancelButton: true,
-                confirmButtonText: "<i class='la la-check'></i> Ya, Hapus!",
+                confirmButtonText: '<i class="la la-check"></i> Ya, Hapus!',
                 confirmButtonClass: "btn btn-danger",
-                cancelButtonText: "<i class='la la-close'></i>Tidak, cancel!",
+                cancelButtonText: '<i class="la la-close"></i> Tidak, Batal!',
                 cancelButtonClass: "btn btn-default",
                 reverseButtons: true
             }).then(function (result) {
-                if (result.value) {
+                if (result.isConfirmed) { // Perbaikan: result.isConfirmed (Swal2 v11+)
+                    KTApp.block('.kt-portlet__body', {
+                        overlayColor: '#000000',
+                        type: 'v2',
+                        state: 'success',
+                        message: 'Sedang menghapus...'
+                    });
+
                     $.ajax({
                         type: "DELETE",
                         url: url,
-                        cache: false,
-                        data: {
-                            "_token": "{{ csrf_token() }}",
-                        },
                         dataType: "json",
-                        beforeSend: function () {
-                            KTApp.block('.kt-portlet__body', {
-                                overlayColor: '#000000',
-                                type: 'v2',
-                                state: 'success',
-                                message: 'Please wait...'
-                            });
-                            $('.progress').show()
-                        },
                         success: function (res) {
-                            dataTable()
-                            if (res.msg) {
-                                swal.fire(
-                                    'Deleted!',
-                                    'Data berhasil di hapus.',
-                                    'success'
-                                )
-                            }
+                            // 🔥 KUNCI PERFORMA: Reload data saja, JANGAN hancurkan dan buat ulang tabel
+                            dtInstance.ajax.reload(null, false); // false = tetap di halaman yang sama
+
+                            Swal.fire({
+                                title: 'Terhapus!',
+                                text: res.msg || 'Data berhasil dihapus.',
+                                icon: 'success',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        },
+                        error: function (xhr) {
+                            Swal.fire('Gagal!', 'Terjadi kesalahan saat menghapus data.', 'error');
                         },
                         complete: function () {
                             KTApp.unblock('.kt-portlet__body');
-                            $('.progress').hide()
                         }
                     });
                 }
             });
         }
-        jQuery(document).ready(function () {
-            dataTable()
-            $('.progress').hide();
 
+        jQuery(document).ready(function () {
+            initDataTable();
         });
     </script>
 @endpush
