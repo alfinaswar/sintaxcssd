@@ -457,15 +457,19 @@
         <div class="kt-portlet__body">
             <div class="form-group">
                 <label for="filter-month">Filter Bulan:</label>
+                @php
+                    $currentMonth = \Carbon\Carbon::now()->format('m');
+                @endphp
                 <select id="filter-month" class="form-control" onchange="filterByMonth()">
                     <option value="">Semua Bulan</option>
                     @foreach (range(1, 12) as $month)
-                        <option value="{{ str_pad($month, 2, '0', STR_PAD_LEFT) }}">
+                        <option value="{{ str_pad($month, 2, '0', STR_PAD_LEFT) }}" {{ $currentMonth == str_pad($month, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
                             {{ date('F', mktime(0, 0, 0, $month, 1)) }}
                         </option>
                     @endforeach
                 </select>
             </div>
+
 
             <div class="tab-content">
                 <div class="tab-pane active" id="kt_widget2_tab1_content">
