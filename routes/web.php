@@ -287,13 +287,17 @@ Route::prefix('kalibrasi')->group(function () {
     Route::post('/store', [KalibrasiController::class, 'store'])->name('kalibrasi.store');
     Route::get('/get-item', [KalibrasiController::class, 'getItem'])->name('kalibrasi.get-item');
     // Ganti GET menjadi DELETE, dan tambahkan parameter {id}
-Route::get('/{id}/destroy', [KalibrasiController::class, 'destroy'])->name('kalibrasi.destroy');
+    Route::get('/{id}/destroy', [KalibrasiController::class, 'destroy'])->name('kalibrasi.destroy');
     Route::get('getInv', [KalibrasiController::class, 'getInv'])->name('kalibrasi.getInv');
 });
 
 // Route::resource('kso', KsoController::class);
 
 Route::group(['prefix' => 'laporan'], function () {
+    Route::prefix('kalibrasi')->group(function () {
+        Route::get('/', [KalibrasiController::class, 'perluDikalibrasi'])->name('kalibrasi.perlu-dikalibrasi');
+        Route::get('/perlu-dikalibrasi', [KalibrasiController::class, 'exportExcelPerluDikalibrasi'])->name('kalibrasi.download-perlu-dikalibrasi');
+    });
     Route::prefix('pembelian')->group(function () {
         Route::get('/', [PembelianController::class, 'index'])->name('pembelian.index');
         Route::get('/file-import', [PembelianController::class, 'importView'])->name('pembelian.import-view');

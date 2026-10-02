@@ -387,6 +387,15 @@
                                                         class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
                                                         class="kt-menu__link-text">Laporan Monitoring / Pembersihan</span></a>
                                             </li>
+                                            <li class="kt-menu__item  @if (request()->segment(2) == 'kalibrasi')
+                                                {{ 'kt-menu__item--active' }}
+                                            @endif" aria-haspopup="true">
+                                                <a href="{{ route('kalibrasi.perlu-dikalibrasi') }}" class="kt-menu__link ">
+                                                    <i class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i>
+                                                    <span class="kt-menu__link-text">Laporan Perlu Kalibrasi</span>
+                                                </a>
+                                            </li>
+
                                         </ul>
                                     </div>
                                 </li>
