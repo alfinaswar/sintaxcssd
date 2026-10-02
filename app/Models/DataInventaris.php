@@ -51,6 +51,6 @@ class DataInventaris extends Model
     }
     public function kalibrasiTerbaru()
     {
-        return $this->hasOne(KalibrasiModel::class, 'assetID', 'kode_item')->latestOfMany('id');
+        return $this->hasOne(KalibrasiModel::class, 'kode_item', 'assetID')->latestOfMany('id');
     }
 }
