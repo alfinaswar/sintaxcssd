@@ -95,6 +95,7 @@
                     <thead>
                         <tr class="text-left">
                             <th width="5%">No</th>
+                            <th>No. Inventaris</th>
                             <th>Kode Item</th>
                             <th>Nama Alat</th>
                             <th>Unit / Departemen</th>
@@ -136,6 +137,10 @@
                         searchable: false
                     },
                     {
+                        data: 'no_inventaris',
+                        name: 'no_inventaris'
+                    },
+                    {
                         data: 'kode_item',
                         name: 'kode_item'
                     },
@@ -165,7 +170,7 @@
                     }
                 ],
                 order: [
-                    [1, 'asc']
+                    [2, 'asc']
                 ],
                 language: {
                     url: '//cdn.datatables.net/plug-ins/1.10.20/i18n/Indonesian.json'

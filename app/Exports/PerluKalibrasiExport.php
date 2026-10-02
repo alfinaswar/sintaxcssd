@@ -52,6 +52,7 @@ class PerluKalibrasiExport implements FromCollection, WithHeadings, WithStyles, 
 
             return [
                 'Kode Item' => $item['kode_item'] ?? '-',
+                'No Inventaris' => $item['no_inventaris'] ?? '-', // Tambahan kolom
                 'Nama Alat' => $item['nama'] ?? '-',
                 'Rumah Sakit' => $namaRsLengkap,
                 'Unit' => $item['unit'] ?? '-',
@@ -68,6 +69,7 @@ class PerluKalibrasiExport implements FromCollection, WithHeadings, WithStyles, 
     {
         return [
             'Kode Item',
+            'No Inventaris', // Tambahan heading
             'Nama Alat',
             'Rumah Sakit',
             'Unit',
@@ -95,13 +97,13 @@ class PerluKalibrasiExport implements FromCollection, WithHeadings, WithStyles, 
             \Maatwebsite\Excel\Events\BeforeSheet::class => function ($event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // Insert title at A1, merged until H1
+                // Insert title at A1, merged until I1
                 $sheet->setCellValue('A1', $this->reportTitle);
-                $sheet->mergeCells('A1:H1');
+                $sheet->mergeCells('A1:I1');
 
                 // Insert printed date at A2
                 $sheet->setCellValue('A2', 'Tanggal Cetak: ' . $this->printedDate);
-                $sheet->mergeCells('A2:H2');
+                $sheet->mergeCells('A2:I2');
 
                 // Geser headings ke baris ke-3, dan data mulai baris ke-4
                 // (Maatwebsite\Excel akan otomatis tulis heading di A3 dst)
@@ -114,8 +116,8 @@ class PerluKalibrasiExport implements FromCollection, WithHeadings, WithStyles, 
             \Maatwebsite\Excel\Events\AfterSheet::class => function ($event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // Style for Title (A1:H1)
-                $sheet->getStyle('A1:H1')->applyFromArray([
+                // Style for Title (A1:I1)
+                $sheet->getStyle('A1:I1')->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'color' => ['argb' => 'FF333333'],
@@ -128,8 +130,8 @@ class PerluKalibrasiExport implements FromCollection, WithHeadings, WithStyles, 
                     ],
                 ]);
 
-                // Style for "Tanggal Cetak" (A2:H2)
-                $sheet->getStyle('A2:H2')->applyFromArray([
+                // Style for "Tanggal Cetak" (A2:I2)
+                $sheet->getStyle('A2:I2')->applyFromArray([
                     'font' => [
                         'italic' => true,
                         'color' => ['argb' => 'FF666666'],
@@ -143,7 +145,7 @@ class PerluKalibrasiExport implements FromCollection, WithHeadings, WithStyles, 
                 ]);
 
                 // Style for heading row (row 3)
-                $sheet->getStyle('A3:H3')->applyFromArray([
+                $sheet->getStyle('A3:I3')->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'color' => ['argb' => 'FFFFFFFF'],
@@ -168,7 +170,7 @@ class PerluKalibrasiExport implements FromCollection, WithHeadings, WithStyles, 
 
                 // Style for all data rows (mulai row 4)
                 $highestRow = $sheet->getHighestRow();
-                $sheet->getStyle("A4:H{$highestRow}")->applyFromArray([
+                $sheet->getStyle("A4:I{$highestRow}")->applyFromArray([
                     'alignment' => [
                         'vertical' => Alignment::VERTICAL_CENTER,
                         'horizontal' => Alignment::HORIZONTAL_LEFT,
@@ -188,7 +190,7 @@ class PerluKalibrasiExport implements FromCollection, WithHeadings, WithStyles, 
                 // Zebra striping data rows
                 for ($row = 4; $row <= $highestRow; $row++) {
                     if ($row % 2 === 0) {
-                        $sheet->getStyle("A{$row}:H{$row}")->getFill()->setFillType(Fill::FILL_SOLID)
+                        $sheet->getStyle("A{$row}:I{$row}")->getFill()->setFillType(Fill::FILL_SOLID)
                             ->getStartColor()->setARGB('FFF4F8FB');
                     }
                 }

@@ -253,104 +253,84 @@ class KalibrasiController extends Controller
         return response()->json($item);
     }
 
-    public function PerluDikalibrasi(Request $request)
-    {
-        // 1. Cek Role Admin (Sesuaikan dengan role actual Anda, misal: 'admin' atau 'superadmin')
-        $isAdmin = in_array(auth()->user()->role, ['admin', 'DKH']);
+public function PerluDikalibrasi(Request $request)
+{
+    $user    = auth()->user();
+    $isAdmin = in_array($user->role, ['admin', 'DKH']);
 
-        // 2. Dropdown RS (Admin = Semua, User = Hanya RS-nya)
-        $listRS = MasterRS::select('kodeRS', 'nama')
-            ->when(!$isAdmin, function ($q) {
-                $q->where('kodeRS', auth()->user()->kodeRS);
+    // Dropdown RS
+    $listRS = MasterRS::query()
+        ->when(!$isAdmin, fn ($q) => $q->where('kodeRS', $user->kodeRS))
+        ->pluck('nama', 'kodeRS');
+
+    if ($request->ajax()) {
+        // Kalibrasi terakhir per aset (1 subquery, bukan per baris)
+        $latestId = DB::table('kalibrasi')
+            ->select('assetID', DB::raw('MAX(id) as max_id'))
+            ->groupBy('assetID');
+
+        // Batas tanggal: eskalasi (X bulan ke depan) atau hari ini
+        $limit = Carbon::today()
+            ->addMonths((int) $request->input('eskalasi', 0))
+            ->toDateString();
+
+        $query = DataInventaris::query()
+            ->leftJoinSub($latestId, 'lk', 'lk.assetID', '=', 'data_inventaris.id')
+            ->leftJoin('kalibrasi as k', 'k.id', '=', 'lk.max_id')
+            ->select(
+                'data_inventaris.id',
+                'data_inventaris.no_inventaris', // Tambahkan no_inventaris
+                'data_inventaris.kode_item',
+                'data_inventaris.nama',
+                'data_inventaris.unit',
+                'data_inventaris.departemen',
+                'data_inventaris.nama_rs',
+                'k.tgl_kalibrasi',
+                'k.exp_date'
+            )
+            // Belum pernah dikalibrasi ATAU sudah/akan expired
+            ->where(function ($q) use ($limit) {
+                $q->whereNull('k.id')->orWhere('k.exp_date', '<=', $limit);
             })
-            ->pluck('nama', 'kodeRS');
+            ->when(!$isAdmin, fn ($q) => $q->where('data_inventaris.nama_rs', $user->kodeRS))
+            ->when($request->filled('rs'), fn ($q) => $q->where('data_inventaris.nama_rs', $request->rs))
+            ->when($request->filled('unit'), fn ($q) => $q->where('data_inventaris.unit', 'like', "%{$request->unit}%"))
+            ->when($request->filled('nama'), fn ($q) => $q->where('data_inventaris.nama', 'like', "%{$request->nama}%"));
 
+        $today = Carbon::today();
 
-        // 3. Base Query dengan Optimasi Kolom (Hanya ambil yang diperlukan)
-        $query = DataInventaris::query()->select(
-            'data_inventaris.id',
-            'data_inventaris.kode_item',
-            'data_inventaris.nama',
-            'data_inventaris.unit',
-            'data_inventaris.departemen',
-            'data_inventaris.nama_rs'
-        );
-
-        // Filter Default User
-        if (!$isAdmin) {
-            $query->where('nama_rs', auth()->user()->kodeRS);
-        }
-
-        // 4. Filter Form
-        if ($request->filled('rs'))
-            $query->where('nama_rs', $request->rs);
-        if ($request->filled('unit'))
-            $query->where('unit', 'like', '%' . $request->unit . '%');
-        if ($request->filled('nama'))
-            $query->where('nama', 'like', '%' . $request->nama . '%');
-
-        // 5. Logika Eskalasi (Sangat Cepat berkat latestOfMany)
-        if ($request->filled('eskalasi')) {
-            $targetDate = Carbon::now()->addMonths((int) $request->eskalasi)->format('Y-m-d');
-            $query->where(function ($q) use ($targetDate) {
-                $q->whereDoesntHave('kalibrasiTerbaru')
-                    ->orWhereHas('kalibrasiTerbaru', function ($sub) use ($targetDate) {
-                        $sub->where('exp_date', '<=', $targetDate);
-                    });
-            });
-        } else {
-            $today = Carbon::now()->format('Y-m-d');
-            $query->where(function ($q) use ($today) {
-                $q->whereDoesntHave('kalibrasiTerbaru')
-                    ->orWhereHas('kalibrasiTerbaru', function ($sub) use ($today) {
-                        $sub->where('exp_date', '<=', $today);
-                    });
-            });
-        }
-
-        // 6. Handle AJAX DataTables
-        if ($request->ajax()) {
-            $data = $query->with([
-                'kalibrasiTerbaru' => function ($q) {
-                    // OPTIMASI: Hanya ambil kolom ini dari tabel kalibrasi untuk menghemat memori,
-                    //           dengan prefix table agar tidak ambiguous pada join
-                    $q->select('kalibrasi.id', 'kalibrasi.assetID', 'kalibrasi.tgl_kalibrasi', 'kalibrasi.exp_date');
-                }
-            ]);
-
-            return DataTables::of($data)
-                ->addIndexColumn()
-                ->addColumn('kalibrasi_info', function ($row) {
-                    if ($row->kalibrasiTerbaru) {
-                        $tgl = Carbon::parse($row->kalibrasiTerbaru->tgl_kalibrasi)->format('d M Y');
-                        $exp = Carbon::parse($row->kalibrasiTerbaru->exp_date)->format('d M Y');
-                        return "<small class='text-muted'>Terakhir: {$tgl}<br><b>Exp: {$exp}</b></small>";
-                    }
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('kalibrasi_info', function ($row) {
+                if (!$row->tgl_kalibrasi) {
                     return '<span class="text-muted font-italic">Belum Pernah</span>';
-                })
-                ->addColumn('status', function ($row) {
-                    if (!$row->kalibrasiTerbaru || !$row->kalibrasiTerbaru->exp_date) {
-                        return '<span class="badge badge-secondary"><i class="fa fa-minus-circle"></i> Belum Dikalibrasi</span>';
-                    }
+                }
+                $tgl = Carbon::parse($row->tgl_kalibrasi)->format('d M Y');
+                $exp = Carbon::parse($row->exp_date)->format('d M Y');
+                return "<small class='text-muted'>Terakhir: {$tgl}<br><b>Exp: {$exp}</b></small>";
+            })
+            ->addColumn('status', function ($row) use ($today) {
+                if (!$row->exp_date) {
+                    return '<span class="badge badge-secondary"><i class="fa fa-minus-circle"></i> Belum Dikalibrasi</span>';
+                }
 
-                    $expDate = Carbon::parse($row->kalibrasiTerbaru->exp_date);
-                    $today = Carbon::now();
-                    $daysLeft = $today->diffInDays($expDate, false);
+                $expDate  = Carbon::parse($row->exp_date)->startOfDay();
+                $daysLeft = (int) $today->diffInDays($expDate, false);
 
-                    if ($daysLeft < 0) {
-                        $daysAgo = abs($daysLeft);
-                        $lastCal = Carbon::parse($row->kalibrasiTerbaru->tgl_kalibrasi)->format('d M Y');
-                        return "<span class='badge badge-danger' title='Tanggal Kalibrasi Terakhir: {$lastCal}'><i class='fa fa-exclamation-triangle'></i> Expired ({$daysAgo} hari yang lalu)</span>";
-                    } else {
-                        return "<span class='badge badge-warning text-dark' title='Exp: " . $expDate->format('d M Y') . "'><i class='fa fa-clock'></i> Sisa {$daysLeft} hari menuju expire</span>";
-                    }
-                })
-                ->rawColumns(['kalibrasi_info', 'status'])
-                ->make(true);
-        }
+                if ($daysLeft < 0) {
+                    $daysAgo = abs($daysLeft);
+                    $lastCal = Carbon::parse($row->tgl_kalibrasi)->format('d M Y');
+                    return "<span class='badge badge-danger' title='Tanggal Kalibrasi Terakhir: {$lastCal}'><i class='fa fa-exclamation-triangle'></i> Expired ({$daysAgo} hari yang lalu)</span>";
+                }
 
-        return view('kalibrasi.perlu-dikalibrasi', compact('listRS', 'isAdmin'));
+                return "<span class='badge badge-warning text-dark' title='Exp: " . $expDate->format('d M Y') . "'><i class='fa fa-clock'></i> Sisa {$daysLeft} hari menuju expire</span>";
+            })
+            ->rawColumns(['kalibrasi_info', 'status'])
+            ->make(true);
     }
+
+    return view('kalibrasi.perlu-dikalibrasi', compact('listRS', 'isAdmin'));
+}
 
     // --- METHOD BARU UNTUK EXPORT EXCEL ---
     public function exportExcelPerluDikalibrasi(Request $request)
@@ -360,6 +340,7 @@ class KalibrasiController extends Controller
         // Siapkan filter query seperti pada tampilan
         $query = DataInventaris::query()
             ->select(
+                'data_inventaris.no_inventaris', // Tambahkan no_inventaris
                 'data_inventaris.kode_item',
                 'data_inventaris.nama',
                 'data_inventaris.unit',
@@ -413,6 +394,7 @@ class KalibrasiController extends Controller
             }
 
             return [
+                'no_inventaris' => $item->no_inventaris, // Tambahkan no_inventaris
                 'kode_item' => $item->kode_item,
                 'nama' => $item->nama,
                 'nama_rs' => $item->nama_rs, // <-- Biarkan kode RS (misal: 'K', 'A') dikirim, nanti di-mapping di Class Export
