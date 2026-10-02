@@ -292,10 +292,13 @@ public function PerluDikalibrasi(Request $request)
             ->where(function ($q) use ($limit) {
                 $q->whereNull('k.id')->orWhere('k.exp_date', '<=', $limit);
             })
+            // Hanya yang pengguna = 'Medis'
+            ->where('data_inventaris.pengguna', 'Medis')
             ->when(!$isAdmin, fn ($q) => $q->where('data_inventaris.nama_rs', $user->kodeRS))
             ->when($request->filled('rs'), fn ($q) => $q->where('data_inventaris.nama_rs', $request->rs))
             ->when($request->filled('unit'), fn ($q) => $q->where('data_inventaris.unit', 'like', "%{$request->unit}%"))
             ->when($request->filled('nama'), fn ($q) => $q->where('data_inventaris.nama', 'like', "%{$request->nama}%"));
+
 
         $today = Carbon::today();
 
