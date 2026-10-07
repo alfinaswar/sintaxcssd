@@ -17,6 +17,7 @@
         "intervention/image": "^2.7",
         "laravel/fortify": "^1.13",
         "laravel/framework": "^8.0",
+        "laravel/sanctum": "^2.15",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^3.4",
         "league/commonmark": "^1.6",

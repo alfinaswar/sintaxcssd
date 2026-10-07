@@ -13,6 +13,7 @@ use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
 use App\Helpers\R2Client; // Pastikan import ini ada di bagian atas controller
+
 class InventarisKsoController extends Controller
 {
     /**
@@ -28,7 +29,6 @@ class InventarisKsoController extends Controller
             if (!auth()->user() || (strtolower(auth()->user()->role) !== 'admin')) {
                 $data->where('NamaRS', auth()->user()->kodeRS);
             }
-
 
             // Filtering
             if ($request->filter_pengguna)
@@ -59,24 +59,16 @@ class InventarisKsoController extends Controller
                 ->addColumn('action', function ($row) {
                     $btn = '<a href="' . route('inventariskso.edit', $row->id) . '" class="btn btn-warning btn-sm btn-icon" title="Edit"><i class="la la-edit"></i></a> ';
                     $btn .= '<button onclick="delete_data(event, ' . $row->id . ')" class="btn btn-danger btn-sm btn-icon" title="Hapus"><i class="la la-trash"></i></button> ';
-
-                    // Rapikan tampilan dropdown
-                    $btn .= '
-                    <div class="btn-group ml-1">
-                        <button type="button" class="btn btn-info btn-sm dropdown-toggle px-3" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Lainnya" style="min-width:90px;">
-                            <i class="la la-cogs"></i> Aksi
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="' . route('inventariskso.edit', $row->id) . '"><i class="fa fa-wrench mr-2"></i>Kalibrasi</a>
-                            <a class="dropdown-item" href="' . route('inventariskso.edit', $row->id) . '"><i class="fa fa-barcode mr-2"></i>Cetak Barcode</a>
-                        </div>
-                    </div>
-                    ';
-
                     return $btn;
                 })
-
-
+                ->editColumn('KodeBarang', function ($row) {
+                    // KodeInventaris/KodeBarang bisa di klik untuk ke halaman show, ganti field dengan nama field kode jika perlu
+                    $kode = $row->KodeBarang ?? ($row->kode_inventaris ?? null);
+                    if ($kode) {
+                        return '<a href="' . route('inventariskso.show', $row->id) . '" class="text-primary" style="text-decoration:underline;">' . e($kode) . '</a>';
+                    }
+                    return '';
+                })
                 ->editColumn('Nama', function ($row) {
                     return $row->getNamaAlat && $row->getNamaAlat->Nama
                         ? $row->getNamaAlat->Nama
@@ -97,10 +89,7 @@ class InventarisKsoController extends Controller
                         ? $row->getDepartemen->nama
                         : $row->Departemen;
                 })
-
-
-
-                ->rawColumns(['action'])
+                ->rawColumns(['action', 'KodeBarang'])
                 ->make(true);
         }
         $rs = MasterRs::get(); // Sesuaikan dengan model RS kamu
@@ -213,9 +202,18 @@ class InventarisKsoController extends Controller
      * @param  \App\Models\InventarisKso  $inventarisKso
      * @return \Illuminate\Http\Response
      */
-    public function show(InventarisKso $inventarisKso)
+    public function show($id)
     {
-        //
+        // Cari item InventarisKso berdasarkan id
+        $item = InventarisKso::with([
+            'DataMaintenance',
+            'getKalibrasi',
+            'getLaporanMonitoring' => function ($query) {
+                $query->where('Tanggal', '>=', now()->subDays(7)->toDateString());
+            }
+        ])->find($id);
+
+        return view('data-inventaris.kso.show', compact('item')); // Sesuaikan path view jika perlu
     }
 
     /**

@@ -82,4 +82,29 @@ class InventarisKso extends Model
     {
         return $this->belongsTo(MasterDepartemenModel::class, 'Departemen');
     }
+
+    /**
+     * Relasi ke DataMaintenance (one-to-many).
+     */
+    // public function DataMaintenance()
+    // {
+    //     return $this->hasMany(DataMaintenanceKso::class, 'inventaris_kso_id', 'id');
+    // }
+
+    /**
+     * Relasi ke getKalibrasi (one-to-many).
+     */
+    public function getKalibrasi()
+    {
+        return $this->hasMany(KalibrasiKso::class, 'inventaris_kso_id', 'id');
+    }
+
+    /**
+     * Relasi ke getLaporanMonitoring (one-to-many).
+     */
+    public function getLaporanMonitoring()
+    {
+        return $this->hasMany(LaporanMonitoringKso::class, 'inventaris_kso_id', 'id');
+    }
+
 }

@@ -1,16 +1,16 @@
 @extends('layouts.app')
 @push('title')
-    Master RS
+    Master Unit
 @endpush
 @push('sub-title')
-    Update rs
+    Ubah Rumah Sakit
 @endpush
 @section('content')
     <div class="kt-portlet">
         <div class="kt-portlet__head">
             <div class="kt-portlet__head-label">
                 <h3 class="kt-portlet__head-title">
-                    Master RS
+                    Master Rumah Sakit
                 </h3>
             </div>
         </div>
@@ -37,30 +37,63 @@
                         </div>
                     </div>
                 @endif
-
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group row">
-                            <label for="nama" class="col-2 col-form-label">Nama rs</label>
-                            <div class="col-10">
-                                <input class="form-control" name="nama" value="{{ $data->nama }}"
-                                    placeholder="Nama Perangkat" type="text" value="" id="nama">
+                            <label for="nama" class="col-3 col-form-label">* Nama Rumah Sakit</label>
+                            <div class="col-9">
+                                <input class="form-control" name="nama" value="{{ old('nama', $data->nama) }}"
+                                    placeholder="Nama Rumah Sakit" type="text" id="nama">
                             </div>
                         </div>
-
                     </div>
-                </div>
-                <div class="row">
                     <div class="col-md-12">
                         <div class="form-group row">
-                            <label for="kodeRs" class="col-2 col-form-label">Kode RS</label>
-                            <div class="col-10">
-
-                                <input class="form-control" name="kodeRs" value="{{ $data->kodeRS }}"
-                                    placeholder="Nama Perangkat" type="text" value="" id="kodeRs" readonly>
+                            <label for="kodeRs" class="col-3 col-form-label">* Kode Rumah Sakit</label>
+                            <div class="col-9">
+                                <input class="form-control" name="kodeRs" value="{{ old('kodeRs', $data->kodeRS) }}"
+                                    placeholder="Kode Rumah Sakit" type="text" id="kodeRs" readonly>
                             </div>
                         </div>
-
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <label for="username_api" class="col-3 col-form-label">* Username API</label>
+                            <div class="col-9">
+                                <input class="form-control" name="username_api"
+                                    value="{{ old('username_api', $data->username) }}" placeholder="Username API"
+                                    type="text" id="username_api" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <label for="password_api" class="col-3 col-form-label">* Password API</label>
+                            <div class="col-9">
+                                <input class="form-control" name="password_api"
+                                    value="{{ old('password_api', $data->password) }}" placeholder="Password API"
+                                    type="password" id="password_api" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <label for="url_api" class="col-3 col-form-label">URL API</label>
+                            <div class="col-9">
+                                <input class="form-control" name="url_api" value="{{ old('url_api', $data->url) }}"
+                                    placeholder="URL API" type="text" id="url_api">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <label for="keterangan" class="col-3 col-form-label">Keterangan</label>
+                            <div class="col-9">
+                                <input class="form-control" name="keterangan"
+                                    value="{{ old('keterangan', $data->keterangan) }}" placeholder="Keterangan"
+                                    type="text" id="keterangan">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -90,7 +123,6 @@
             $("#simpanFrom").submit();
         }
         jQuery(document).ready(function() {
-
             $('.progress').hide();
         });
     </script>

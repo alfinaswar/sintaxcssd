@@ -1,79 +1,107 @@
 @extends('layouts.app')
 @push('title')
-Master Unit
+    Master Unit
 @endpush
 @push('sub-title')
-Tambah Rumah Sakit
+    Tambah Rumah Sakit
 @endpush
 @section('content')
-<div class="kt-portlet">
-    <div class="kt-portlet__head">
-        <div class="kt-portlet__head-label">
-            <h3 class="kt-portlet__head-title">
-                Master Rumah Sakit
-            </h3>
+    <div class="kt-portlet">
+        <div class="kt-portlet__head">
+            <div class="kt-portlet__head-label">
+                <h3 class="kt-portlet__head-title">
+                    Master Rumah Sakit
+                </h3>
+            </div>
         </div>
+        <!--begin::Form-->
+        <form class="kt-form kt-form--label-right" id="simpanFrom" action="{{ route('master-rs.store') }}" method="POST"
+            accept-charset="utf-8" enctype="multipart/form-data">
+            @csrf
+            <div class="kt-portlet__body">
+                @if ($errors->any())
+                    <div class="alert alert-warning fade show" role="alert">
+                        <div class="alert-icon"><i class="flaticon-warning"></i></div>
+                        <div class="alert-text">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <div class="alert-close">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true"><i class="la la-close"></i></span>
+                            </button>
+                        </div>
+                    </div>
+                @endif
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <label for="nama" class="col-3 col-form-label">* Nama Rumah Sakit</label>
+                            <div class="col-9">
+                                <input class="form-control" name="nama" value="{{ old('nama') }}"
+                                    placeholder="Nama Rumah Sakit" type="text" id="nama">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <label for="kodeRs" class="col-3 col-form-label">* Kode Rumah Sakit</label>
+                            <div class="col-9">
+                                <input class="form-control" name="kodeRs" value="{{ old('kodeRs') }}"
+                                    placeholder="Kode Rumah Sakit" type="text" id="kodeRs">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Tambahan kolom username API -->
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <label for="username_api" class="col-3 col-form-label">* Username API</label>
+                            <div class="col-9">
+                                <input class="form-control" name="username_api" value="{{ old('username_api') }}"
+                                    placeholder="Username API" type="text" id="username_api" required>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Tambahan kolom password API -->
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <label for="password_api" class="col-3 col-form-label">* Password API</label>
+                            <div class="col-9">
+                                <input class="form-control" name="password_api" value="{{ old('password_api') }}"
+                                    placeholder="Password API" type="password" id="password_api" required>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Tambahan kolom URL API -->
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <label for="url_api" class="col-3 col-form-label">* URL API</label>
+                            <div class="col-9">
+                                <input class="form-control" name="url_api" value="{{ old('url_api') }}"
+                                    placeholder="URL API" type="text" id="url_api">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End tambahan kolom API -->
+                </div>
+            </div>
+            <div class="kt-portlet__foot">
+                <div class="kt-form__actions">
+                    <button type="button" onclick="simpan(event,this)" class="btn btn-info">Submit</button>
+                    <a href="{{ route('master-rs.index') }}">
+                        <button type="button" class="btn btn-secondary">Cancel</button>
+                    </a>
+                </div>
+            </div>
+        </form>
     </div>
-    <!--begin::Form-->
-    <form class="kt-form kt-form--label-right" id="simpanFrom" action="{{ route('master-rs.store') }}"
-        method="POST" accept-charset="utf-8" enctype="multipart/form-data">
-        @csrf
-        <div class="kt-portlet__body">
-            @if ($errors->any())
-            <div class="alert alert-warning fade show" role="alert">
-                <div class="alert-icon"><i class="flaticon-warning"></i></div>
-                <div class="alert-text">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-                <div class="alert-close">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true"><i class="la la-close"></i></span>
-                    </button>
-                </div>
-            </div>
-            @endif
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="form-group row">
-                        <label for="nama" class="col-3 col-form-label">* Nama Rumah Sakit</label>
-                        <div class="col-9">
-                            <input class="form-control" name="nama" value="{{ old('nama') }}"
-                                placeholder="Nama Rumah Sakit" type="text" value="" id="nama">
-                        </div>
-                    </div>
-
-                </div>
-                  <div class="col-md-12">
-                    <div class="form-group row">
-                        <label for="nama" class="col-3 col-form-label">* Kode Rumah Sakit</label>
-                        <div class="col-9">
-                            <input class="form-control" name="kodeRs" value="{{ old('kodeRs') }}"
-                                placeholder="Kode Rumah Sakit" type="text" value="" id="kodeRs">
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-        </div>
-        <div class="kt-portlet__foot">
-            <div class="kt-form__actions">
-                <button type="button" onclick="simpan(event,this)" class="btn btn-info">Submit</button>
-                <a href="{{ route('master-rs.index') }}">
-                    <button type="button" class="btn btn-secondary">Cancel</button>
-                </a>
-            </div>
-        </div>
-    </form>
-</div>
 @endsection
 @push('js')
-<script>
-    function simpan(e, id) {
+    <script>
+        function simpan(e, id) {
             e.preventDefault();
             KTApp.block('.kt-portlet', {
                 overlayColor: '#000000',
@@ -88,5 +116,5 @@ Tambah Rumah Sakit
         jQuery(document).ready(function() {
             $('.progress').hide()
         });
-</script>
+    </script>
 @endpush

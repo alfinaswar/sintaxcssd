@@ -51,8 +51,28 @@ class MasterrsController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->all();
-        $query = MasterRs::create($data);
+        $validatedData = $request->validate([
+            'nama' => 'required|string|max:255',
+            'kodeRs' => 'required|string|max:100',
+            'username_api' => 'required|string|max:255',
+            'password_api' => 'required|string|max:255',
+            'url_api' => 'nullable|string|max:500',
+            'keterangan' => 'nullable|string|max:500',
+        ]);
+
+        // Sesuaikan dengan field database
+        $data = [
+            'nama' => $validatedData['nama'],
+            'kodeRS' => $validatedData['kodeRs'],
+            'keterangan' => $validatedData['keterangan'] ?? null,
+            'username' => $validatedData['username_api'],
+            'password' => bcrypt($validatedData['password_api']),
+            'url' => $validatedData['url_api'] ?? null,
+            'user_create' => auth()->user()->name ?? null,
+        ];
+
+        MasterRs::create($data);
+
         return redirect()->route('master-rs.index')->with('success', 'Data berhasil ditambahkan');
     }
 
@@ -88,9 +108,28 @@ class MasterrsController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $validatedData = $request->validate([
+            'nama' => 'required|string|max:255',
+            'kodeRs' => 'required|string|max:255',
+            'username_api' => 'required|string|max:255',
+            'password_api' => 'required|string|max:255',
+            'url_api' => 'nullable|string|max:500',
+            'keterangan' => 'nullable|string|max:500',
+        ]);
+
+        $data = [
+            'nama' => $validatedData['nama'],
+            'kodeRS' => $validatedData['kodeRs'],
+            'keterangan' => $validatedData['keterangan'] ?? null,
+            'username' => $validatedData['username_api'],
+            'password' => bcrypt($validatedData['password_api']),
+            'url' => $validatedData['url_api'] ?? null,
+            'user_create' => auth()->user()->name ?? null,
+        ];
+
         $query = MasterRs::find($id);
-        $data = $request->all();
         $query->update($data);
+
         return redirect()->route('master-rs.index')->with('success', 'Data berhasil diubah');
     }
 

@@ -41,6 +41,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ReportMaintenanceController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -231,6 +232,7 @@ Route::prefix('inventaris')->group(function () {
 
 
     Route::get('/kso', [InventarisKsoController::class, 'index'])->name('inventaris.index-kso');
+    Route::get('/kso/{id}', [InventarisKsoController::class, 'show'])->name('inventariskso.show');
     Route::get('/gudang', [GudangBarangController::class, 'list'])->name('inventaris.index-gudang');
     // CRUD routes for InventarisKso
     Route::get('/kso/create', [InventarisKsoController::class, 'create'])->name('inventariskso.create');
