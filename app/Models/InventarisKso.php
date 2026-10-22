@@ -86,10 +86,10 @@ class InventarisKso extends Model
     /**
      * Relasi ke DataMaintenance (one-to-many).
      */
-    // public function DataMaintenance()
-    // {
-    //     return $this->hasMany(DataMaintenanceKso::class, 'inventaris_kso_id', 'id');
-    // }
+    public function DataMaintenance()
+    {
+        return $this->hasMany(DataMaintenanceKso::class, 'inventaris_kso_id', 'id');
+    }
 
     /**
      * Relasi ke getKalibrasi (one-to-many).

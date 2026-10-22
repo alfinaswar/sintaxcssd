@@ -237,15 +237,20 @@ Route::prefix('inventaris')->group(function () {
 
 
     Route::get('/kso', [InventarisKsoController::class, 'index'])->name('inventaris.index-kso');
-    Route::get('/kso/{id}', [InventarisKsoController::class, 'show'])->name('inventariskso.show');
     Route::get('/gudang', [GudangBarangController::class, 'list'])->name('inventaris.index-gudang');
-    // CRUD routes for InventarisKso
+    // CRUD routes for InventarisKso (rute statis harus di atas /kso/{id} agar tidak tertutup)
     Route::get('/kso/create', [InventarisKsoController::class, 'create'])->name('inventariskso.create');
     Route::post('/kso/store', [InventarisKsoController::class, 'store'])->name('inventariskso.store');
+    // Label / Barcode QR untuk Inventaris KSO
+    Route::get('/kso/label/{id}', [InventarisKsoController::class, 'label'])->name('inventariskso.label');
+    // Fitur pendukung Inventaris KSO (kalibrasi, preventive maintenance, pembersihan)
+    Route::post('/kso/store-kalibrasi', [InventarisKsoController::class, 'storeKalibrasi'])->name('inventariskso.store-kalibrasi');
+    Route::post('/kso/store-maintenance', [InventarisKsoController::class, 'storeMaintenance'])->name('inventariskso.store-maintenance');
+    Route::post('/kso/store-pembersihan', [InventarisKsoController::class, 'storePembersihan'])->name('inventariskso.store-pembersihan');
     Route::get('/kso/{inventarisKso}/edit', [InventarisKsoController::class, 'edit'])->name('inventariskso.edit');
     Route::put('/kso/{inventarisKso}', [InventarisKsoController::class, 'update'])->name('inventariskso.update');
     Route::delete('/kso/{inventarisKso}', [InventarisKsoController::class, 'destroy'])->name('inventariskso.destroy');
-    Route::get('/kso/import', [InventarisKsoController::class, 'import'])->name('inventariskso.import');
+    Route::get('/kso/{id}', [InventarisKsoController::class, 'show'])->name('inventariskso.show');
     Route::get('/laporan-kso', [InventarisKsoController::class, 'laporanKso'])->name('inventaris.laporan-kso');
     // Route untuk AJAX Select2 Nama Alat dari MasterAlat
     Route::get('inventariskso/get-master-alat', [InventarisKsoController::class, 'getMasterAlat'])->name('inventariskso.get-master-alat');
