@@ -1,303 +1,527 @@
 @extends('layouts.app')
 
-@section('content')
-    <div class="kt-portlet">
-        <div class="kt-portlet__body  kt-portlet__body--fit">
-            <div class="row row-no-padding row-col-separator-xl">
+@push('title')
+    Dashboard
+@endpush
 
-                <div class="col-md-12 col-lg-6 col-xl-3">
-                    <!--begin::Total Profit-->
-                    <div class="kt-widget24">
-                        <div class="kt-widget24__details">
-                            <div class="kt-widget24__info">
-                                <h4 class="kt-widget24__title">
-                                    Pengguna
-                                </h4>
-                                <span class="kt-widget24__desc">
-                                    Jumlah Pengguna
-                                </span>
-                            </div>
+@push('sub-title')
+    Ringkasan Aset
+@endpush
 
-                            <span class="kt-widget24__stats kt-font-brand">
-                                {{ $pengguna }}
-                            </span>
-                        </div>
-
-
-
-                        <div class="kt-widget24__action">
-                            <span class="kt-widget24__change">
-
-                            </span>
-                            <span class="kt-widget24__number">
-
-                            </span>
-                        </div>
-                    </div>
-                    <!--end::Total Profit-->
-                </div>
-
-                <div class="col-md-12 col-lg-6 col-xl-3">
-                    <!--begin::New Feedbacks-->
-                    <div class="kt-widget24">
-                        <div class="kt-widget24__details">
-                            <div class="kt-widget24__info">
-                                <h4 class="kt-widget24__title">
-                                    Data Inventaris Umum
-                                </h4>
-                                <span class="kt-widget24__desc">
-                                    Jumlah Data
-                                </span>
-                            </div>
-
-                            <span class="kt-widget24__stats kt-font-warning">
-                                {{ $inv_umum }}
-                            </span>
-                        </div>
-
-                        <div class="kt-widget24__action">
-                            <span class="kt-widget24__change">
-
-                            </span>
-                            <span class="kt-widget24__number">
-
-                            </span>
-                        </div>
-                    </div>
-                    <!--end::New Feedbacks-->
-                </div>
-
-                <div class="col-md-12 col-lg-6 col-xl-3">
-                    <!--begin::New Orders-->
-                    <div class="kt-widget24">
-                        <div class="kt-widget24__details">
-                            <div class="kt-widget24__info">
-                                <h4 class="kt-widget24__title">
-                                    Data Inventaris Medis
-                                </h4>
-                                <span class="kt-widget24__desc">
-                                    Jumlah Data
-                                </span>
-                            </div>
-
-                            <span class="kt-widget24__stats kt-font-danger">
-                                {{ $inv_medis }}
-                            </span>
-                        </div>
-
-
-
-                        <div class="kt-widget24__action">
-                            <span class="kt-widget24__change">
-
-                            </span>
-                            <span class="kt-widget24__number">
-
-                            </span>
-                        </div>
-                    </div>
-                    <!--end::New Orders-->
-                </div>
-
-                <div class="col-md-12 col-lg-6 col-xl-3">
-                    <!--begin::New Users-->
-                    <div class="kt-widget24">
-                        <div class="kt-widget24__details">
-                            <div class="kt-widget24__info">
-                                <h4 class="kt-widget24__title">
-                                    Seluruh Inventaris
-                                </h4>
-                                <span class="kt-widget24__desc">
-                                    Semua Inventaris
-                                </span>
-                            </div>
-
-                            <span class="kt-widget24__stats kt-font-success">
-                                {{ $total_inv }}
-                            </span>
-                        </div>
-
-
-                        <div class="kt-widget24__action">
-                            <span class="kt-widget24__change">
-
-                            </span>
-                            <span class="kt-widget24__number">
-
-                            </span>
-                        </div>
-                    </div>
-                    <!--end::New Users-->
-                </div>
-
-            </div>
-        </div>
-
-    </div>
-    <div class="row">
-        <div class="col-xl-12">
-            <div class="alert alert-primary left-icon-big alert-dismissible fade show">
-
-                <div class="media">
-                    <div class="alert-left-icon-big">
-                        <span><i class="mdi mdi-email-alert"></i></span>
-                    </div>
-                    <div class="media-body">
-                        <h6 class="mt-1 mb-2">Selamat datang di akun Anda, {{ auth()->user()->name }} !</h6>
-                        <p class="mb-0">Semoga hari Anda menyenangkan dan penuh semangat dalam menjalankan aktivitas.
-                            Terima
-                            kasih telah menjadi bagian dari sistem inventaris kami.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="kt-portlet kt-portlet--height-fluid">
-                <div class="kt-widget14">
-                    <div class="kt-widget14__header">
-                        <h3 class="kt-widget14__title">
-                            Persentase kategori Inventaris
-                        </h3>
-                        <span class="kt-widget14__desc">
-                            Perbandingan Medis dan Non Medis
-                        </span>
-                    </div>
-                    <div class="kt-widget14__content">
-                        <div class="kt-widget14__chart">
-                            <canvas id="pieChart" style="height: 250px; width: 250px;"></canvas>
-                        </div>
-                        <div class="kt-widget14__legends">
-                            <div class="kt-widget14__legend">
-                                <span class="kt-widget14__bullet kt-bg-success"></span>
-                                <span class="kt-widget14__stats">Medis</span>
-                            </div>
-                            <div class="kt-widget14__legend">
-                                <span class="kt-widget14__bullet kt-bg-warning"></span>
-                                <span class="kt-widget14__stats">Non Medis</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card card-custom">
-                <div class="card-header bg-light" id="jadwal-header">
-                    <h5 class="mb-0">
-                        <span role="img" aria-label="Jadwal">🕌</span> Jadwal Imsakiyah Hari Ini - <span
-                            id="jadwal-provinsi">-</span>, <span id="jadwal-kabkota">-</span>
-                    </h5>
-                    <small>
-                        <span role="img" aria-label="Calendar">📅</span> Tahun Hijriyah: <span
-                            id="jadwal-hijriah">-</span>, Masehi: <span id="jadwal-masehi">-</span>
-                    </small>
-                    <div class="mt-2">
-                        <span class="badge badge-success p-2">
-                            <span role="img" aria-label="Puasa">🌙</span> Selamat menunaikan ibadah puasa bagi yang
-                            menjalankan <span role="img" aria-label="Senyum">😊</span>
-                        </span>
-                    </div>
-                </div>
-                <div class="card-body table-responsive">
-                    <table class="table table-bordered table-hover table-sm mb-0">
-                        <thead>
-                            <tr class="table-primary">
-                                <th class="text-center">Puasa Ke <span role="img" aria-label="Angka">🔢</span></th>
-                                <th class="text-center">Imsak <span role="img" aria-label="Alarm">⏰</span></th>
-                                <th class="text-center">Subuh <span role="img" aria-label="Fajar">🌄</span></th>
-                                <th class="text-center">Terbit <span role="img" aria-label="Sunrise">🌅</span></th>
-                                <th class="text-center">Dhuha <span role="img" aria-label="Sun">☀️</span></th>
-                                <th class="text-center">Dzuhur <span role="img" aria-label="Sun Overhead">🌞</span>
-                                </th>
-                                <th class="text-center">Ashar <span role="img" aria-label="Afternoon">🏜️</span></th>
-                                <th class="text-center">Maghrib <span role="img" aria-label="Sunset">🌇</span></th>
-                                <th class="text-center">Isya <span role="img" aria-label="Night">🌃</span></th>
-                            </tr>
-                        </thead>
-                        <tbody id="jadwal-imsak-tbody">
-                            <tr>
-                                <td colspan="9" class="text-center"><span role="img"
-                                        aria-label="Loading">⏳</span> Mengambil data jadwal...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function fillJadwalImsak(data) {
-            // Header
-            document.getElementById('jadwal-provinsi').innerText = data.provinsi || '-';
-            document.getElementById('jadwal-kabkota').innerText = data.kabkota || '-';
-            document.getElementById('jadwal-hijriah').innerText = data.hijriah || '-';
-            document.getElementById('jadwal-masehi').innerText = data.masehi || '-';
-
-            // Table body
-            let tbody = document.getElementById('jadwal-imsak-tbody');
-            if (data.data) {
-                let d = data.data;
-                tbody.innerHTML = `<tr>
-                    <td class="text-center">${d.tanggal ?? '-'}</td>
-                    <td class="text-center">${d.imsak ?? '-'}</td>
-                    <td class="text-center">${d.subuh ?? '-'}</td>
-                    <td class="text-center">${d.terbit ?? '-'}</td>
-                    <td class="text-center">${d.dhuha ?? '-'}</td>
-                    <td class="text-center">${d.dzuhur ?? '-'}</td>
-                    <td class="text-center">${d.ashar ?? '-'}</td>
-                    <td class="text-center">${d.maghrib ?? '-'}</td>
-                    <td class="text-center">${d.isya ?? '-'}</td>
-                </tr>`;
-            } else {
-                tbody.innerHTML = `<tr>
-                    <td colspan="9" class="text-center">Jadwal tidak tersedia.</td>
-                </tr>`;
-            }
+@push('css')
+    <style>
+        .dash-card .kt-portlet__body {
+            padding: 1.5rem;
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            fetch('https://abproc.awalbros.com/getJadwalImsakSinta')
-                .then(response => response.json())
-                .then(data => {
-                    // Only update if success
-                    if (data && data.status && data.status === 'success') {
-                        fillJadwalImsak(data);
-                    } else {
-                        document.getElementById('jadwal-imsak-tbody').innerHTML = `<tr>
-                            <td colspan="9" class="text-center">Jadwal tidak tersedia.</td>
-                        </tr>`;
-                    }
-                })
-                .catch(() => {
-                    document.getElementById('jadwal-imsak-tbody').innerHTML = `<tr>
-                        <td colspan="9" class="text-center">Gagal mengambil data jadwal.</td>
-                    </tr>`;
-                });
-        });
-    </script>
+        .dash-label {
+            font-size: 1.15rem;
+            font-weight: 500;
+            color: #74788d;
+            margin-bottom: .4rem;
+        }
+
+        .dash-value {
+            font-size: 2.2rem;
+            font-weight: 600;
+            line-height: 1.1;
+            color: #2c2e3e;
+        }
+
+        .dash-note {
+            margin-top: .5rem;
+            font-size: 1.1rem;
+            color: #9aa0ac;
+        }
+
+        .dash-icon {
+            width: 4.2rem;
+            height: 4.2rem;
+            border-radius: .8rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .dash-icon--brand { background: #e8eeff; color: #5d78ff; }
+        .dash-icon--success { background: #e2f8f5; color: #1dc9b7; }
+        .dash-icon--warning { background: #fff5e1; color: #ffb822; }
+        .dash-icon--danger { background: #ffe8ef; color: #fd397a; }
+
+        .dash-mini {
+            background: #f7f8fa;
+            border-radius: .6rem;
+            padding: .9rem 1rem;
+            height: 100%;
+        }
+
+        .dash-mini__value {
+            font-size: 1.7rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .dash-mini__label {
+            font-size: 1.05rem;
+            color: #74788d;
+        }
+
+        .dash-progress {
+            height: .7rem;
+            border-radius: 1rem;
+            background: #ebedf2;
+        }
+
+        .dash-progress .progress-bar {
+            border-radius: 1rem;
+        }
+
+        .dash-chart {
+            position: relative;
+            height: 26rem;
+        }
+
+        .dash-table td,
+        .dash-table th {
+            vertical-align: middle;
+            font-size: 1.15rem;
+        }
+
+        .dash-empty {
+            color: #9aa0ac;
+            font-style: italic;
+        }
+    </style>
+@endpush
+
+@section('content')
+    @php
+        $nilaiLabel = $nilaiAset >= 1000000000
+            ? 'Rp ' . number_format($nilaiAset / 1000000000, 2, ',', '.') . ' M'
+            : 'Rp ' . number_format($nilaiAset, 0, ',', '.');
+        $kalibrasiAman = max(0, $kalibrasiTercatat - $kalibrasiExpired - $kalibrasi30 - $kalibrasi90);
+    @endphp
+
+    <div class="row">
+        <div class="col-sm-6 col-xl-3">
+            <div class="kt-portlet kt-portlet--height-fluid dash-card">
+                <div class="kt-portlet__body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="dash-label">Total Aset Aktif</div>
+                            <div class="dash-value">{{ number_format($totalInv, 0, ',', '.') }}</div>
+                            <div class="dash-note">Seluruh data inventaris</div>
+                        </div>
+                        <span class="dash-icon dash-icon--brand"><i class="fa fa-boxes"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="kt-portlet kt-portlet--height-fluid dash-card">
+                <div class="kt-portlet__body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="dash-label">Medis / Non Medis</div>
+                            <div class="dash-value">{{ number_format($invMedis, 0, ',', '.') }}</div>
+                            <div class="dash-note">Non medis {{ number_format($invUmum, 0, ',', '.') }} aset</div>
+                        </div>
+                        <span class="dash-icon dash-icon--success"><i class="fa fa-heartbeat"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="kt-portlet kt-portlet--height-fluid dash-card">
+                <div class="kt-portlet__body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="dash-label">Nilai Aset Tercatat</div>
+                            <div class="dash-value">{{ $nilaiLabel }}</div>
+                            <div class="dash-note">Dari {{ number_format($hargaTerisi, 0, ',', '.') }} aset berharga</div>
+                        </div>
+                        <span class="dash-icon dash-icon--warning"><i class="fa fa-coins"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="kt-portlet kt-portlet--height-fluid dash-card">
+                <div class="kt-portlet__body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="dash-label">Pengguna RS</div>
+                            <div class="dash-value">{{ number_format($pengguna, 0, ',', '.') }}</div>
+                            <div class="dash-note">{{ $namaRs }}</div>
+                        </div>
+                        <span class="dash-icon dash-icon--brand"><i class="fa fa-users"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="kt-portlet kt-portlet--height-fluid">
+                <div class="kt-portlet__head">
+                    <div class="kt-portlet__head-label">
+                        <h3 class="kt-portlet__head-title">Kepatuhan Kalibrasi</h3>
+                    </div>
+                    <div class="kt-portlet__head-toolbar">
+                        <a href="{{ route('kalibrasi.perlu-dikalibrasi') }}" class="btn btn-sm btn-brand btn-elevate">
+                            Lihat daftar
+                        </a>
+                    </div>
+                </div>
+                <div class="kt-portlet__body">
+                    @if ($kalibrasiExpired > 0)
+                        <div class="alert alert-danger alert-bold mb-4" role="alert">
+                            <strong>{{ number_format($kalibrasiExpired, 0, ',', '.') }} aset</strong> sudah melewati masa kalibrasi.
+                        </div>
+                    @else
+                        <div class="alert alert-success alert-bold mb-4" role="alert">
+                            Tidak ada aset yang melewati masa kalibrasi.
+                        </div>
+                    @endif
+
+                    <div class="row">
+                        <div class="col-6 col-md mb-3">
+                            <div class="dash-mini">
+                                <div class="dash-mini__value">{{ number_format($wajibKalibrasi, 0, ',', '.') }}</div>
+                                <div class="dash-mini__label">Wajib kalibrasi</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md mb-3">
+                            <div class="dash-mini">
+                                <div class="dash-mini__value">{{ number_format($kalibrasiTercatat, 0, ',', '.') }}</div>
+                                <div class="dash-mini__label">Punya catatan</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md mb-3">
+                            <div class="dash-mini">
+                                <div class="dash-mini__value text-danger">{{ number_format($kalibrasiExpired, 0, ',', '.') }}</div>
+                                <div class="dash-mini__label">Jatuh tempo</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md mb-3">
+                            <div class="dash-mini">
+                                <div class="dash-mini__value text-warning">{{ number_format($kalibrasi30, 0, ',', '.') }}</div>
+                                <div class="dash-mini__label">&le; 30 hari</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md mb-3">
+                            <div class="dash-mini">
+                                <div class="dash-mini__value text-warning">{{ number_format($kalibrasi90, 0, ',', '.') }}</div>
+                                <div class="dash-mini__label">31&ndash;90 hari</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md mb-3">
+                            <div class="dash-mini">
+                                <div class="dash-mini__value text-muted">{{ number_format($kalibrasiBelumTercatat, 0, ',', '.') }}</div>
+                                <div class="dash-mini__label">Belum tercatat</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="dash-note">Cakupan catatan kalibrasi</span>
+                        <strong>{{ $kelengkapan['kalibrasi'] }}%</strong>
+                    </div>
+                    <div class="progress dash-progress">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ $kelengkapan['kalibrasi'] }}%"
+                            aria-valuenow="{{ $kelengkapan['kalibrasi'] }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="dash-note mt-2">
+                        {{ number_format($kalibrasiAman, 0, ',', '.') }} aset tercatat masih dalam masa berlaku.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8">
+            <div class="kt-portlet kt-portlet--height-fluid">
+                <div class="kt-portlet__head">
+                    <div class="kt-portlet__head-label">
+                        <h3 class="kt-portlet__head-title">Top 8 Departemen</h3>
+                    </div>
+                </div>
+                <div class="kt-portlet__body">
+                    <div class="dash-chart">
+                        <canvas id="chartDepartemen"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="kt-portlet kt-portlet--height-fluid">
+                <div class="kt-portlet__head">
+                    <div class="kt-portlet__head-label">
+                        <h3 class="kt-portlet__head-title">Klasifikasi Risiko</h3>
+                    </div>
+                </div>
+                <div class="kt-portlet__body">
+                    <div class="dash-chart">
+                        <canvas id="chartKlasifikasi"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="kt-portlet kt-portlet--height-fluid">
+                <div class="kt-portlet__head">
+                    <div class="kt-portlet__head-label">
+                        <h3 class="kt-portlet__head-title">Tren Penambahan Aset</h3>
+                    </div>
+                </div>
+                <div class="kt-portlet__body">
+                    <div class="dash-chart">
+                        <canvas id="chartTrend"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="kt-portlet kt-portlet--height-fluid">
+                <div class="kt-portlet__body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="dash-label">Preventif Maintenance</div>
+                            <div class="dash-value">{{ number_format($maintenance12Bulan, 0, ',', '.') }}</div>
+                            <div class="dash-note">Dalam 12 bulan terakhir</div>
+                        </div>
+                        <span class="dash-icon dash-icon--brand"><i class="fa fa-tools"></i></span>
+                    </div>
+                    <a href="{{ route('maintanance.index') }}" class="btn btn-sm btn-brand btn-elevate mt-4">Buka maintenance</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="kt-portlet kt-portlet--height-fluid">
+                <div class="kt-portlet__body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="dash-label">Laporan Masalah</div>
+                            <div class="dash-value">{{ number_format($masalah, 0, ',', '.') }}</div>
+                            <div class="dash-note">Total laporan tercatat</div>
+                        </div>
+                        <span class="dash-icon dash-icon--warning"><i class="fa fa-exclamation-triangle"></i></span>
+                    </div>
+                    <a href="{{ route('masalah.index') }}" class="btn btn-sm btn-warning btn-elevate mt-4">Buka masalah</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="kt-portlet kt-portlet--height-fluid">
+                <div class="kt-portlet__body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="dash-label">Penghapusan Aset</div>
+                            <div class="dash-value">{{ number_format(($penghapusan['pengajuan'] ?? 0) + ($penghapusan['disetujui'] ?? 0), 0, ',', '.') }}</div>
+                            <div class="dash-note">
+                                {{ number_format($penghapusan['pengajuan'] ?? 0, 0, ',', '.') }} pengajuan,
+                                {{ number_format($penghapusan['disetujui'] ?? 0, 0, ',', '.') }} disetujui
+                            </div>
+                        </div>
+                        <span class="dash-icon dash-icon--danger"><i class="fa fa-trash-alt"></i></span>
+                    </div>
+                    <a href="{{ route('pa.index') }}" class="btn btn-sm btn-danger btn-elevate mt-4">Buka penghapusan</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="kt-portlet">
+        <div class="kt-portlet__head">
+            <div class="kt-portlet__head-label">
+                <h3 class="kt-portlet__head-title">Kalibrasi Paling Mendesak</h3>
+            </div>
+            <div class="kt-portlet__head-toolbar">
+                <span class="dash-note">10 aset dengan tanggal kalibrasi paling lama</span>
+            </div>
+        </div>
+        <div class="kt-portlet__body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover dash-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Kode Item</th>
+                            <th>Nama Aset</th>
+                            <th>RS</th>
+                            <th>Unit</th>
+                            <th>Kalibrasi Terakhir</th>
+                            <th>Jatuh Tempo</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($kalibrasiMendesak as $row)
+                            <tr>
+                                <td><span class="font-weight-bold">{{ $row->kode_item }}</span></td>
+                                <td>{{ $row->nama ?: '-' }}</td>
+                                <td>{{ $rsNames[$row->nama_rs] ?? ('RS ' . $row->nama_rs) }}</td>
+                                <td>{{ $row->unit ?: '-' }}</td>
+                                <td>{{ $row->tgl_kalibrasi ? \Carbon\Carbon::parse($row->tgl_kalibrasi)->format('d/m/Y') : '-' }}</td>
+                                <td>{{ \Carbon\Carbon::parse($row->exp_date)->format('d/m/Y') }}</td>
+                                <td>
+                                    @if ($row->sisa_hari < 0)
+                                        <span class="badge badge-danger">{{ abs($row->sisa_hari) }} hari lewat</span>
+                                    @elseif ($row->sisa_hari <= 30)
+                                        <span class="badge badge-warning text-dark">{{ $row->sisa_hari }} hari lagi</span>
+                                    @else
+                                        <span class="badge badge-success">{{ $row->sisa_hari }} hari lagi</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center dash-empty">Belum ada data kalibrasi.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 @endsection
+
 @push('js')
     <script>
         $(document).ready(function() {
-            var ctx = document.getElementById('pieChart').getContext('2d');
-            var pieChart = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: ['Medis', 'Non Medis'],
-                    datasets: [{
-                        data: [{{ $inv_medis }}, {{ $inv_umum }}],
-                        backgroundColor: [
-                            '#1dc9b7',
-                            '#ffb822'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true
-                }
-            });
+            Chart.defaults.global.defaultFontFamily = "Poppins";
+
+            var numberFormat = function(value) {
+                return Number(value).toLocaleString('id-ID');
+            };
+
+            var deptCanvas = document.getElementById('chartDepartemen');
+            if (deptCanvas) {
+                new Chart(deptCanvas.getContext('2d'), {
+                    type: 'horizontalBar',
+                    data: {
+                        labels: @json($departemenChart['labels']),
+                        datasets: [{
+                            label: 'Jumlah aset',
+                            data: @json($departemenChart['data']),
+                            backgroundColor: '#1dc9b7',
+                            borderRadius: 4,
+                            maxBarThickness: 26
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        legend: { display: false },
+                        tooltips: {
+                            callbacks: {
+                                label: function(item) {
+                                    return numberFormat(item.xLabel) + ' aset';
+                                }
+                            }
+                        },
+                        scales: {
+                            xAxes: [{
+                                ticks: { beginAtZero: true, callback: numberFormat },
+                                gridLines: { color: '#f0f1f6' }
+                            }],
+                            yAxes: [{
+                                gridLines: { display: false }
+                            }]
+                        }
+                    }
+                });
+            }
+
+            var klasifikasiCanvas = document.getElementById('chartKlasifikasi');
+            if (klasifikasiCanvas) {
+                new Chart(klasifikasiCanvas.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: @json($klasifikasiChart['labels']),
+                        datasets: [{
+                            data: @json($klasifikasiChart['data']),
+                            backgroundColor: @json($klasifikasiChart['colors']),
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutoutPercentage: 62,
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 10,
+                                padding: 14,
+                                fontStyle: 'normal'
+                            }
+                        },
+                        tooltips: {
+                            callbacks: {
+                                label: function(item, data) {
+                                    var total = data.datasets[0].data.reduce(function(a, b) {
+                                        return a + b;
+                                    }, 0);
+                                    var percent = total ? Math.round(item.value / total * 100) : 0;
+                                    return ' ' + numberFormat(item.value) + ' aset (' + percent + '%)';
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            var trendCanvas = document.getElementById('chartTrend');
+            if (trendCanvas) {
+                new Chart(trendCanvas.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: @json($trendChart['labels']),
+                        datasets: [{
+                            label: 'Aset baru',
+                            data: @json($trendChart['data']),
+                            borderColor: '#5d78ff',
+                            backgroundColor: 'rgba(93, 120, 255, .12)',
+                            pointBackgroundColor: '#5d78ff',
+                            pointRadius: 3,
+                            borderWidth: 2,
+                            fill: true,
+                            lineTension: .3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        legend: { display: false },
+                        tooltips: {
+                            callbacks: {
+                                label: function(item) {
+                                    return numberFormat(item.yLabel) + ' aset';
+                                }
+                            }
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: { beginAtZero: true, callback: numberFormat },
+                                gridLines: { color: '#f0f1f6' }
+                            }],
+                            xAxes: [{
+                                gridLines: { display: false }
+                            }]
+                        }
+                    }
+                });
+            }
         });
     </script>
 @endpush
