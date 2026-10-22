@@ -260,7 +260,7 @@
             <div class="kt-portlet kt-portlet--height-fluid">
                 <div class="kt-portlet__head">
                     <div class="kt-portlet__head-label">
-                        <h3 class="kt-portlet__head-title">Klasifikasi Risiko</h3>
+                        <h3 class="kt-portlet__head-title">Klasifikasi Risiko (Medis)</h3>
                     </div>
                 </div>
                 <div class="kt-portlet__body">

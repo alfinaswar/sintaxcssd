@@ -139,6 +139,7 @@ class HomeController extends Controller
 
         // Klasifikasi risiko
         $perKlasifikasi = (clone $assets)
+            ->where('pengguna', 'Medis')
             ->selectRaw("CASE WHEN klasifikasi IS NULL OR TRIM(klasifikasi) = '' OR klasifikasi = 'None' THEN 'Belum diisi' ELSE klasifikasi END as label, COUNT(*) as total")
             ->groupBy('label')
             ->orderByDesc('total')
