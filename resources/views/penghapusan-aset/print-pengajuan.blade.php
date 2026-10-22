@@ -90,13 +90,14 @@
             width: 100%;
             margin-top: 40px;
             border-collapse: separate;
-            border-spacing: 30px 0;
+            /* 6 kolom tanda tangan harus muat di A4 */
+            border-spacing: 6px 0;
             font-size: 11px;
         }
 
         .signature-table>tbody>tr>td {
             vertical-align: top;
-            width: 33%;
+            width: auto;
             font-size: 11px;
         }
 
@@ -111,7 +112,7 @@
         .signature-title {
             text-align: center;
             font-weight: bold;
-            font-size: 15px;
+            font-size: 11px;
             padding-bottom: 10px;
         }
 
@@ -265,57 +266,79 @@
 
     <table class="signature-table" id="ttd">
         <tr>
-            <!-- Karu/Kanit -->
-            <td>
-                <table>
-                    <tr>
-                        <td class="signature-title">Mengetahui Kanit,</td>
-                    </tr>
-                    <tr>
-                        <td class="signature-box">&nbsp;</td>
-                    </tr>
-                    <tr>
-                        <td class="signature-line"></td>
-                    </tr>
-                    <tr>
-                        <td class="signature-name">( {{ $data->NamaKaru ?? '-' }} )</td>
-                    </tr>
-                </table>
-            </td>
-            <!-- SMI -->
-            <td>
-                <table>
-                    <tr>
-                        <td class="signature-title">SMI</td>
-                    </tr>
-                    <tr>
-                        <td class="signature-box">&nbsp;</td>
-                    </tr>
-                    <tr>
-                        <td class="signature-line"></td>
-                    </tr>
-                    <tr>
-                        <td class="signature-name">( {{ $data->getSmi->name ?? '-' }} )</td>
-                    </tr>
-                </table>
-            </td>
-            <!-- Manajer Penunjang dan Pelayanan Medis -->
-            <td>
-                <table>
-                    <tr>
-                        <td class="signature-title">Manajer</td>
-                    </tr>
-                    <tr>
-                        <td class="signature-box">&nbsp;</td>
-                    </tr>
-                    <tr>
-                        <td class="signature-line"></td>
-                    </tr>
-                    <tr>
-                        <td class="signature-name">( {{ $data->getManager->name ?? '-' }} )</td>
-                    </tr>
-                </table>
-            </td>
+            @if ($data->isAlurBerurutan())
+                {{-- Alur 6 tingkat: Sign1 SMI ... Sign6 Direktur --}}
+                @foreach (\App\Models\PenghapusanAset::TAHAP as $key => $config)
+                    <td>
+                        <table>
+                            <tr>
+                                <td class="signature-title">{{ $config['jabatan'] }}</td>
+                            </tr>
+                            <tr>
+                                <td class="signature-box">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="signature-line"></td>
+                            </tr>
+                            <tr>
+                                <td class="signature-name">( {{ $data->namaTahap($key) ?: '-' }} )</td>
+                            </tr>
+                        </table>
+                    </td>
+                @endforeach
+            @else
+                <!-- Karu/Kanit -->
+                <td>
+                    <table>
+                        <tr>
+                            <td class="signature-title">Mengetahui Kanit,</td>
+                        </tr>
+                        <tr>
+                            <td class="signature-box">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td class="signature-line"></td>
+                        </tr>
+                        <tr>
+                            <td class="signature-name">( {{ $data->NamaKaru ?? '-' }} )</td>
+                        </tr>
+                    </table>
+                </td>
+                <!-- SMI -->
+                <td>
+                    <table>
+                        <tr>
+                            <td class="signature-title">SMI</td>
+                        </tr>
+                        <tr>
+                            <td class="signature-box">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td class="signature-line"></td>
+                        </tr>
+                        <tr>
+                            <td class="signature-name">( {{ $data->getSmi->name ?? '-' }} )</td>
+                        </tr>
+                    </table>
+                </td>
+                <!-- Manajer Penunjang dan Pelayanan Medis -->
+                <td>
+                    <table>
+                        <tr>
+                            <td class="signature-title">Manajer</td>
+                        </tr>
+                        <tr>
+                            <td class="signature-box">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td class="signature-line"></td>
+                        </tr>
+                        <tr>
+                            <td class="signature-name">( {{ $data->getManager->name ?? '-' }} )</td>
+                        </tr>
+                    </table>
+                </td>
+            @endif
         </tr>
     </table>
 

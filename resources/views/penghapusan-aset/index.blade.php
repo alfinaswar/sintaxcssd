@@ -48,8 +48,8 @@
                         <th>Unit</th>
                         <th>Tanggal</th>
                         <th>Status</th>
+                        <th>Tahap Approval</th>
                         <th>Diajukan Oleh</th>
-                        <th>Persetujuan 1</th>
                         <th>Kode RS</th>
                         <th>Aksi</th>
                     </tr>
@@ -120,12 +120,14 @@
                         name: 'Status'
                     },
                     {
-                        data: 'get_diajukan.name',
-                        name: 'get_diajukan.name'
+                        data: 'Tahap',
+                        name: 'Tahap',
+                        orderable: false,
+                        searchable: false
                     },
                     {
-                        data: 'Sign1',
-                        name: 'Sign1'
+                        data: 'DiajukanOleh',
+                        name: 'DiajukanOleh'
                     },
                     {
                         data: 'get_rs.nama',

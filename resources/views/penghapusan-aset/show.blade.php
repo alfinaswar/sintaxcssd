@@ -98,31 +98,157 @@
                 </div>
             </div>
 
-            <!-- Tanda Tangan Hanya SMI & Manajer Penunjang -->
-            <div class="row text-center mt-5">
-                <div class="col-md-4">
-                    <p class="mb-4" style="font-weight: bold;">Mengetahui Karu/Kanit,</p>
-                    @if (!is_null($data->AccKaru))
-                        @if (!empty($data->Sign3))
-                            <div style="height: 150px;">
-                                <img src="{{ asset('storage/' . $data->Sign3) }}"
-                                    alt="Tanda Tangan" style="max-height: 150px;">
-                            </div>
-                        @else
-                            <div style="height: 80px;" class="text-muted">Tidak ada gambar tanda tangan</div>
-                        @endif
-                    @elseif($data->AccKaru === 0 || $data->AccKaru === 'N')
-                        <div style="height: 80px;"
-                            class="text-danger d-flex flex-column align-items-center justify-content-center">
-                            <i class="bi bi-x-circle-fill" style="font-size: 3rem;"></i>
-                            <div>Ditolak {{ $data->NamaKaru ?? '-' }} </div>
-                        </div>
-                    @endif
-
-
-                    <hr style="width: 80%;">
-                    <p class="mt-2 font-weight-bold">( {{ $data->NamaKaru ?? '-' }} )</p>
+            @if ($data->CatatanApproval)
+                <div class="form-group">
+                    <label class="font-weight-bold">Catatan Approval</label>
+                    <div class="border p-3 rounded bg-light text-danger">
+                        {{ $data->CatatanApproval }}
+                    </div>
                 </div>
+            @endif
+
+            @if ($data->isAlurBerurutan())
+                {{-- Alur 6 tingkat berurutan:
+                     Sign1 SMI -> Sign2 Karu/Kanit -> Sign3 Kadiv Penunjang Medis
+                     -> Sign4 Kadiv Pelayanan Medis -> Sign5 Kadiv Keuangan -> Sign6 Direktur --}}
+                @php
+                    $tahapAktif = $data->tahapAktif();
+                    $urlAktif = $data->urlApprovalAktif();
+                @endphp
+
+                <div class="form-group mt-4">
+                    <label class="font-weight-bold">Progress Tanda Tangan</label>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th style="width: 5%;">No</th>
+                                    <th style="width: 10%;">Kolom</th>
+                                    <th>Tahap</th>
+                                    <th>Status</th>
+                                    <th>Penanda Tangan</th>
+                                    <th>Waktu</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (\App\Models\PenghapusanAset::TAHAP as $key => $config)
+                                    @php
+                                        $acc = $data->accTahap($key);
+                                        $accPada = $data->accPadaTahap($key);
+                                        $namaTahap = $data->namaTahap($key);
+                                    @endphp
+                                    <tr @if ($key === $tahapAktif) class="table-warning" @endif>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td><code>{{ $config['sign'] }}</code></td>
+                                        <td>{{ $config['label'] }}</td>
+                                        <td>
+                                            @if ($acc === 'Y')
+                                                <span class="badge badge-success">Ditandatangani</span>
+                                            @elseif ($acc === 'N')
+                                                <span class="badge badge-danger">Ditolak</span>
+                                            @elseif ($key === $tahapAktif)
+                                                <span class="badge badge-warning">Menunggu</span>
+                                            @else
+                                                <span class="badge badge-secondary">-</span>
+                                            @endif
+                                        </td>
+                                        <td>{{ $namaTahap ?: '-' }}</td>
+                                        <td>{{ $accPada ? \Carbon\Carbon::parse($accPada)->format('d-m-Y H:i') : '-' }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                @if ($urlAktif)
+                    {{-- Link untuk tahap yang sedang menunggu. Setelah Sign1 ditandatangani,
+                         link ini otomatis menjadi link untuk Sign2, dan seterusnya. --}}
+                    <div class="form-group">
+                        <label class="font-weight-bold">
+                            Link Tanda Tangan
+                            {{ \App\Models\PenghapusanAset::TAHAP[$tahapAktif]['sign'] }}
+                            ({{ \App\Models\PenghapusanAset::konfigurasiTahap($tahapAktif)['label'] }})
+                        </label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="linkApproval" readonly
+                                value="{{ $urlAktif }}">
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-outline-primary"
+                                    onclick="salinLinkApproval()">
+                                    <i class="fa fa-copy"></i> Salin
+                                </button>
+                                <a href="{{ $urlAktif }}" target="_blank" class="btn btn-outline-success">
+                                    <i class="fa fa-external-link-alt"></i> Buka
+                                </a>
+                            </div>
+                        </div>
+                        <small class="text-muted">Bagikan link ini ke penanda tangan. Tidak perlu login.</small>
+                    </div>
+                @endif
+
+                <div class="row text-center mt-5">
+                    @foreach (\App\Models\PenghapusanAset::TAHAP as $key => $config)
+                        @php
+                            $acc = $data->accTahap($key);
+                            $sign = $data->signTahap($key);
+                            $penandatangan = $data->namaTahap($key);
+                            $accPada = $data->accPadaTahap($key);
+                        @endphp
+                        <div class="col-md-4 mb-4">
+                            <p class="mb-1 text-muted" style="font-size: 12px;">{{ $config['sign'] }}</p>
+                            <p class="mb-4" style="font-weight: bold;">{{ $config['jabatan'] }},</p>
+                            @if ($acc === 'Y')
+                                @if ($sign)
+                                    <div style="height: 150px;">
+                                        <img src="{{ asset('storage/' . $sign) }}"
+                                            alt="Tanda Tangan {{ $config['label'] }}" style="max-height: 150px;">
+                                    </div>
+                                @else
+                                    <div style="height: 150px;">
+                                        <img src="{{ asset('assets/img/approved.png') }}"
+                                            alt="Tanda Tangan {{ $config['label'] }}" style="max-height: 150px;">
+                                    </div>
+                                @endif
+                            @elseif ($acc === 'N')
+                                <div style="height: 150px;">
+                                    <img src="{{ asset('assets/img/rejected.png') }}"
+                                        alt="Tanda Tangan {{ $config['label'] }}" style="max-height: 150px;">
+                                </div>
+                            @else
+                                <div class="d-flex align-items-center justify-content-center text-muted"
+                                    style="height: 150px;">Belum ditandatangani</div>
+                            @endif
+                            <hr style="width: 80%;">
+                            <p class="mt-2 mb-1 font-weight-bold">( {{ $penandatangan ?: '-' }} )</p>
+                            @if ($accPada)
+                                <small class="text-muted">
+                                    {{ $acc === 'N' ? 'Ditolak' : 'Ditandatangani' }}
+                                    {{ \Carbon\Carbon::parse($accPada)->format('d-m-Y H:i') }}
+                                </small>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                {{-- Alur lama: data historis (Sign1 = Manager, Sign2 = SMI, Sign3 = ttd Karu) --}}
+                <div class="row text-center mt-5">
+                    <div class="col-md-4">
+                        <p class="mb-4" style="font-weight: bold;">Mengetahui Karu/Kanit,</p>
+                        @if (!is_null($data->AccKaruPada))
+                            @if (!empty($data->Sign3))
+                                <div style="height: 150px;">
+                                    <img src="{{ asset('storage/' . $data->Sign3) }}" alt="Tanda Tangan"
+                                        style="max-height: 150px;">
+                                </div>
+                            @else
+                                <div style="height: 80px;" class="text-muted">Tidak ada gambar tanda tangan</div>
+                            @endif
+                        @endif
+                        <hr style="width: 80%;">
+                        <p class="mt-2 font-weight-bold">( {{ $data->NamaKaru ?? '-' }} )</p>
+                    </div>
 
                 <div class="col-md-4">
                     <p class="mb-4" style="font-weight: bold;">Mengetahui SMI,</p>
@@ -162,44 +288,9 @@
                     <p class="mt-2 font-weight-bold">( {{ $data->getManager->name ?? '-' }} )</p>
                 </div>
 
-            </div>
+                </div>
+            @endif
 
-            @can('approval-as-manager')
-                @if ($data->Status == 'proses')
-                    <div class="row mt-4">
-                        <div class="col-12 text-center">
-                            <button type="button" class="btn btn-success btn-lg mr-3"
-                                onclick="konfirmasiSetujui({{ $data->id }})"
-                                @if (!empty($data->Sign1)) disabled @endif>
-                                <i class="fa fa-check"></i> Setujui Pengajuan
-                            </button>
-
-                            <button type="button" class="btn btn-danger btn-lg" onclick="konfirmasiTolak({{ $data->id }})"
-                                @if (!empty($data->Sign1)) disabled @endif>
-                                <i class="fa fa-times"></i> Tolak Pengajuan
-                            </button>
-                        </div>
-                    </div>
-                @endif
-            @endcan
-            @can('approval-as-smi')
-                @if ($data->Status == 'draft')
-                    <div class="row mt-4">
-                        <div class="col-12 text-center">
-                            <button type="button" class="btn btn-success btn-lg mr-3"
-                                onclick="konfirmasiSetujuiSmi({{ $data->id }})"
-                                @if (!empty($data->Sign2)) disabled @endif>
-                                <i class="fa fa-check"></i> Setujui Pengajuan
-                            </button>
-                            <button type="button" class="btn btn-danger btn-lg"
-                                onclick="konfirmasiTolakSmi({{ $data->id }})"
-                                @if (!empty($data->Sign2)) disabled @endif>
-                                <i class="fa fa-times"></i> Tolak Pengajuan
-                            </button>
-                        </div>
-                    </div>
-                @endif
-            @endcan
             @if ($data->Status == 'disetujui')
                 <div class="row mt-4">
                     <div class="col-12 text-center">
@@ -215,143 +306,32 @@
 @push('after-js')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function konfirmasiSetujui(id) {
-            Swal.fire({
-                title: 'Apakah Anda yakin?',
-                text: "Pengajuan penghapusan aset ini akan disetujui.",
-                showCancelButton: true,
-                confirmButtonColor: '#28a745',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, Setujui!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: "{{ route('pa.setujui', ':id') }}".replace(':id', id),
-                        type: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(res) {
-                            Swal.fire('Berhasil!', 'Pengajuan telah disetujui.').then(() => {
-                                window.location.reload();
-                            });
-                        },
-                        error: function(xhr) {
-                            Swal.fire('Gagal!', 'Terjadi kesalahan saat menyetujui pengajuan.');
-                        }
-                    });
-                }
-            });
-        }
+        function salinLinkApproval() {
+            var input = document.getElementById('linkApproval');
 
-        function konfirmasiTolak(id) {
-            Swal.fire({
-                title: 'Tolak Pengajuan?',
-                text: "Anda akan menolak pengajuan penghapusan aset ini.",
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Ya, Tolak!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: "{{ route('pa.tolak', ':id') }}".replace(':id', id),
-                        type: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(res) {
-                            Swal.fire('Berhasil!', 'Pengajuan telah ditolak.').then(() => {
-                                window.location.reload();
-                            });
-                        },
-                        error: function(xhr) {
-                            Swal.fire('Gagal!', 'Terjadi kesalahan saat menolak pengajuan.');
-                        }
-                    });
-                }
-            });
-        }
+            if (!input) {
+                return;
+            }
 
+            input.select();
+            input.setSelectionRange(0, 99999);
 
-        function setujuiPengajuan(id) {
-            window.location.href = `/penghapusan-aset/setujui/${id}`;
-        }
+            function berhasil() {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Tersalin',
+                    text: 'Link tanda tangan sudah disalin.',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
 
-        function tolakPengajuan(id) {
-            window.location.href = `/penghapusan-aset/tolak/${id}`;
-        }
-    </script>
-    <script>
-        function konfirmasiSetujuiSmi(id) {
-            Swal.fire({
-                title: 'Apakah Anda yakin?',
-                text: "Pengajuan penghapusan aset ini akan disetujui.",
-                showCancelButton: true,
-                confirmButtonColor: '#28a745',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, Setujui!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: "{{ route('pa.setujuiSmi', ':id') }}".replace(':id', id),
-                        type: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(res) {
-                            Swal.fire('Berhasil!', 'Pengajuan telah disetujui.').then(() => {
-                                window.location.reload();
-                            });
-                        },
-                        error: function(xhr) {
-                            Swal.fire('Gagal!', 'Terjadi kesalahan saat menyetujui pengajuan.');
-                        }
-                    });
-                }
-            });
-        }
-
-        function konfirmasiTolakSmi(id) {
-            Swal.fire({
-                title: 'Tolak Pengajuan?',
-                text: "Anda akan menolak pengajuan penghapusan aset ini.",
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Ya, Tolak!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: "{{ route('pa.tolakSmi', ':id') }}".replace(':id', id),
-                        type: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(res) {
-                            Swal.fire('Berhasil!', 'Pengajuan telah ditolak.', 'success').then(() => {
-                                window.location.reload();
-                            });
-                        },
-                        error: function(xhr) {
-                            Swal.fire('Gagal!', 'Terjadi kesalahan saat menolak pengajuan.', 'error');
-                        }
-                    });
-                }
-            });
-        }
-
-
-        function setujuiPengajuanSmi(id) {
-            window.location.href = `/penghapusan-aset/setujui/${id}`;
-        }
-
-        function tolakPengajuanSmi(id) {
-            window.location.href = `/penghapusan-aset/tolak/${id}`;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(input.value).then(berhasil);
+            } else {
+                document.execCommand('copy');
+                berhasil();
+            }
         }
     </script>
 @endpush

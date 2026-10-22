@@ -58,9 +58,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('auth.login');
 });
-Route::get('/approval-karu/{id}', [PenghapusanAsetController::class, 'approvalKaru'])->name('pa.approval-karu');
-Route::post('/approval-karu/{id}/submit', [PenghapusanAsetController::class, 'approvalKaruSubmit'])->name('penghapusan-aset.approval-karu.submit');
-Route::get('/penghapusan-aset', [PenghapusanAsetController::class, 'setelahAcc'])->name('penghapusan-aset.index');
+
+// Tanda tangan tanpa login: link cukup memakai id pengajuan
+Route::get('/approval/{id}/{tahap}', [PenghapusanAsetController::class, 'approvalPublik'])
+    ->where('tahap', 'smi|karu|penunjangmed|yanmed|keu|direktur')
+    ->name('pa.approval.publik');
+Route::post('/approval/{id}/{tahap}', [PenghapusanAsetController::class, 'prosesApproval'])
+    ->where('tahap', 'smi|karu|penunjangmed|yanmed|keu|direktur')
+    ->name('pa.approval.publik.proses');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('asset-managemen/get-ip', [AssetManagemenController::class, 'getIP'])->name('get-ip');
@@ -256,6 +261,19 @@ Route::prefix('penghapusan-aset')->group(function () {
     Route::get('/', [PenghapusanAsetController::class, 'index'])->name('pa.index');
     Route::get('/create', [PenghapusanAsetController::class, 'create'])->name('pa.create');
     Route::post('/store', [PenghapusanAsetController::class, 'store'])->name('pa.store');
+
+    // Approval 6 tingkat: SMI -> Karu -> PenunjangMed -> YanMed -> Keu -> Direktur
+    Route::get('/approval/{id}', [PenghapusanAsetController::class, 'approval'])->name('pa.approval');
+    Route::get('/approval-karu/{id}', [PenghapusanAsetController::class, 'approvalKaru'])->name('pa.approval-karu');
+    Route::post('/approval-karu/{id}/submit', [PenghapusanAsetController::class, 'approvalKaruSubmit'])->name('penghapusan-aset.approval-karu.submit');
+    Route::post('/approve/{id}/{tahap}', [PenghapusanAsetController::class, 'approveTahap'])
+        ->where('tahap', 'smi|karu|penunjangmed|yanmed|keu|direktur')
+        ->name('pa.approve');
+    Route::post('/reject/{id}/{tahap}', [PenghapusanAsetController::class, 'rejectTahap'])
+        ->where('tahap', 'smi|karu|penunjangmed|yanmed|keu|direktur')
+        ->name('pa.reject');
+
+    // Endpoint lama (dipertahankan agar tautan lama tidak 500)
     Route::post('/setujui/{id}', [PenghapusanAsetController::class, 'AccPengajuan'])->name('pa.setujui');
     Route::post('/tolak/{id}', [PenghapusanAsetController::class, 'TolakPengajuan'])->name('pa.tolak');
     Route::post('/setujui-smi/{id}', [PenghapusanAsetController::class, 'AccPengajuanSmi'])->name('pa.setujuiSmi');
