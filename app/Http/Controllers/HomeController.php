@@ -117,6 +117,7 @@ class HomeController extends Controller
             $aset = $asetMendesak->get($row->assetID);
 
             $row->kode_item = $row->assetID;
+            $row->no_inventaris = $aset->no_inventaris ?? null;
             $row->nama = $aset->nama ?? null;
             $row->nama_rs = $aset->nama_rs ?? null;
             $row->unit = $aset->unit ?? null;

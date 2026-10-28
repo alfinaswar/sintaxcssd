@@ -10,15 +10,17 @@ class ApiRsAuth
 {
     public function handle($request, Closure $next)
     {
-        $username = (string) $request->header('X-API-Username');
+        $username = trim((string) $request->header('X-API-Username'));
         $password = (string) $request->header('X-API-Password');
 
         $rs = $username !== '' ? MasterRs::where('username', $username)->first() : null;
 
+        // Dummy hash agar waktu respons tidak membocorkan apakah username terdaftar.
+        $hash = ($rs && is_string($rs->password) && $rs->password !== '')
+            ? $rs->password
+            : '$2y$10$usesomesillystringforsaltandhashedpasswordxxxxxxxxxxxxxxx';
 
-        $hash = $rs->password ?? '$2y$10$usesomesillystringforsaltandhashedpasswordxxxxxxxxxxxxxxx';
-
-        if (!Hash::check($password, $hash) || !$rs) {
+        if (!$rs || $password === '' || !Hash::check($password, $hash)) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 

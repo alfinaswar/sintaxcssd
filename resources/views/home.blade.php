@@ -354,7 +354,7 @@
                 <table class="table table-striped table-hover dash-table mb-0">
                     <thead>
                         <tr>
-                            <th>Kode Item</th>
+                            <th>No. Inventaris</th>
                             <th>Nama Aset</th>
                             <th>RS</th>
                             <th>Unit</th>
@@ -366,7 +366,7 @@
                     <tbody>
                         @forelse ($kalibrasiMendesak as $row)
                             <tr>
-                                <td><span class="font-weight-bold">{{ $row->kode_item }}</span></td>
+                                <td><span class="font-weight-bold">{{ $row->no_inventaris ?: '-' }}</span></td>
                                 <td>{{ $row->nama ?: '-' }}</td>
                                 <td>{{ $rsNames[$row->nama_rs] ?? ('RS ' . $row->nama_rs) }}</td>
                                 <td>{{ $row->unit ?: '-' }}</td>

@@ -48,5 +48,12 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60);
         });
+
+        // Batasi per akun + IP agar satu kredensial tidak bisa membanjiri server
+        // dan percobaan brute force antar akun tidak saling mengunci.
+        RateLimiter::for('api.inventaris', function (Request $request) {
+            return Limit::perMinute(60)
+                ->by($request->ip() . '|' . (string) $request->header('X-API-Username'));
+        });
     }
 }
