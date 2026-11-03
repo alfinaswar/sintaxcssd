@@ -11,7 +11,7 @@ class CreateMasterDepartemenTable extends Migration
      *
      * @return void
      */
-    public function up()
+public function up()
     {
         Schema::create('master_departemen', function (Blueprint $table) {
             $table->id();
