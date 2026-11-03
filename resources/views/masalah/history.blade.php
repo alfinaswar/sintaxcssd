@@ -3,8 +3,6 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.all.min.js"></script>
 
 @php
-    use Carbon\Carbon;
-
     $r2 = new \App\Helpers\R2Client();
 
     $bulanNama = [
@@ -25,17 +23,19 @@
 
     // Klasifikasi risiko
     $klasifikasi = $data_alat->klasifikasi ?? '';
-    [$riskClass, $riskLabel] = match ($klasifikasi) {
+    $riskMap = [
         'High Risk' => ['high', 'High Risk'],
         'Medium Risk' => ['medium', 'Medium Risk'],
         'Low to Medium Risk' => ['ltm', 'Low to Medium Risk'],
         'Low Risk' => ['low', 'Low Risk'],
-        default => ['none', 'Belum diklasifikasi'],
-    };
+    ];
+    $riskPair = isset($riskMap[$klasifikasi]) ? $riskMap[$klasifikasi] : ['none', 'Belum diklasifikasi'];
+    $riskClass = $riskPair[0];
+    $riskLabel = $riskPair[1];
 
     // Status kalibrasi — dihitung dari tanggal expire
-    $tglKal = !empty($data_kalibrasi->tgl_kalibrasi) ? Carbon::parse($data_kalibrasi->tgl_kalibrasi) : null;
-    $expKal = !empty($data_kalibrasi->exp_date) ? Carbon::parse($data_kalibrasi->exp_date) : null;
+    $tglKal = !empty($data_kalibrasi->tgl_kalibrasi) ? \Carbon\Carbon::parse($data_kalibrasi->tgl_kalibrasi) : null;
+    $expKal = !empty($data_kalibrasi->exp_date) ? \Carbon\Carbon::parse($data_kalibrasi->exp_date) : null;
 
     if (!$expKal) {
         $calState = 'none';
@@ -60,7 +60,9 @@
         }
     }
 
-    $fmt = fn($d) => $d ? Carbon::parse($d)->format('d/m/Y') : '—';
+    $fmt = function ($d) {
+        return $d ? \Carbon\Carbon::parse($d)->format('d/m/Y') : '—';
+    };
     $jmlBersih = isset($pembersihan) ? count($pembersihan) : 0;
     $jmlKal = isset($kalibrasi) ? count($kalibrasi) : 0;
 @endphp
@@ -1159,15 +1161,17 @@
 
                     @foreach ($pembersihan ?? [] as $p)
                         @php
-                            $spClass = match ($p->Status) {
-                                'Bersih' => 'sp-bersih',
-                                'Lainnya' => 'sp-lainnya',
-                                default => 'sp-tidak',
-                            };
+                            if ($p->Status === 'Bersih') {
+                                $spClass = 'sp-bersih';
+                            } elseif ($p->Status === 'Lainnya') {
+                                $spClass = 'sp-lainnya';
+                            } else {
+                                $spClass = 'sp-tidak';
+                            }
                         @endphp
-                        <article class="clean" data-month="{{ Carbon::parse($p->Tanggal)->format('m') }}">
+                        <article class="clean" data-month="{{ \Carbon\Carbon::parse($p->Tanggal)->format('m') }}">
                             <div class="clean-head">
-                                <b>{{ Carbon::parse($p->Tanggal)->format('d/m/Y') }}</b>
+                                <b>{{ \Carbon\Carbon::parse($p->Tanggal)->format('d/m/Y') }}</b>
                                 <span
                                     class="pill {{ $spClass }}">{{ $p->Status === 'Tidak' ? 'Tidak bersih' : $p->Status }}</span>
                             </div>
