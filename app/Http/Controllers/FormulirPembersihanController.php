@@ -40,19 +40,35 @@ class FormulirPembersihanController extends Controller
             $user = auth()->user();
 
             $query = FormulirPembersihan::select([
-                'formulir_pembersihans.*',
+                'formulir_pembersihans.id',
+                'formulir_pembersihans.kode_item',
+                'formulir_pembersihans.idUser',
+                'formulir_pembersihans.createdBy',
+                'formulir_pembersihans.Tanggal',
+                'formulir_pembersihans.Status',
+                'formulir_pembersihans.Keterangan',
+                'formulir_pembersihans.created_at',
                 'data_inventaris.real_name as inventaris_real_name',
-                'data_inventaris.no_inventaris as inventaris_no_inventaris'
+                'data_inventaris.no_inventaris as inventaris_no_inventaris',
+                'users.name as creator_name'
             ])
-                ->join('data_inventaris', 'formulir_pembersihans.kode_item', '=', 'data_inventaris.kode_item');
+                ->join('data_inventaris', 'formulir_pembersihans.kode_item', '=', 'data_inventaris.kode_item')
+                ->leftJoin('users', 'formulir_pembersihans.createdBy', '=', 'users.id');
 
-            if ($user->role !== "admin") {
-                // INNER JOIN otomatis memfilter data yang tidak punya relasi inventaris
-                // Jadi tidak perlu lagi memakai ->whereHas('getInventaris')
+            if ($user && $user->role !== "admin") {
                 $query->where('data_inventaris.nama_rs', $user->kodeRS);
+            } elseif ($request->filled('filter_rs')) {
+                $query->where('data_inventaris.nama_rs', $request->filter_rs);
             }
 
-            // 2. Spesifikasikan nama tabel pada latest() agar tidak error 'ambiguous column'
+            if ($request->filled('filter_tanggal')) {
+                $query->whereDate('formulir_pembersihans.Tanggal', $request->filter_tanggal);
+            }
+
+            if ($request->filled('filter_status')) {
+                $query->where('formulir_pembersihans.Status', $request->filter_status);
+            }
+
             $query->latest('formulir_pembersihans.created_at');
 
             return DataTables::of($query)
@@ -60,42 +76,51 @@ class FormulirPembersihanController extends Controller
                     if ($request->has('search') && !empty($request->search['value'])) {
                         $keyword = $request->search['value'];
                         $query->where(function ($q) use ($keyword) {
-                            // 3. Prefix nama tabel untuk menghindari error 'ambiguous column' saat search
                             $q->where('formulir_pembersihans.kode_item', 'like', "%{$keyword}%")
+                                ->orWhere('data_inventaris.real_name', 'like', "%{$keyword}%")
+                                ->orWhere('data_inventaris.no_inventaris', 'like', "%{$keyword}%")
+                                ->orWhere('formulir_pembersihans.idUser', 'like', "%{$keyword}%")
                                 ->orWhere('formulir_pembersihans.Status', 'like', "%{$keyword}%")
                                 ->orWhere('formulir_pembersihans.Keterangan', 'like', "%{$keyword}%");
-
-                            // Opsional: Hapus komentar di bawah jika ingin kolom search bisa mencari nama alat
-                            // ->orWhere('data_inventaris.real_name', 'like', "%{$keyword}%");
                         });
                     }
                 }, true)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    $btnEdit = '<a href="javascript:void(0)" onclick="openEditModal(' . $row->id . ')" class="btn btn-outline-warning btn-icon" data-toggle="kt-tooltip" data-placement="top" title="Edit Data"><i class="fa fa-edit"></i></a> ';
-                    $btnDelete = '<form action="' . route('formulir-pembersihan.destroy', $row->id) . '" method="POST" style="display:inline;" onsubmit="return confirm(\'Apakah Anda yakin ingin menghapus data ini?\')">'
+                    $btnEdit = '<a href="javascript:void(0)" onclick="openEditModal(' . $row->id . ')" class="btn btn-outline-warning btn-icon btn-sm" data-toggle="kt-tooltip" data-placement="top" title="Edit Data"><i class="fa fa-edit"></i></a> ';
+                    $btnDelete = '<form action="' . route('pa.maintenance.destroy', $row->id) . '" method="POST" style="display:inline;" onsubmit="return confirm(\'Apakah Anda yakin ingin menghapus data ini?\')">'
                         . csrf_field() . method_field('DELETE')
-                        . '<button type="submit" data-skin="brand" data-toggle="kt-tooltip" data-placement="top" title="Hapus Data" class="btn btn-outline-danger btn-icon"><i class="fa fa-trash"></i></button>'
+                        . '<button type="submit" data-skin="brand" data-toggle="kt-tooltip" data-placement="top" title="Hapus Data" class="btn btn-outline-danger btn-icon btn-sm"><i class="fa fa-trash"></i></button>'
                         . '</form>';
                     return $btnEdit . $btnDelete;
                 })
                 ->addColumn('kode_item', function ($row) {
-                    // 4. Ambil langsung dari kolom hasil join, tidak perlu akses relasi lagi
                     $nama = $row->inventaris_real_name ?? '-';
                     $no_inventaris = $row->inventaris_no_inventaris ?? '-';
-                    return $nama . '-' . $no_inventaris;
+                    return '<span class="font-weight-bold">' . e($nama) . '</span><br>'
+                        . '<small class="text-dark">' . e($no_inventaris) . '</small> &bull; '
+                        . '<small class="text-muted">' . e($row->kode_item) . '</small>';
                 })
-                ->addColumn('Tanggal', function ($row) {
+                ->addColumn('nama_user', function ($row) {
+                    return $row->idUser ?: ($row->creator_name ?: '-');
+                })
+                ->addColumn('tanggal', function ($row) {
                     return $row->Tanggal ? date('d-m-Y', strtotime($row->Tanggal)) : '-';
                 })
-                ->editColumn('Status', function ($row) {
-                    return $row->Status == 1 ? "Sudah Dibersihkan" : "Belum Dibersihkan";
+                ->addColumn('status_text', function ($row) {
+                    $status = $row->Status;
+                    if ($status === 'Bersih' || $status == '1') {
+                        return '<span class="badge badge-success px-2 py-1">Sudah Dibersihkan</span>';
+                    } elseif ($status === 'Tidak' || $status == '2') {
+                        return '<span class="badge badge-danger px-2 py-1">Belum Dibersihkan</span>';
+                    } else {
+                        return '<span class="badge badge-secondary px-2 py-1">' . e($status ?: '-') . '</span>';
+                    }
                 })
-                // Catatan: editColumn 'Before' dan 'After' dihapus karena sudah di-render di JS (lihat Bonus Fix)
-                ->editColumn('Keterangan', function ($row) {
+                ->addColumn('keterangan', function ($row) {
                     return $row->Keterangan ?: '-';
                 })
-                ->rawColumns(['action', 'kode_item'])
+                ->rawColumns(['action', 'kode_item', 'status_text'])
                 ->make(true);
         }
 
@@ -242,34 +267,146 @@ class FormulirPembersihanController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\FormulirPembersihan  $formulirPembersihan
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(FormulirPembersihan $formulirPembersihan)
+    public function edit($id)
     {
-        //
+        $pembersihan = FormulirPembersihan::with('getuser')->find($id);
+
+        if (!$pembersihan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        }
+
+        $r2 = new R2Client();
+        $tanggalFormatted = $pembersihan->Tanggal ? date('Y-m-d', strtotime($pembersihan->Tanggal)) : '';
+
+        // Sesuaikan status value: jika 'Bersih' -> '1', jika 'Tidak' -> '2'
+        $statusVal = $pembersihan->Status;
+        if ($statusVal === 'Bersih') {
+            $statusVal = '1';
+        } elseif ($statusVal === 'Tidak') {
+            $statusVal = '2';
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $pembersihan->id,
+                'kode_item' => $pembersihan->kode_item,
+                'user' => $pembersihan->idUser ?: ($pembersihan->getuser ? $pembersihan->getuser->name : '-'),
+                'tanggal' => $tanggalFormatted,
+                'status' => $statusVal,
+                'before' => $pembersihan->Before,
+                'after' => $pembersihan->After,
+                'before_url' => $pembersihan->Before ? $r2->getUrl('gambar/Pembersihan/Before/' . $pembersihan->Before) : null,
+                'after_url' => $pembersihan->After ? $r2->getUrl('gambar/Pembersihan/After/' . $pembersihan->After) : null,
+                'keterangan' => $pembersihan->Keterangan,
+            ]
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\FormulirPembersihan  $formulirPembersihan
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, FormulirPembersihan $formulirPembersihan)
+    public function update(Request $request, $id)
     {
-        //
+        $pembersihan = FormulirPembersihan::find($id);
+
+        if (!$pembersihan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        }
+
+        $request->validate([
+            'tanggal' => 'required|date',
+            'status' => 'required',
+            'keterangan' => 'nullable|string'
+        ]);
+
+        $statusMapped = $request->status;
+        if ($request->status == '1') {
+            $statusMapped = 'Bersih';
+        } elseif ($request->status == '2') {
+            $statusMapped = 'Tidak';
+        }
+
+        $pembersihan->update([
+            'Tanggal' => $request->tanggal,
+            'Status' => $statusMapped,
+            'Keterangan' => $request->keterangan
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data pembersihan alat berhasil diperbarui'
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\FormulirPembersihan  $formulirPembersihan
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(FormulirPembersihan $formulirPembersihan)
+    public function destroy($id)
     {
-        //
+        $pembersihan = FormulirPembersihan::find($id);
+
+        if ($pembersihan) {
+            if ($pembersihan->Before || $pembersihan->After) {
+                try {
+                    $r2 = new R2Client();
+                    if ($pembersihan->Before) {
+                        $r2->delete('gambar/Pembersihan/Before/' . $pembersihan->Before);
+                    }
+                    if ($pembersihan->After) {
+                        $r2->delete('gambar/Pembersihan/After/' . $pembersihan->After);
+                    }
+                } catch (\Exception $e) {
+                    // ignore to prevent blocking db deletion
+                }
+            }
+
+            $pembersihan->delete();
+
+            return redirect()->back()->with('success', 'Data pembersihan alat berhasil dihapus');
+        }
+
+        return redirect()->back()->with('error', 'Data tidak ditemukan');
+    }
+
+    /**
+     * Export laporan pembersihan alat ke Excel
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function export(Request $request)
+    {
+        $user = auth()->user();
+        $rs = ($user && $user->role !== 'admin') ? $user->kodeRS : $request->filter_rs;
+        $tahun = $request->tahun ?: date('Y');
+        $bulan_awal = $request->bulan_awal;
+        $bulan_akhir = $request->bulan_akhir;
+
+        $nama_file = 'Laporan-Pembersihan-Alat-' .
+            ($bulan_awal ? $bulan_awal . '-' : '') .
+            ($bulan_akhir ? $bulan_akhir . '-' : '') .
+            $tahun . '.xlsx';
+
+        return Excel::download(
+            new LaporanPembersihanAlat(null, null, null, $rs, $bulan_awal, $tahun),
+            $nama_file
+        );
     }
 }

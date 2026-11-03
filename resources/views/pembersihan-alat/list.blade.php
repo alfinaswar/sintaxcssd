@@ -25,18 +25,52 @@
         </div>
 
         <div class="kt-portlet__body">
+            <!-- Filter Bar -->
+            <div class="kt-form kt-margin-b-15">
+                <div class="row align-items-center">
+                    @if (auth()->user()->role == 'admin')
+                        <div class="col-md-3 kt-margin-b-10">
+                            <label class="font-weight-bold">Rumah Sakit:</label>
+                            <select id="filter_rs" class="form-control form-control-sm">
+                                <option value="">-- Semua RS --</option>
+                                @foreach ($rs as $r)
+                                    <option value="{{ $r->kodeRS }}">{{ $r->nama }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @else
+                        <input type="hidden" id="filter_rs" value="{{ auth()->user()->kodeRS }}">
+                    @endif
+                    <div class="col-md-3 kt-margin-b-10">
+                        <label class="font-weight-bold">Status:</label>
+                        <select id="filter_status" class="form-control form-control-sm">
+                            <option value="">-- Semua Status --</option>
+                            <option value="Bersih">Sudah Dibersihkan (Bersih)</option>
+                            <option value="Tidak">Belum Dibersihkan (Tidak)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 kt-margin-b-10">
+                        <label class="font-weight-bold">Tanggal:</label>
+                        <input type="date" id="filter_tanggal" class="form-control form-control-sm">
+                    </div>
+                    <div class="col-md-3 kt-margin-b-10 d-flex align-items-end">
+                        <button type="button" id="btn_reset_filter" class="btn btn-secondary btn-sm mt-4">
+                            <i class="la la-refresh"></i> Reset Filter
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <table class="table table-striped- table-bordered table-hover table-checkable" id="kt_table_1">
                 <thead class="table-primary">
                     <tr>
-                        <th>No</th>
-                        <th>Kode Item</th>
-                        <th>User</th>
-                        <th>Tanggal</th>
-                        <th>Status</th>
-                        <th>Before</th>
-                        <th>After</th>
+                        <th width="4%">No</th>
+                        <th width="26%">Kode Item / Alat</th>
+                        <th width="15%">User</th>
+                        <th width="12%">Tanggal</th>
+                        <th width="15%">Status</th>
                         <th>Keterangan</th>
-                        <th>Action</th>
+                        <th width="10%">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -54,15 +88,15 @@
                     <h5 class="modal-title" id="modalDownloadLaporanLabel">Download Laporan Pembersihan Alat</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="" method="GET" target="_blank">
+                <form action="{{ route('pa.maintenance.export') }}" method="GET" target="_blank">
                     <div class="modal-body">
                         <div class="row">
                             {{-- Filter RS (Hanya tampil untuk Admin) --}}
                             @if (auth()->user()->role == 'admin')
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="filter_rs">Rumah Sakit <span class="text-danger">*</span></label>
-                                        <select name="filter_rs" id="filter_rs" class="form-control" required>
+                                        <label for="modal_filter_rs">Rumah Sakit <span class="text-danger">*</span></label>
+                                        <select name="filter_rs" id="modal_filter_rs" class="form-control" required>
                                             <option value="">-- Semua RS --</option>
                                             @foreach ($rs as $r)
                                                 <option value="{{ $r->kodeRS }}">{{ $r->nama }}</option>
@@ -235,6 +269,21 @@
             </div>
         </div>
     </div>
+
+    {{-- Modal Preview Gambar --}}
+    <div class="modal fade" id="modalPreviewImage" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewImageTitle">Preview Gambar</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-3">
+                    <img id="imgPreviewModal" src="" class="img-fluid rounded shadow" style="max-height: 75vh;" alt="Preview" />
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('css')
@@ -301,38 +350,6 @@
                         searchable: true
                     },
                     {
-                        data: 'before',
-                        name: 'before',
-                        orderable: false,
-                        searchable: false,
-                        render: function(data, type, row) {
-                            if (data) {
-                                var beforeUrl = '{{ asset('storage/gambar/Pembersihan/Before') }}/' +
-                                    data;
-                                return `<img src="` + beforeUrl +
-                                    `" style="max-width:70px;max-height:70px;object-fit:cover;cursor:pointer;" class="img-thumb-before" data-before="` +
-                                    data + `" />`
-                            }
-                            return '';
-                        }
-                    },
-                    {
-                        data: 'after',
-                        name: 'after',
-                        orderable: false,
-                        searchable: false,
-                        render: function(data, type, row) {
-                            if (data) {
-                                var afterUrl = '{{ asset('storage/gambar/Pembersihan/After') }}/' +
-                                    data;
-                                return `<img src="` + afterUrl +
-                                    `" style="max-width:70px;max-height:70px;object-fit:cover;cursor:pointer;" class="img-thumb-after" data-after="` +
-                                    data + `" />`
-                            }
-                            return '';
-                        }
-                    },
-                    {
                         data: 'keterangan',
                         name: 'keterangan',
                         searchable: true
@@ -349,6 +366,25 @@
 
         jQuery(document).ready(function() {
             dataTable();
+
+            $('#filter_rs, #filter_status, #filter_tanggal').on('change', function() {
+                $('#kt_table_1').DataTable().draw();
+            });
+
+            $('#btn_reset_filter').on('click', function() {
+                $('#filter_rs').val('');
+                $('#filter_status').val('');
+                $('#filter_tanggal').val('');
+                $('#kt_table_1').DataTable().draw();
+            });
+
+            $(document).on('click', '.img-thumb-preview', function() {
+                var src = $(this).attr('src');
+                var title = $(this).data('title') || 'Preview Gambar';
+                $('#previewImageTitle').text(title);
+                $('#imgPreviewModal').attr('src', src);
+                $('#modalPreviewImage').modal('show');
+            });
         });
 
         // Fungsi membuka modal edit & fetch data via AJAX
@@ -367,28 +403,25 @@
                         $('#formEditPembersihan').attr('action',
                             '{{ route('pa.maintenance.update', ':id') }}'.replace(':id', data.id));
                         $('#edit_kode_item').val(data.kode_item);
-                        $('#edit_user').val(data.nama_user || data.idUser || '-');
-                        // Format tanggal ke input type date
+                        $('#edit_user').val(data.user || '-');
                         $('#edit_tanggal').val(data.tanggal ? data.tanggal.substring(0, 10) : '');
 
                         $('#edit_status').val(data.status);
                         $('#edit_keterangan').val(data.keterangan);
 
                         // Display Before image
-                        if (data.before) {
-                            var beforeUrl = '{{ asset('storage/gambar/Pembersihan/Before') }}/' + data.before;
+                        if (data.before_url) {
                             $('#edit_before').val(data.before);
-                            $('#edit_before_preview').attr('src', beforeUrl).show();
+                            $('#edit_before_preview').attr('src', data.before_url).show();
                         } else {
                             $('#edit_before').val('');
                             $('#edit_before_preview').hide();
                         }
 
                         // Display After image
-                        if (data.after) {
-                            var afterUrl = '{{ asset('storage/gambar/Pembersihan/After') }}/' + data.after;
+                        if (data.after_url) {
                             $('#edit_after').val(data.after);
-                            $('#edit_after_preview').attr('src', afterUrl).show();
+                            $('#edit_after_preview').attr('src', data.after_url).show();
                         } else {
                             $('#edit_after').val('');
                             $('#edit_after_preview').hide();

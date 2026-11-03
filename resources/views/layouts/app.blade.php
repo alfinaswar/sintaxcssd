@@ -310,9 +310,7 @@
 
                             @endcan
 {{-- @can('pembersihan') --}}
-    <li class="kt-menu__item @if (request()->is('pembersihan'))
-        {{ 'kt-menu__item--active' }}
-    @elseif (request()->is('pembersihan/*'))
+    <li class="kt-menu__item @if (request()->is('*pembersihan-alat*') || request()->is('pembersihan*'))
         {{ 'kt-menu__item--active' }}
     @endif" aria-haspopup="true">
         <a href="{{ route('pa.maintenance.list') }}" class="kt-menu__link ">
