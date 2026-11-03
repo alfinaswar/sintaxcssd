@@ -632,6 +632,61 @@
                 <div class="kt-header__topbar-item kt-header__topbar-item--langs">
                     <div class="kt-header__topbar-wrapper" data-toggle="dropdown" data-offset="10px,0px">
                         <div class="kt-header__topbar-user">
+                            <!-- Cat Mascot -->
+                            <div id="navbar-cat-container" class="kt-hidden-mobile mr-2" style="position: relative; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; cursor: pointer; user-select: none;" title="Meow! 🐾">
+                                <div id="cat-speech-bubble" style="display: none; position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); background: #2d3436; color: #fff; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 12px; white-space: nowrap; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 100; pointer-events: none; transition: opacity 0.2s ease;">
+                                    Meow! 🐾
+                                </div>
+                                <div id="cat-head-wrapper" style="width: 42px; height: 42px; transform-style: preserve-3d; will-change: transform;">
+                                    <svg viewBox="0 0 100 100" width="42" height="42" style="display: block; overflow: visible;">
+                                        <!-- Ears -->
+                                        <polygon points="18,48 24,14 44,32" fill="#ff9f43" stroke="#e67e22" stroke-width="2" stroke-linejoin="round" />
+                                        <polygon points="23,42 27,22 40,33" fill="#ff7675" />
+                                        <polygon points="82,48 76,14 56,32" fill="#ff9f43" stroke="#e67e22" stroke-width="2" stroke-linejoin="round" />
+                                        <polygon points="77,42 73,22 60,33" fill="#ff7675" />
+
+                                        <!-- Head Base -->
+                                        <ellipse cx="50" cy="56" rx="36" ry="32" fill="#ffaf40" stroke="#e67e22" stroke-width="2" />
+
+                                        <!-- Forehead Stripes -->
+                                        <path d="M47 30 L50 38 L53 30" fill="none" stroke="#e67e22" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M38 34 L43 40" fill="none" stroke="#e67e22" stroke-width="2" stroke-linecap="round" />
+                                        <path d="M62 34 L57 40" fill="none" stroke="#e67e22" stroke-width="2" stroke-linecap="round" />
+
+                                        <!-- Cheeks Blush -->
+                                        <ellipse cx="28" cy="62" rx="6" ry="3.5" fill="#ff7675" opacity="0.45" />
+                                        <ellipse cx="72" cy="62" rx="6" ry="3.5" fill="#ff7675" opacity="0.45" />
+
+                                        <!-- White Muzzle -->
+                                        <ellipse cx="50" cy="65" rx="19" ry="14" fill="#ffffff" />
+
+                                        <!-- Whiskers -->
+                                        <path d="M22 62 L4 60 M22 66 L6 69" stroke="#b2bec3" stroke-width="1.8" stroke-linecap="round" />
+                                        <path d="M78 62 L96 60 M78 66 L94 69" stroke="#b2bec3" stroke-width="1.8" stroke-linecap="round" />
+
+                                        <!-- Eyes -->
+                                        <ellipse cx="35" cy="52" rx="9" ry="11" fill="#ffffff" stroke="#2d3436" stroke-width="1.8" />
+                                        <ellipse cx="65" cy="52" rx="9" ry="11" fill="#ffffff" stroke="#2d3436" stroke-width="1.8" />
+
+                                        <!-- Pupils -->
+                                        <g id="cat-pupils">
+                                            <ellipse cx="35" cy="52" rx="5.5" ry="7.5" fill="#2d3436" />
+                                            <circle cx="33" cy="49" r="2.2" fill="#ffffff" />
+                                            <circle cx="37" cy="54" r="1.1" fill="#ffffff" />
+
+                                            <ellipse cx="65" cy="52" rx="5.5" ry="7.5" fill="#2d3436" />
+                                            <circle cx="63" cy="49" r="2.2" fill="#ffffff" />
+                                            <circle cx="67" cy="54" r="1.1" fill="#ffffff" />
+                                        </g>
+
+                                        <!-- Cute Pink Nose -->
+                                        <polygon points="46,62 54,62 50,66" fill="#ff7675" stroke="#e67e22" stroke-width="0.5" stroke-linejoin="round" />
+
+                                        <!-- Mouth :3 -->
+                                        <path d="M44 68 Q 47 72 50 67 Q 53 72 56 68" fill="none" stroke="#2d3436" stroke-width="1.8" stroke-linecap="round" />
+                                    </svg>
+                                </div>
+                            </div>
                             <span class="kt-header__topbar-welcome kt-hidden-mobile">Hi,</span>
                             <span
                                 class="kt-header__topbar-username kt-hidden-mobile">{{ auth()->user() ? auth()->user()->name : 'Asset' }}</span>
@@ -903,6 +958,103 @@
             document.getElementById('menu-cssd').classList.remove('d-none');
         }
     });
+</script>
+<script>
+    (function() {
+        var catContainer = document.getElementById('navbar-cat-container');
+        var catWrapper = document.getElementById('cat-head-wrapper');
+        var pupils = document.getElementById('cat-pupils');
+        var bubble = document.getElementById('cat-speech-bubble');
+
+        if (!catContainer || !catWrapper) return;
+
+        var targetRotX = 0, targetRotY = 0, targetRotZ = 0;
+        var currentRotX = 0, currentRotY = 0, currentRotZ = 0;
+        var targetPupilX = 0, targetPupilY = 0;
+        var currentPupilX = 0, currentPupilY = 0;
+        var isClicking = false;
+
+        window.addEventListener('mousemove', function(e) {
+            var rect = catContainer.getBoundingClientRect();
+            var cx = rect.left + rect.width / 2;
+            var cy = rect.top + rect.height / 2;
+            var dx = e.clientX - cx;
+            var dy = e.clientY - cy;
+            var dist = Math.hypot(dx, dy);
+            var angle = Math.atan2(dy, dx);
+
+            var vWidth = window.innerWidth || 1200;
+            var vHeight = window.innerHeight || 800;
+
+            var normX = Math.max(-1, Math.min(1, dx / (vWidth * 0.45)));
+            var normY = Math.max(-1, Math.min(1, dy / (vHeight * 0.45)));
+
+            targetRotY = normX * 36;
+            targetRotX = -normY * 26;
+            targetRotZ = normX * 18;
+
+            var pupilMax = 3.2;
+            var pDist = Math.min(pupilMax, dist / 60);
+            targetPupilX = Math.cos(angle) * pDist;
+            targetPupilY = Math.sin(angle) * pDist;
+        }, { passive: true });
+
+        window.addEventListener('mouseleave', function() {
+            targetRotX = 0;
+            targetRotY = 0;
+            targetRotZ = 0;
+            targetPupilX = 0;
+            targetPupilY = 0;
+        });
+
+        function animateCat() {
+            currentRotX += (targetRotX - currentRotX) * 0.12;
+            currentRotY += (targetRotY - currentRotY) * 0.12;
+            currentRotZ += (targetRotZ - currentRotZ) * 0.12;
+            currentPupilX += (targetPupilX - currentPupilX) * 0.15;
+            currentPupilY += (targetPupilY - currentPupilY) * 0.15;
+
+            if (!isClicking) {
+                catWrapper.style.transform = 'perspective(300px) rotateX(' + currentRotX.toFixed(2) + 'deg) rotateY(' + currentRotY.toFixed(2) + 'deg) rotateZ(' + currentRotZ.toFixed(2) + 'deg)';
+            }
+            if (pupils) {
+                pupils.style.transform = 'translate(' + currentPupilX.toFixed(2) + 'px, ' + currentPupilY.toFixed(2) + 'px)';
+            }
+
+            requestAnimationFrame(animateCat);
+        }
+        requestAnimationFrame(animateCat);
+
+        // Click interaction
+        var meows = ['Meow! 🐾', 'Ngeong! 😸', 'Purrr~ ❤️', 'Miau! ✨', 'Miaw~'];
+        var meowTimer = null;
+
+        catContainer.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var msg = meows[Math.floor(Math.random() * meows.length)];
+            bubble.textContent = msg;
+            bubble.style.display = 'block';
+            bubble.style.opacity = '1';
+
+            isClicking = true;
+            catWrapper.style.transition = 'transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            catWrapper.style.transform = 'perspective(300px) scale(1.3) rotateZ(-12deg)';
+
+            setTimeout(function() {
+                catWrapper.style.transform = 'perspective(300px) scale(1.1) rotateZ(8deg)';
+                setTimeout(function() {
+                    catWrapper.style.transition = '';
+                    isClicking = false;
+                }, 150);
+            }, 150);
+
+            clearTimeout(meowTimer);
+            meowTimer = setTimeout(function() {
+                bubble.style.opacity = '0';
+                setTimeout(function() { bubble.style.display = 'none'; }, 200);
+            }, 1500);
+        });
+    })();
 </script>
 @stack('js')
 @stack('after-js')
