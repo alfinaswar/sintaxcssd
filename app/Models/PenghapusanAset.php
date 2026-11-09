@@ -89,21 +89,21 @@ class PenghapusanAset extends Model
     }
     public function getDiajukan()
     {
-        return $this->belongsTo(user::class, 'DiajukanOleh', 'id');
+        return $this->belongsTo(User::class, 'DiajukanOleh', 'id');
     }
     /**
      * Alur lama: Sign1 = Manager penunjang.
      */
     public function getManager()
     {
-        return $this->belongsTo(user::class, 'Sign1', 'id');
+        return $this->belongsTo(User::class, 'Sign1', 'id');
     }
     /**
      * Alur lama: Sign2 = SMI.
      */
     public function getSmi()
     {
-        return $this->belongsTo(user::class, 'Sign2', 'id');
+        return $this->belongsTo(User::class, 'Sign2', 'id');
     }
     public function getRs()
     {
@@ -178,7 +178,7 @@ class PenghapusanAset extends Model
      */
     public function tahapAktif()
     {
-        if (! $this->isAlurBerurutan()) {
+        if (!$this->isAlurBerurutan()) {
             return null;
         }
 
