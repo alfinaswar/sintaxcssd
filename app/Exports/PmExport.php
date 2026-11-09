@@ -84,6 +84,7 @@ class PmExport implements FromView, WithEvents, WithStyles
             ->when(!$this->filter_rs && Auth::user()->role !== 'admin', function ($q) {
                 return $q->where('nama_rs', Auth::user()->kodeRS);
             })
+            ->orderBy('nama', 'asc')
             ->get();
 
         return view('excel.excel_pm', [

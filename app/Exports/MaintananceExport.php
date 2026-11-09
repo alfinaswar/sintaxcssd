@@ -34,28 +34,34 @@ class MaintananceExport implements FromCollection, WithHeadings, WithMapping, Wi
 
     public function collection()
     {
-        $query = Maintanance::with([
-            'getInventaris',
-            'getRs'
-        ])
+        $query = Maintanance::select('maintanance.*')
+            ->join('data_inventaris', function ($join) {
+                $join->on('maintanance.kode_item', '=', 'data_inventaris.kode_item')
+                    ->whereNull('data_inventaris.deleted_at');
+            })
+            ->with([
+                'getInventaris',
+                'getRs'
+            ])
             ->whereHas('getInventaris', function ($q) {
                 if ($this->klasifikasi) {
                     $q->where('klasifikasi', $this->klasifikasi);
                 }
             })
-            ->orderBy('kode_item', 'asc')
-            ->orderBy('bulan', 'asc');
+            ->orderBy('data_inventaris.nama', 'asc')
+            ->orderBy('maintanance.kode_item', 'asc')
+            ->orderBy('maintanance.bulan', 'asc');
 
         // Filter berdasarkan RS
         if ($this->filterRs) {
-            $query->where('nama_rs', $this->filterRs);
+            $query->where('maintanance.nama_rs', $this->filterRs);
         }
 
         // Filter berdasarkan tahun
-        $query->whereYear('created_at', $this->tahun);
+        $query->whereYear('maintanance.created_at', $this->tahun);
 
         // Filter berdasarkan range bulan
-        $query->whereBetween('bulan', [$this->bulanAwal, $this->bulanAkhir]);
+        $query->whereBetween('maintanance.bulan', [$this->bulanAwal, $this->bulanAkhir]);
 
         return $query->get();
     }
