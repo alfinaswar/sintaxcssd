@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Exports\InventarisKsoExport;
+use App\Exports\InventarisKsoTemplateExport;
+use App\Imports\InventarisKsoImport;
 use App\Models\DataMaintenanceKso;
 use App\Models\InventarisKso;
 use App\Models\KalibrasiKso;
 use App\Models\LaporanMonitoringKso;
 use App\Models\MasterAlat;
+use App\Models\MasterAlatKso;
+use App\Models\MasterMerkKso;
 use App\Models\MasterRs;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -77,8 +81,8 @@ class InventarisKsoController extends Controller
                     return '';
                 })
                 ->editColumn('Nama', function ($row) {
-                    return $row->getNamaAlat && $row->getNamaAlat->Nama
-                        ? $row->getNamaAlat->Nama
+                    return $row->getNamaAlat && $row->getNamaAlat->nama
+                        ? $row->getNamaAlat->nama
                         : $row->Nama;
                 })
                 ->editColumn('Merk', function ($row) {
@@ -615,8 +619,28 @@ class InventarisKsoController extends Controller
     public function getMasterAlat(Request $request)
     {
         $search = $request->get('q');
-        $data = MasterAlat::where('Nama', 'like', "%{$search}%")
-            ->select('id', 'Nama')
+        $data = MasterAlatKso::where(function ($q) {
+                $q->where('nama_rs', auth()->user()->kodeRS)
+                    ->orWhereNull('nama_rs');
+            })
+            ->where('nama', 'like', "%{$search}%")
+            ->select('id', 'nama')
+            ->orderBy('nama')
+            ->limit(20)
+            ->get();
+        return response()->json($data);
+    }
+
+    public function getMasterMerk(Request $request)
+    {
+        $search = $request->get('q');
+        $data = MasterMerkKso::where(function ($q) {
+                $q->where('nama_rs', auth()->user()->kodeRS)
+                    ->orWhereNull('nama_rs');
+            })
+            ->where('nama', 'like', "%{$search}%")
+            ->select('id', 'nama', 'tipe')
+            ->orderBy('nama')
             ->limit(20)
             ->get();
         return response()->json($data);
@@ -626,5 +650,29 @@ class InventarisKsoController extends Controller
     {
         $filename = 'Laporan-Inventaris-KSO-' . date('Ymd-His') . '.xlsx';
         return Excel::download(new InventarisKsoExport($request), $filename);
+    }
+
+    public function downloadTemplate()
+    {
+        return Excel::download(new InventarisKsoTemplateExport(), 'Format-Import-Inventaris-KSO.xlsx');
+    }
+
+    public function importExcel(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:10240',
+            'kode_rs' => 'nullable|string|max:20',
+        ]);
+
+        try {
+            $import = new InventarisKsoImport($request->input('kode_rs'));
+            Excel::import($import, $request->file('file'));
+
+            return redirect()->route('inventaris.index-kso')
+                ->with('success', "Berhasil mengimpor {$import->importedCount} data Inventaris KSO.");
+        } catch (\Throwable $e) {
+            return redirect()->route('inventaris.index-kso')
+                ->withErrors(['file' => 'Gagal mengimpor file: ' . $e->getMessage()]);
+        }
     }
 }

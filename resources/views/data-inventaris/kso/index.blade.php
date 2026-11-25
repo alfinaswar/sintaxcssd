@@ -15,10 +15,15 @@
             <div class="kt-portlet__head-toolbar">
                 <div class="kt-portlet__head-wrapper">
                     <div class="kt-portlet__head-actions">
+                        <a href="{{ route('inventariskso.download-template') }}" class="btn btn-success btn-elevate btn-icon-sm">
+                            <i class="la la-download"></i> Download Format
+                        </a>
+                        <button type="button" class="btn btn-info btn-elevate btn-icon-sm" data-toggle="modal" data-target="#modalImportKso">
+                            <i class="la la-upload"></i> Import Excel
+                        </button>
                         <a href="{{ route('inventariskso.create') }}" class="btn btn-brand btn-elevate btn-icon-sm">
                             <i class="la la-plus"></i> Tambah Data
                         </a>
-
                     </div>
                 </div>
             </div>
@@ -186,6 +191,50 @@
                     </thead>
                     <tbody></tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Import Excel -->
+    <div class="modal fade" id="modalImportKso" tabindex="-1" role="dialog" aria-labelledby="modalImportKsoLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form action="{{ route('inventariskso.import-excel') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalImportKsoLabel">Import Inventaris KSO (Excel)</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-light alert-elevate" role="alert">
+                            <div class="alert-text">
+                                Gunakan format Excel yang disediakan agar kolom sesuai.
+                                <a href="{{ route('inventariskso.download-template') }}" class="font-weight-bold text-primary">Download Format Excel di sini</a>.
+                            </div>
+                        </div>
+                        @if (auth()->user()->role == 'admin' || auth()->user()->role == 'DKH')
+                            <div class="form-group">
+                                <label>Default Rumah Sakit (jika kolom <code>kode_rs</code> di Excel kosong)</label>
+                                <select name="kode_rs" class="form-control">
+                                    <option value="">-- Gunakan RS User ({{ auth()->user()->kodeRS }}) --</option>
+                                    @foreach ($rs as $item)
+                                        <option value="{{ $item->kodeRS }}">{{ $item->kodeRS }} - {{ $item->nama }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
+                        <div class="form-group">
+                            <label>File Excel (.xlsx, .xls, .csv) <span class="text-danger">*</span></label>
+                            <input type="file" name="file" class="form-control" accept=".xlsx,.xls,.csv" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Import Sekarang</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

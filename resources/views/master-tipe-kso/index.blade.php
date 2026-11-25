@@ -1,0 +1,118 @@
+@extends('layouts.app')
+@push('title')
+Master Tipe (KSO)
+@endpush
+@section('content')
+<div class="kt-portlet kt-portlet--mobile">
+    <div class="kt-portlet__head kt-portlet__head--lg">
+        <div class="kt-portlet__head-label">
+            <span class="kt-portlet__head-icon">
+                <i class="kt-font-brand flaticon2-line-chart"></i>
+            </span>
+            <h3 class="kt-portlet__head-title">
+                Master Tipe (KSO)
+            </h3>
+        </div>
+        <div class="kt-portlet__head-toolbar">
+            <div class="kt-portlet__head-wrapper">
+                <div class="kt-portlet__head-actions">
+                    <a href="{{ route('master-tipe-kso.create') }}" class="btn btn-brand btn-elevate btn-icon-sm">
+                        <i class="la la-plus"></i>
+                        Tambah
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="kt-portlet__body">
+        <table class="table table-striped- table-bordered table-hover table-checkable" id="kt_table_1">
+            <thead class="table-primary">
+                <tr>
+                    <th width="10%">No</th>
+                    <th>Nama Alat (KSO)</th>
+                    <th>Nama Merk (KSO)</th>
+                    <th>Nama Tipe (KSO)</th>
+                    <th width="15%">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+@endsection
+@push('css')
+<link href="{{ asset('') }}assets/vendors/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css" />
+@endpush
+@push('js')
+<script src="{{ asset('') }}assets/vendors/custom/datatables/datatables.bundle.js" type="text/javascript"></script>
+<script>
+    @if (Session::has('success'))
+        toastr.success("{{ Session::get('success') }}", "Berhasil");
+    @endif
+    @if ($errors->any())
+        @foreach ($errors->all() as $error)
+            toastr.warning(`{{ $error }}`, "Gagal");
+        @endforeach
+    @endif
+</script>
+<script>
+    var dataTable = function() {
+        var table = $('#kt_table_1');
+        table.DataTable({
+            responsive: true,
+            serverSide: true,
+            bDestroy: true,
+            processing: true,
+            language: {
+                processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span> '
+            },
+            ajax: "{{ route('master-tipe-kso.index') }}",
+            columns: [
+                { data: 'DT_RowIndex', name: 'DT_RowIndex' },
+                { data: 'alat_nama', name: 'alat_nama' },
+                { data: 'merk_nama', name: 'merk_nama' },
+                { data: 'nama', name: 'nama' },
+                { data: 'action', name: 'action', orderable: false, searchable: false }
+            ]
+        });
+    };
+
+    var delete_data = function(e, id) {
+        e.preventDefault();
+        var url = "{{ route('master-tipe-kso.destroy', 'id') }}".replace('id', id);
+
+        swal.fire({
+            title: 'kamu yakin?',
+            text: "Kamu akan menghapus data ini!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonText: "<i class='la la-check'></i> Ya, Hapus!",
+            confirmButtonClass: "btn btn-danger",
+            cancelButtonText: "<i class='la la-close'></i> Tidak",
+            cancelButtonClass: "btn btn-secondary",
+            reverseButtons: true
+        }).then(function(result) {
+            if (result.value) {
+                $.ajax({
+                    type: "DELETE",
+                    url: url,
+                    data: { "_token": "{{ csrf_token() }}" },
+                    success: function() {
+                        toastr.success("Data berhasil dihapus", "Berhasil");
+                        $('#kt_table_1').DataTable().ajax.reload();
+                    },
+                    error: function() {
+                        toastr.error("Gagal menghapus data", "Gagal");
+                    }
+                });
+            }
+        });
+    };
+
+    jQuery(document).ready(function() {
+        dataTable();
+    });
+</script>
+@endpush

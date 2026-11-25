@@ -22,12 +22,15 @@ use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\MaintananceController;
 use App\Http\Controllers\ManualBookController;
 use App\Http\Controllers\MasalahController;
+use App\Http\Controllers\MasterAlatKsoController;
 use App\Http\Controllers\MasterDepartemenController;
 use App\Http\Controllers\MasterGudangController;
 use App\Http\Controllers\MasterIPController;
 use App\Http\Controllers\MasterItemGroupController;
 use App\Http\Controllers\MasterMerkController;
+use App\Http\Controllers\MasterMerkKsoController;
 use App\Http\Controllers\MasterNamaSetController;
+use App\Http\Controllers\MasterTipeKsoController;
 use App\Http\Controllers\MasterPenggunaController;
 use App\Http\Controllers\MasterRsController;
 use App\Http\Controllers\MasterUnitBaruController;
@@ -107,6 +110,10 @@ Route::group(['prefix' => 'master'], function () {
     Route::resource('master-departemen', MasterDepartemenController::class);
     Route::resource('master-unit', MasterUnitController::class);
     Route::resource('master-merk', MasterMerkController::class);
+    Route::resource('master-alat-kso', MasterAlatKsoController::class);
+    Route::get('master-merk-kso/by-alat/{alatId}', [MasterMerkKsoController::class, 'byAlat'])->name('master-merk-kso.by-alat');
+    Route::resource('master-merk-kso', MasterMerkKsoController::class);
+    Route::resource('master-tipe-kso', MasterTipeKsoController::class);
     //Master Gudang
     // Untuk Master Gudang
     Route::get('/gudang', [MasterGudangController::class, 'index'])->name('master.master-gudang.index');
@@ -241,6 +248,8 @@ Route::prefix('inventaris')->group(function () {
     // CRUD routes for InventarisKso (rute statis harus di atas /kso/{id} agar tidak tertutup)
     Route::get('/kso/create', [InventarisKsoController::class, 'create'])->name('inventariskso.create');
     Route::post('/kso/store', [InventarisKsoController::class, 'store'])->name('inventariskso.store');
+    Route::get('/kso/download-template', [InventarisKsoController::class, 'downloadTemplate'])->name('inventariskso.download-template');
+    Route::post('/kso/import-excel', [InventarisKsoController::class, 'importExcel'])->name('inventariskso.import-excel');
     // Label / Barcode QR untuk Inventaris KSO
     Route::get('/kso/label/{id}', [InventarisKsoController::class, 'label'])->name('inventariskso.label');
     // Fitur pendukung Inventaris KSO (kalibrasi, preventive maintenance, pembersihan)
@@ -254,6 +263,7 @@ Route::prefix('inventaris')->group(function () {
     Route::get('/laporan-kso', [InventarisKsoController::class, 'laporanKso'])->name('inventaris.laporan-kso');
     // Route untuk AJAX Select2 Nama Alat dari MasterAlat
     Route::get('inventariskso/get-master-alat', [InventarisKsoController::class, 'getMasterAlat'])->name('inventariskso.get-master-alat');
+    Route::get('inventariskso/get-master-merk', [InventarisKsoController::class, 'getMasterMerk'])->name('inventariskso.get-master-merk');
 });
 Route::prefix('flipbook')->group(function () {
     Route::get('/', [FlipbookController::class, 'index'])->name('flipbook.index');

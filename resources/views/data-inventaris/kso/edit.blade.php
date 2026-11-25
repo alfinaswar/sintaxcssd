@@ -46,7 +46,7 @@
                                                 id="Nama" name="Nama" required>
                                                 @if ($inventarisKso->Nama)
                                                     <option value="{{ $inventarisKso->Nama }}" selected>
-                                                        {{ $inventarisKso->getNamaAlat->Nama }}</option>
+                                                        {{ $inventarisKso->getNamaAlat->nama ?? $inventarisKso->Nama }}</option>
                                                 @else
                                                     <option value="">--Pilih Alat--</option>
                                                 @endif
@@ -66,7 +66,7 @@
                                                 id="merk" name="Merk">
                                                 @if ($inventarisKso->Merk)
                                                     <option value="{{ $inventarisKso->Merk }}" selected>
-                                                        {{ $inventarisKso->getMerk->nama }}</option>
+                                                        {{ $inventarisKso->getMerk->nama ?? $inventarisKso->Merk }}</option>
                                                 @endif
                                             </select>
                                             @error('Merk')
@@ -423,8 +423,8 @@
                         return {
                             results: $.map(data, function(item) {
                                 return {
-                                    text: item.Nama,
-                                    id: item.Nama
+                                    text: item.nama,
+                                    id: item.id
                                 }
                             })
                         };
@@ -432,11 +432,6 @@
                     cache: true
                 }
             });
-            @if ($inventarisKso->Nama)
-                $('#Nama').append(
-                    `<option value="{{ $inventarisKso->Nama }}" selected>{{ $inventarisKso->Nama }}</option>`);
-            @endif
-            $('#Nama').val('{{ old('Nama', $inventarisKso->Nama) }}').trigger('change');
         };
 
         // 1a. Select2 for Vendor KSO
@@ -474,27 +469,28 @@
                 placeholder: "Select Merk",
                 minimumInputLength: 1,
                 ajax: {
-                    url: '{{ route('inventaris.get-merk') }}',
+                    url: '{{ route('inventariskso.get-master-merk') }}',
                     dataType: 'json',
                     delay: 250,
                     processResults: function(data) {
                         return {
                             results: $.map(data, function(item) {
                                 return {
-                                    text: item.nama,
+                                    text: item.nama + (item.tipe ? ' (' + item.tipe + ')' : ''),
                                     id: item.id,
+                                    tipe: item.tipe
                                 }
                             })
                         };
                     },
                     cache: true
                 }
+            }).on('select2:select', function(e) {
+                var data = e.params.data;
+                if (data && data.tipe) {
+                    $('input[name="Tipe"]').val(data.tipe);
+                }
             });
-            @if ($inventarisKso->Merk)
-                $('#merk').append(
-                    `<option value="{{ $inventarisKso->Merk }}" selected>{{ $inventarisKso->Merk }}</option>`);
-            @endif
-            $('#merk').val('{{ old('Merk', $inventarisKso->Merk) }}').trigger('change');
         }
 
         // 2. Select2 for Departemen

@@ -56,7 +56,7 @@ class InventarisKso extends Model
      */
     public function getNamaAlat()
     {
-        return $this->belongsTo(MasterAlat::class, 'Nama');
+        return $this->belongsTo(MasterAlatKso::class, 'Nama');
     }
 
     /**
@@ -64,7 +64,7 @@ class InventarisKso extends Model
      */
     public function getMerk()
     {
-        return $this->belongsTo(MasterMerk::class, 'Merk');
+        return $this->belongsTo(MasterMerkKso::class, 'Merk');
     }
 
     /**

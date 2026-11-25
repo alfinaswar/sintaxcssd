@@ -359,7 +359,7 @@
 @endsection
 @push('js')
     <script>
-        // 1. Select2 for Nama Alat (Ambil dari MasterAlat)
+        // 1. Select2 for Nama Alat (Ambil dari MasterAlatKso)
         var select_nama_alat = function() {
             $('#Nama').select2({
                 placeholder: "Ketik untuk mencari alat...",
@@ -373,7 +373,7 @@
                         return {
                             results: $.map(data, function(item) {
                                 return {
-                                    text: item.Nama,
+                                    text: item.nama,
                                     id: item.id
                                 }
                             })
@@ -414,20 +414,26 @@
                 placeholder: "Select Merk",
                 minimumInputLength: 1,
                 ajax: {
-                    url: '{{ route('inventaris.get-merk') }}',
+                    url: '{{ route('inventariskso.get-master-merk') }}',
                     dataType: 'json',
                     delay: 250,
                     processResults: function(data) {
                         return {
                             results: $.map(data, function(item) {
                                 return {
-                                    text: item.nama,
+                                    text: item.nama + (item.tipe ? ' (' + item.tipe + ')' : ''),
                                     id: item.id,
+                                    tipe: item.tipe
                                 }
                             })
                         };
                     },
                     cache: true
+                }
+            }).on('select2:select', function(e) {
+                var data = e.params.data;
+                if (data && data.tipe) {
+                    $('input[name="Tipe"]').val(data.tipe);
                 }
             });
         }
