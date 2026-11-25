@@ -384,22 +384,22 @@
             });
         };
 
-        // 1a. Select2 for Vendor KSO (Ambil dari API master-vendor, value = Id)
+        // 1a. Select2 for Vendor KSO (Ambil dari MasterVendorKso)
         var select_vendor_kso = function() {
             $('#Vendor').select2({
                 placeholder: "Ketik untuk mencari vendor...",
                 minimumInputLength: 1,
                 allowClear: true,
                 ajax: {
-                    url: 'https://abproc.awalbros.com/api/master-vendor',
+                    url: '{{ route('inventariskso.get-master-vendor') }}',
                     dataType: 'json',
                     delay: 250,
                     processResults: function(data) {
                         return {
-                            results: $.map(data.data, function(item) {
+                            results: $.map(data, function(item) {
                                 return {
-                                    text: item.Nama,
-                                    id: item.Nama
+                                    text: item.nama,
+                                    id: item.nama
                                 }
                             })
                         };

@@ -13,6 +13,7 @@ use App\Models\MasterAlat;
 use App\Models\MasterAlatKso;
 use App\Models\MasterMerkKso;
 use App\Models\MasterRs;
+use App\Models\MasterVendorKso;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -632,6 +633,17 @@ class InventarisKsoController extends Controller
         $search = $request->get('q');
         $data = MasterMerkKso::where('nama', 'like', "%{$search}%")
             ->select('id', 'nama', 'tipe')
+            ->orderBy('nama')
+            ->limit(20)
+            ->get();
+        return response()->json($data);
+    }
+
+    public function getMasterVendor(Request $request)
+    {
+        $search = $request->get('q');
+        $data = MasterVendorKso::where('nama', 'like', "%{$search}%")
+            ->select('id', 'nama')
             ->orderBy('nama')
             ->limit(20)
             ->get();

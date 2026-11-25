@@ -18,5 +18,6 @@ class DatabaseSeeder extends Seeder
         $this->call(RoleSeeder::class);
         $this->call(MasterAlatKsoSeeder::class);
         $this->call(MasterMerkKsoSeeder::class);
+        $this->call(MasterVendorKsoSeeder::class);
     }
 }

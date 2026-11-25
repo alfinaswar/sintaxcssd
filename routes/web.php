@@ -31,6 +31,7 @@ use App\Http\Controllers\MasterMerkController;
 use App\Http\Controllers\MasterMerkKsoController;
 use App\Http\Controllers\MasterNamaSetController;
 use App\Http\Controllers\MasterTipeKsoController;
+use App\Http\Controllers\MasterVendorKsoController;
 use App\Http\Controllers\MasterPenggunaController;
 use App\Http\Controllers\MasterRsController;
 use App\Http\Controllers\MasterUnitBaruController;
@@ -113,6 +114,7 @@ Route::group(['prefix' => 'master'], function () {
     Route::resource('master-alat-kso', MasterAlatKsoController::class);
     Route::get('master-merk-kso/by-alat/{alatId}', [MasterMerkKsoController::class, 'byAlat'])->name('master-merk-kso.by-alat');
     Route::resource('master-merk-kso', MasterMerkKsoController::class);
+    Route::resource('master-vendor-kso', MasterVendorKsoController::class);
     Route::resource('master-tipe-kso', MasterTipeKsoController::class);
     //Master Gudang
     // Untuk Master Gudang
@@ -264,6 +266,7 @@ Route::prefix('inventaris')->group(function () {
     // Route untuk AJAX Select2 Nama Alat dari MasterAlat
     Route::get('inventariskso/get-master-alat', [InventarisKsoController::class, 'getMasterAlat'])->name('inventariskso.get-master-alat');
     Route::get('inventariskso/get-master-merk', [InventarisKsoController::class, 'getMasterMerk'])->name('inventariskso.get-master-merk');
+    Route::get('inventariskso/get-master-vendor', [InventarisKsoController::class, 'getMasterVendor'])->name('inventariskso.get-master-vendor');
 });
 Route::prefix('flipbook')->group(function () {
     Route::get('/', [FlipbookController::class, 'index'])->name('flipbook.index');

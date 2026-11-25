@@ -441,6 +441,14 @@
         <span class="kt-menu__link-text">Master Merk (KSO)</span>
     </a>
 </li>
+<li class="kt-menu__item  @if (request()->segment(2) == 'master-vendor-kso')
+    {{ 'kt-menu__item--active' }}
+@endif" aria-haspopup="true">
+    <a href="{{ route('master-vendor-kso.index') }}" class="kt-menu__link ">
+        <i class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i>
+        <span class="kt-menu__link-text">Master Vendor (KSO)</span>
+    </a>
+</li>
 
                                         </ul>
                                     </div>
