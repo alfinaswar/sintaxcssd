@@ -619,11 +619,7 @@ class InventarisKsoController extends Controller
     public function getMasterAlat(Request $request)
     {
         $search = $request->get('q');
-        $data = MasterAlatKso::where(function ($q) {
-                $q->where('nama_rs', auth()->user()->kodeRS)
-                    ->orWhereNull('nama_rs');
-            })
-            ->where('nama', 'like', "%{$search}%")
+        $data = MasterAlatKso::where('nama', 'like', "%{$search}%")
             ->select('id', 'nama')
             ->orderBy('nama')
             ->limit(20)
@@ -634,11 +630,7 @@ class InventarisKsoController extends Controller
     public function getMasterMerk(Request $request)
     {
         $search = $request->get('q');
-        $data = MasterMerkKso::where(function ($q) {
-                $q->where('nama_rs', auth()->user()->kodeRS)
-                    ->orWhereNull('nama_rs');
-            })
-            ->where('nama', 'like', "%{$search}%")
+        $data = MasterMerkKso::where('nama', 'like', "%{$search}%")
             ->select('id', 'nama', 'tipe')
             ->orderBy('nama')
             ->limit(20)

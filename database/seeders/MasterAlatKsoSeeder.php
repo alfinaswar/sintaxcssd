@@ -43,10 +43,7 @@ class MasterAlatKsoSeeder extends Seeder
         ];
 
         foreach ($alats as $nama) {
-            MasterAlatKso::firstOrCreate(
-                ['nama' => $nama],
-                ['nama_rs' => null]
-            );
+            MasterAlatKso::firstOrCreate(['nama' => $nama]);
         }
     }
 }

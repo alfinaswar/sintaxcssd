@@ -43,7 +43,6 @@ class InventarisKsoImport implements ToCollection, WithHeadingRow
                 if (!isset($alatCache[$alatKey])) {
                     $newAlat = MasterAlatKso::create([
                         'nama' => $alatKey,
-                        'nama_rs' => null,
                     ]);
                     $alatCache[$alatKey] = $newAlat->id;
                 }
@@ -55,7 +54,6 @@ class InventarisKsoImport implements ToCollection, WithHeadingRow
                     if (!isset($merkCache[$merkKey])) {
                         $newMerk = MasterMerkKso::create([
                             'nama' => $merkKey,
-                            'nama_rs' => null,
                         ]);
                         $merkCache[$merkKey] = $newMerk->id;
                     }

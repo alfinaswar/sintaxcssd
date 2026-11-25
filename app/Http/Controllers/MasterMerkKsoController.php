@@ -11,12 +11,7 @@ class MasterMerkKsoController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = MasterMerkKso::where(function ($q) {
-                $q->where('nama_rs', auth()->user()->kodeRS)
-                    ->orWhereNull('nama_rs');
-            })
-                ->orderBy('id', 'desc')
-                ->get();
+            $data = MasterMerkKso::orderBy('id', 'desc')->get();
 
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -47,7 +42,6 @@ class MasterMerkKsoController extends Controller
         MasterMerkKso::create([
             'nama' => $request->nama,
             'tipe' => $request->tipe,
-            'nama_rs' => auth()->user()->kodeRS,
         ]);
 
         return redirect()->route('master-merk-kso.index')->with('success', 'Data berhasil ditambahkan');

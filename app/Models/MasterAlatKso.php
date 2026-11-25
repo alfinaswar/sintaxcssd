@@ -13,7 +13,6 @@ class MasterAlatKso extends Model
 
     protected $fillable = [
         'nama',
-        'nama_rs',
     ];
 
     public function merks()

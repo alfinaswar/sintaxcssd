@@ -14,7 +14,6 @@ class MasterMerkKso extends Model
     protected $fillable = [
         'master_alat_kso_id',
         'nama',
-        'nama_rs',
     ];
 
     public function alat()

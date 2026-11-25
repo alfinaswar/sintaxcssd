@@ -71,10 +71,7 @@ class MasterMerkKsoSeeder extends Seeder
         ];
 
         foreach ($merks as $nama) {
-            MasterMerkKso::firstOrCreate(
-                ['nama' => $nama],
-                ['nama_rs' => null]
-            );
+            MasterMerkKso::firstOrCreate(['nama' => $nama]);
         }
     }
 }

@@ -11,9 +11,7 @@ class MasterAlatKsoController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = MasterAlatKso::where('nama_rs', auth()->user()->kodeRS)
-                ->orderBy('id', 'desc')
-                ->get();
+            $data = MasterAlatKso::orderBy('id', 'desc')->get();
 
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -45,7 +43,6 @@ class MasterAlatKsoController extends Controller
 
         MasterAlatKso::create([
             'nama' => $request->nama,
-            'nama_rs' => auth()->user()->kodeRS,
         ]);
 
         return redirect()->route('master-alat-kso.index')->with('success', 'Data berhasil ditambahkan');
